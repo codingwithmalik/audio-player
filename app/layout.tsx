@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import ReduxProvider from "../providers/reduxprovider";
 import { Poppins } from "next/font/google";
 import Header from "../components/header";
+// import Player from "../components/audioplayerclaude"
+import Rightsidebar from "@/components/rightsidebar";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -29,6 +31,8 @@ export default function RootLayout({
         <ReduxProvider>
           <Header />
           {children}
+          {/* <Player /> */}
+          <Rightsidebar />
         </ReduxProvider>
       </body>
     </html>

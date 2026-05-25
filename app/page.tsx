@@ -15,8 +15,8 @@ export default function Home() {
         </div>
         <div className="bg-blue-600  absolute top-[6%] right-0 w-[18%] h-[86vh] rounded-sm m-[1%] ">
           Right Sidebar
-        </div>
-        <div className="bg-orange-600 absolute bottom-0 left-0 right-0 h-[8vh] rounded-sm ">
+        </div> */}
+        {/* <div className="bg-orange-600 absolute bottom-0 left-0 right-0 h-[8vh] rounded-sm ">
           Footer
         </div> */}
       </div>

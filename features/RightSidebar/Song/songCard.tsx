@@ -3,8 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import gsap from "gsap";
-import { Heart, Calendar, Clock, Music, Link2, Check } from "lucide-react";
-import { useAppSelector } from "@/globalHooks";
+import { Heart, Calendar, Clock, Music, Link2, Check , Music2 } from "lucide-react";
 
 
 // ─────────────────────────────────────────────────────────────────
@@ -56,8 +55,6 @@ export default function SongCard({ song, onSaveToggle }: SongCardProps) {
   const [copied, setCopied] = useState(false);
   const [imgError, setImgError] = useState(false);
   // console.log(imgError);
-const isPC = useAppSelector((state) => state.device.isPC);
-  console.log(isPC)
 
   // ── Refs (for GSAP targets) ────────────────────────────────────
   const cardRef = useRef<HTMLDivElement>(null);
@@ -166,7 +163,7 @@ const isPC = useAppSelector((state) => state.device.isPC);
               [background:linear-gradient(135deg,rgba(168,85,247,0.35),rgba(34,211,238,0.25))]
             "
             >
-              🎵
+              <Music2 className="w-[2em] h-[2em]"/>
             </div>
           ) : (
             <Image

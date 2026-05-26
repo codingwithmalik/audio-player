@@ -263,7 +263,7 @@ export default function Header() {
                 {profileMenu && (
                   <div
                     ref={profileMenuRef}
-                    className="absolute right-[-12] top-14 z-50 sm:w-65 overflow-hidden sm:rounded-3xl border border-white/10 bg-white/10 shadow-2xl backdrop-blur-3xl w-screen rounded-b-2xl"
+                    className="absolute right-[-12] top-14 z-50 sm:w-65 overflow-hidden sm:rounded-3xl border border-white/10 bg-black/50 shadow-2xl backdrop-blur-3xl w-screen rounded-b-2xl"
                   >
                     <div className="flex flex-col gap-2 p-3">
                       {/* USER INFO */}

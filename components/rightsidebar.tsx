@@ -1,8 +1,11 @@
 "use client";
 import React from "react";
 import SongCard from "../features/RightSidebar/Song/songCard";
+import { useDevice } from "@/contexts/devicecontext";
 
 const Rightsidebar = () => {
+  const { isPC, isMobile } = useDevice();
+
   const song = {
     title: "Blinding Lights",
     artists: ["The Weeknd"],
@@ -11,12 +14,20 @@ const Rightsidebar = () => {
     dateAdded: "2025-05-14",
     duration: 200,
     songUrl: "https://example.com/blinding-lights",
-    isSaved: false,
+    isSaved: true,
   };
 
   return (
-    <div className="top-[10vh] right-1 absolute w-[20vw] bg-amber-300  border-b border-white/10 bg-white/5 backdrop-blur-2xl md:rounded-b-2xl">
-      <SongCard song={song} onSaveToggle={(s) => console.log(s)} />
+    <div>
+      <div
+        className={
+          isPC
+            ? "flex items-center justify-center top-[10vh] right-0 m-1 p-2 absolute min-h-[75vh] min-w-[20vw] bg-white/5  border-b border-white/10  backdrop-blur-2xl rounded-2xl "
+            : "hidden"
+        }
+      >
+        <SongCard song={song} onSaveToggle={(s) => console.log(s)} />
+      </div>
     </div>
   );
 };

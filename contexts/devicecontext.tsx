@@ -9,16 +9,17 @@ import {
 } from "react";
 
 const DeviceContext = createContext({
-  isMobile: false,
-  isPC: true,
+  isMobile: true,
+  isPC: false,
 });
 
-export const DeviceProvider = ({ children }: { children: ReactNode }) => {
-  const [isMobile, setIsMobile] = useState(false);
-
+export const DeviceProvider = ({ children }: { 
+  children: ReactNode }) => {
+  const [isMobile, setIsMobile] = useState(true);
+  
   useEffect(() => {
     const checkDevice = () => {
-      setIsMobile(window.innerWidth <= 768);
+      setIsMobile(window.innerWidth < 768);
     };  
 
     checkDevice();

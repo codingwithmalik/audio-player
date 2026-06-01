@@ -2,15 +2,15 @@
 import React from "react";
 import SongCard from "../features/RightSidebar/Song/songCard";
 import { useDevice } from "@/contexts/devicecontext";
+import "../styles/backgrounds.css"
 
 const Rightsidebar = () => {
-  const { isPC, isMobile } = useDevice();
-
+  const { isPC } = useDevice();
   const song = {
     title: "Blinding Lights",
     artists: ["The Weeknd"],
     coverImage:
-      "https://i.scdn.co/image/ab67616d0000b2730c8a1e5f1b2c3d4e5f6g7h8",
+      "/logo.png",
     dateAdded: "2025-05-14",
     duration: 200,
     songUrl: "https://example.com/blinding-lights",
@@ -22,11 +22,11 @@ const Rightsidebar = () => {
       <div
         className={
           isPC
-            ? "flex items-center justify-center top-[10vh] right-0 m-1 p-2 absolute min-h-[75vh] min-w-[20vw] bg-white/5  border-b border-white/10  backdrop-blur-2xl rounded-2xl "
+            ? "flex items-center justify-center w-full h-full overflow-hidden glass"
             : "hidden"
         }
       >
-        <SongCard song={song} onSaveToggle={(s) => console.log(s)} />
+        <SongCard song={song} onSaveToggle={(s) => console.log(s)} /> 
       </div>
     </div>
   );

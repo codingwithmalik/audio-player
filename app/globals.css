@@ -1,9 +1,42 @@
 @import "tailwindcss";
 
-body{
-  font-family:  var(--font-poppins) , Helvetica, Arial, sans-serif;
+body {
+  font-family: var(--font-poppins), Helvetica, Arial, sans-serif;
 }
 
 header {
-font-family: var(--font-poppins), Helvetica, Arial, sans-serif;
+  font-family: var(--font-poppins), Helvetica, Arial, sans-serif;
+}
+
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255 255 255 / 0.3) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    @apply rounded-full;
+    background: rgba(255 255 255 / 0.3);
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: rgba(255 255 255 / 0.5);
+  }
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+  ::-webkit-scrollbar-button:start:decrement,
+  ::-webkit-scrollbar-button:end:increment {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 }

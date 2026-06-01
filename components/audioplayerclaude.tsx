@@ -265,7 +265,7 @@ export default function Player({
       {/* Subtle top glow line */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-      <div className="mx-auto flex h-[72px] max-w-[1600px] items-center justify-between gap-2 px-3 sm:px-5">
+      <div className="mx-auto flex h-[90px] max-w-[1600px] items-center justify-between gap-2 px-3 sm:px-5">
         {/* ══════════════════════════════════════
             LEFT — Song Info
         ══════════════════════════════════════ */}

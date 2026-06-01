@@ -5,7 +5,6 @@ import Image from "next/image";
 import gsap from "gsap";
 import { Heart, Calendar, Clock, Music, Link2, Check , Music2 } from "lucide-react";
 
-
 // ─────────────────────────────────────────────────────────────────
 // TYPE
 // ─────────────────────────────────────────────────────────────────
@@ -64,36 +63,36 @@ export default function SongCard({ song, onSaveToggle }: SongCardProps) {
   const copyRef = useRef<HTMLButtonElement>(null);
 
   // ── Entrance animation (runs once on mount) ────────────────────
-  // useEffect(() => {
-  //   const ctx = gsap.context(() => {
-  //     // card fades + slides up
-  //     gsap.fromTo(
-  //       cardRef.current,
-  //       { opacity: 0, w:0, scale: 0.96  },
-  //       { opacity: 1, w:100 , scale: 1, duration: 0.55, ease: "power3.out" },
-  //     );
-  //     // cover art scales in slightly after
-  //     gsap.fromTo(
-  //       artRef.current,
-  //       { opacity: 0, scale: 0.92 },
-  //       {
-  //         opacity: 1,
-  //         scale: 1,
-  //         duration: 0.5,
-  //         ease: "power2.out",
-  //         delay: 0.15,
-  //       },
-  //     );
-  //     // info section fades in last
-  //     gsap.fromTo(
-  //       infoRef.current,
-  //       { opacity: 0, w:0 },
-  //       { opacity: 1, w: 100, duration: 0.45, ease: "power2.out", delay: 0.3 },
-  //     );
-  //   }, cardRef);
-  //
-  //   return () => ctx.revert();
-  // }, []);
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // card fades + slides up
+      gsap.fromTo(
+        cardRef.current,
+        { opacity: 0, y:28, scale: 0.96  },
+        { opacity: 1, y:0 , scale: 1, duration: 0.55, ease: "power3.out" },
+      );
+      // cover art scales in slightly after
+      gsap.fromTo(
+        artRef.current,
+        { opacity: 0, scale: 0.92 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.5,
+          ease: "power2.out",
+          delay: 0.15,
+        },
+      );
+      // info section fades in last
+      gsap.fromTo(
+        infoRef.current,
+        { opacity: 0, y:10 },
+        { opacity: 1, y: 0, duration: 0.45, ease: "power2.out", delay: 0.3 },
+      );
+    }, cardRef);
+  
+    return () => ctx.revert();
+  }, []);
 
   // ── Save / heart handler ───────────────────────────────────────
   function handleSave() {

@@ -1,16 +1,12 @@
 "use client";
-import React from "react";
 import SongCard from "../features/RightSidebar/Song/songCard";
-import { useDevice } from "@/contexts/devicecontext";
-import "../styles/backgrounds.css"
+import "../styles/backgrounds.css";
 
 const Rightsidebar = () => {
-  const { isPC } = useDevice();
   const song = {
     title: "Blinding Lights",
-    artists: ["The Weeknd"],
-    coverImage:
-      "/logo.png",
+    artists: ["The Weeknd","Dua Lipa"],
+    coverImage: "/logo.png",
     dateAdded: "2025-05-14",
     duration: 200,
     songUrl: "https://example.com/blinding-lights",
@@ -18,17 +14,13 @@ const Rightsidebar = () => {
   };
 
   return (
-    <div>
       <div
         className={
-          isPC
-            ? "flex items-center justify-center w-full h-full overflow-hidden glass"
-            : "hidden"
+          "min-h-full md:flex items-center justify-between min-w-0 overflow-y-auto glass hidden"
         }
       >
-        <SongCard song={song} onSaveToggle={(s) => console.log(s)} /> 
+        <SongCard song={song} onSaveToggle={(s) => console.log(s)} />
       </div>
-    </div>
   );
 };
 

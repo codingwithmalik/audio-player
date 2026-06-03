@@ -256,7 +256,7 @@ export default function Player({
     <div
       ref={containerRef}
       className="
-        fixed bottom-0 left-0 right-0 z-50
+        z-50
         border-t border-white/[0.07]
         bg-black/50 backdrop-blur-3xl
       "

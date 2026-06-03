@@ -1,12 +1,20 @@
 "use client";
 // import Header from "../components/header";
 import "../styles/backgrounds.css";
+import { useRef } from "react";
 
 export default function Home() {
+  const buttonref = useRef<HTMLButtonElement>(null);
+
+  const handleClick = () => {
+    if (buttonref.current) {
+      buttonref.current.style.backgroundColor = "red";
+    }
+  };
 
   return (
-    <div className="flex items-center justify-center glass h-full w-full">
-      {/* <div className="p-2 w-full h-full overflow-y-scroll">
+    <div className="flex items-center justify-center glass h-full w-auto overflow-hidden">
+      <div className="p-2 w-full h-full overflow-y-auto">
         Main Content Lorem ipsum dolor sit amet, consectetur adipisicing elit.
         Autem voluptates beatae distinctio nam quae, asperiores itaque
         reiciendis sint quidem omnis earum modi nulla voluptate odio accusantium
@@ -128,7 +136,7 @@ export default function Home() {
         >
           click me
         </button>
-      </div> */}
+      </div>
     </div>
   );
 }

@@ -6,8 +6,10 @@ import Header from "../components/header";
 import Player from "../components/audioplayerclaude";
 import Rightsidebar from "@/components/rightsidebar";
 import LeftSidebar from "@/components/leftsidebar";
+import BottomNav from "@/components/mobileNavbar";
 import { DeviceProvider } from "@/contexts/devicecontext";
 import "./globals.css";
+
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
@@ -17,33 +19,34 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Audious",
   description: "Play your music without limits",
-  icons: {
-    icon: "/logo.png",
-  },
+  icons: { icon: "/logo.png" },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${poppins.variable} h-full antialiased`}>
-      <body className="text-white bg-linear-to-br from-slate-950 via-fuchsia-950 to-cyan-950 h-full">
+    <html lang="en" className={`${poppins.variable}  antialiased`}>
+      <body className="h-screen min-h-screen overflow-hidden text-white bg-linear-to-br from-slate-950 via-fuchsia-950 to-cyan-950 w-screen">
         <ReduxProvider>
           <DeviceProvider>
-            <div className="grid  min-h-full grid-rows-[auto_1fr_auto] overflow-hidden">
+            <div className="hidden md:grid h-screen grid-rows-[auto_1fr_auto] max-w-screen">
               <Header />
-              {/* <div className="grid grid-cols-1 md:grid-cols-[20vw_1fr_20vw] gap-2"> */}
-              <div className="hidden md:grid grid-cols-1 gap-2 md:grid-cols-[80px_1fr_320px] lg:grid-cols-[280px_1fr_320px] m-1 my:4">
+              <div className="grid gap-2 m-1 my-4 overflow-hidden grid-cols-[80px_6fr_3fr] lg:grid-cols-[320px_3fr_320px] layout-grid">
                 <LeftSidebar />
-                <div className="overflow-hidden">{children}</div>
+                <div className="overflow-hidden min-w-0">{children}</div>
                 <Rightsidebar />
               </div>
-              <div className="flex items-center justify-center h-full w-full md:hidden m-auto">
-                {children}
-              </div>
               <Player />
+            </div>
+            <div className="flex md:hidden flex-col h-screen">
+              <main className="flex-1 overflow-y-auto pb-34">
+                {children}
+              </main>
+              <div className="fixed bottom-16 left-0 right-0 z-40">
+                <Player />
+              </div>
+              <BottomNav />
             </div>
           </DeviceProvider>
         </ReduxProvider>

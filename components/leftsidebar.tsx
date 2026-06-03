@@ -1,22 +1,33 @@
 "use client";
 import React from "react";
-import { useDevice } from "../contexts/devicecontext";
-import "../styles/backgrounds.css"
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import "../styles/backgrounds.css";
+import Library from "@/features/LeftSidebar/Library/library";
 const LeftSidebar = () => {
-  const { isPC } = useDevice();
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    gsap.fromTo(
+      sidebarRef.current,
+      {
+        x: -40,
+        opacity: 0,
+      },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 0.8,
+        ease: "power3.out",
+      },
+    );
+  }, []);
   return (
-    <div>
       <div
-        className={
-          isPC
-            ? "flex items-center justify-center max-w-full h-full overflow-hidden glass"
-            : "hidden"
-        }
+        className="md:flex w-full min-h-full  overflow-hidden glass hidden"
+        ref={sidebarRef}
       >
-        {/* hey its you , yes its me no its not you its me if this is not you then
-        who are you ? */}
+        <Library />
       </div>
-    </div>
   );
 };
 

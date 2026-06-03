@@ -29,7 +29,7 @@ export default function BottomNav() {
       fixed bottom-0 left-0 right-0 z-50
       h-16 px-2
       bg-black/40 backdrop-blur-2xl
-      border-t border-white/[0.08]
+      border-t border-white/8
       shadow-[0_-4px_24px_rgba(0,0,0,0.4)]
     "
     >

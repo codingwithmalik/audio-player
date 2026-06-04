@@ -3,11 +3,10 @@ import type { Metadata } from "next";
 import ReduxProvider from "../providers/reduxprovider";
 import { Poppins } from "next/font/google";
 import Header from "../components/header";
-import Player from "../components/audioplayerclaude";
+import Player from "../components/player";
 import Rightsidebar from "@/components/rightsidebar";
 import LeftSidebar from "@/components/leftsidebar";
 import BottomNav from "@/components/mobileNavbar";
-import { DeviceProvider } from "@/contexts/devicecontext";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -29,7 +28,6 @@ export default function RootLayout({
     <html lang="en" className={`${poppins.variable}  antialiased`}>
       <body className="h-screen min-h-screen overflow-hidden text-white bg-linear-to-br from-slate-950 via-fuchsia-950 to-cyan-950 w-screen">
         <ReduxProvider>
-          <DeviceProvider>
             <div className="hidden md:grid h-screen grid-rows-[auto_1fr_auto] max-w-screen">
               <Header />
               <div className="grid gap-2 m-1 my-4 overflow-hidden grid-cols-[80px_6fr_3fr] lg:grid-cols-[320px_3fr_320px] layout-grid">
@@ -48,7 +46,6 @@ export default function RootLayout({
               </div>
               <BottomNav />
             </div>
-          </DeviceProvider>
         </ReduxProvider>
       </body>
     </html>

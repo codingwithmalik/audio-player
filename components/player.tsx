@@ -95,14 +95,14 @@ export default function Player({
 
   // ── Mount animation ───────────────────────────────────────────────────────
   // Slides the player up from the bottom on first render using GSAP
-  // useEffect(() => {
-  //   if (!containerRef.current) return;
-  //   gsap.fromTo(
-  //     containerRef.current,
-  //     { y: 80, opacity: 0 },
-  //     { y: 0, opacity: 1, duration: 0.55, ease: "power4.out", delay: 0.1 },
-  //   );
-  // }, []);
+  useEffect(() => {
+    if (!containerRef.current) return;
+    gsap.fromTo(
+      containerRef.current,
+      { y: 80, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.55, ease: "power4.out", delay: 0.1 },
+    );
+  }, []);
 
   // ── Playback ticker ───────────────────────────────────────────────────────
   // Increments currentTime every second while playing; stops at song end
@@ -129,18 +129,18 @@ export default function Player({
   // Plays a quick squeeze animation on the button then toggles isPlaying
   const handlePlayPause = () => {
     if (!playBtnRef.current) return;
-    // gsap
-    //   .timeline()
-    //   .to(playBtnRef.current, {
-    //     scale: 0.86,
-    //     duration: 0.08,
-    //     ease: "power2.in",
-    //   })
-    //   .to(playBtnRef.current, {
-    //     scale: 1,
-    //     duration: 0.25,
-    //     ease: "elastic.out(1.4,0.5)",
-    //   });
+    gsap
+      .timeline()
+      .to(playBtnRef.current, {
+        scale: 0.86,
+        duration: 0.08,
+        ease: "power2.in",
+      })
+      .to(playBtnRef.current, {
+        scale: 1,
+        duration: 0.25,
+        ease: "elastic.out(1.4,0.5)",
+      });
     setIsPlaying((p) => !p);
   };
 
@@ -228,27 +228,27 @@ export default function Player({
     onSaveToggle?.(currentSong.id, next);
 
     if (!saveIconRef.current) return;
-    // if (next) {
-    //   gsap
-    //     .timeline()
-    //     .to(saveIconRef.current, {
-    //       scale: 1.35,
-    //       duration: 0.15,
-    //       ease: "power2.out",
-    //     })
-    //     .to(saveIconRef.current, {
-    //       scale: 1,
-    //       duration: 0.3,
-    //       ease: "elastic.out(1.5,0.5)",
-    //     });
-    // } else {
-    //   gsap.to(saveIconRef.current, {
-    //     scale: 0.85,
-    //     duration: 0.12,
-    //     yoyo: true,
-    //     repeat: 1,
-    //   });
-    // }
+    if (next) {
+      gsap
+        .timeline()
+        .to(saveIconRef.current, {
+          scale: 1.35,
+          duration: 0.15,
+          ease: "power2.out",
+        })
+        .to(saveIconRef.current, {
+          scale: 1,
+          duration: 0.3,
+          ease: "elastic.out(1.5,0.5)",
+        });
+    } else {
+      gsap.to(saveIconRef.current, {
+        scale: 0.85,
+        duration: 0.12,
+        yoyo: true,
+        repeat: 1,
+      });
+    }
   };
 
   // ── Repeat cycle ─────────────────────────────────────────────────────────
@@ -297,7 +297,7 @@ export default function Player({
           MOBILE LAYOUT  — visible only below md (768px)
           Three stacked rows: song info / playback controls / timeline
       ══════════════════════════════════════════════════════════════════ */}
-      <div className="flex flex-col gap-2 px-3 py-2.5 md:hidden relative z-[99999]">
+      <div className="flex flex-col gap-2 px-3 py-2.5 md:hidden">
         {/* ── Row 1: Cover art  +  Song info  +  Save button ── */}
         <div className="flex items-center justify-around gap-2.5">
           {/* Cover art thumbnail */}
@@ -367,7 +367,6 @@ export default function Player({
               flex h-10 w-10 items-center justify-center rounded-full
               bg-white text-black shadow-[0_0_16px_rgba(255,255,255,0.2)]
               transition hover:bg-neutral-100 active:scale-95
-              relative z-[99999]
             "
             >
               {isPlaying ? (

@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authslice from "../slices/authslice";
+import authslice from "../store/authslice";
 import librarySlice from "@/features/LeftSidebar/Library/libraryslice";
+import playerSlice from "@/store/playerSlice";
 // ...
 
 export const store = configureStore({
   reducer: {
     auth: authslice,
+    player:playerSlice,
     library: librarySlice,
   },
 });

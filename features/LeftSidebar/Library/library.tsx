@@ -3,7 +3,6 @@
 import LibraryHeader from "./libraryHeader";
 import LibrarySearch from "./librarySearchbar";
 import LibraryList from "./libraryList";
-
 export default function Sidebar() {
   return (
     <aside
@@ -11,10 +10,10 @@ export default function Sidebar() {
       border-r
       border-white/10
       p-4
-      overflow-y-auto
-    overflow-x-hidden
+      overflow-hidden
       w-full
-    "
+      overflow-y-auto
+      "
     >
       <div className="relative top-0 left-0">
         <LibraryHeader />
@@ -24,5 +23,6 @@ export default function Sidebar() {
       </div>
       <LibraryList />
     </aside>
+
   );
 }

@@ -4,6 +4,9 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import "../styles/backgrounds.css";
 import Library from "@/features/LeftSidebar/Library/library";
+import "overlayscrollbars/overlayscrollbars.css";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+
 const LeftSidebar = () => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -22,12 +25,18 @@ const LeftSidebar = () => {
     );
   }, []);
   return (
-      <div
-        className="md:flex w-full min-h-full  overflow-hidden glass hidden"
-        ref={sidebarRef}
+    <div
+      className="md:flex w-full min-h-full  overflow-hidden glass hidden rounded-lg "
+      ref={sidebarRef}
+    >
+      <OverlayScrollbarsComponent
+        defer
+        options={{ scrollbars: { theme: "os-theme-light", autoHide: "leave" , autoHideDelay:0} }}
+        className="h-full w-full "
       >
         <Library />
-      </div>
+      </OverlayScrollbarsComponent>
+    </div>
   );
 };
 

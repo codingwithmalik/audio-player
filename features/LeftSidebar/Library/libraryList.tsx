@@ -42,9 +42,8 @@ export default function LibraryList() {
       a.title.localeCompare(b.title)
     );
   }
-
   return (
-    <div className="flex flex-col gap-1 mt-5">
+    <div className="flex flex-col gap-1 mt-5 spotify-scrollbar">
       {filtered.map((item) => (
         <LibraryItem
           key={item.id}

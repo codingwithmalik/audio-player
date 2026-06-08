@@ -8,38 +8,14 @@ header {
   font-family: var(--font-poppins), Helvetica, Arial, sans-serif;
 }
 
-@layer base {
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent; /* hidden by default */
-    transition: scrollbar-color 0.3s ease;
-  }
+.os-scrollbar-handle {
+  background: rgba(255,255,255,0.5) !important;
+  border-radius: 8px !important;
+}
 
-  *:hover {
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-  }
-
-  *::-webkit-scrollbar {
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-  *::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  *::-webkit-scrollbar-thumb {
-    background: transparent; /* hidden by default */
-    transition: background 0.3s ease;
-  }
-  *:hover::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-  }
-  *:hover::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
-  }
-  *::-webkit-scrollbar-corner {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-button {
-    display: none;
-  }
+.os-scrollbar-handle:hover {
+  background: rgba(255,255,255,0.7) !important;
+}
+.os-scrollbar {
+  --os-size: 12px;
 }

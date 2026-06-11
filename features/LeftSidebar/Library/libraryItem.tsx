@@ -31,7 +31,7 @@ export default function LibraryItem({ item }: Props) {
           />
       )}
       </div>
-      <div className="hidden md:hidden lg:block">
+      <div className="md:hidden lg:block">
         <h3 className="text-white font-medium">{item.title}</h3>
 
         <p className="text-sm text-zinc-400">

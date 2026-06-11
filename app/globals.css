@@ -22,3 +22,9 @@ header {
 .os-viewport {
   scroll-behavior: smooth;
 }
+@media (max-width: 1023px) {
+  .os-scrollbar-vertical {
+    display: none !important;
+  }
+}
+

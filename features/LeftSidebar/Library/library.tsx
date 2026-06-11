@@ -10,7 +10,11 @@ import { useOverlayScrollbars } from "overlayscrollbars-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function Sidebar() {
+type Props = {
+  scrollable?: boolean;
+};
+
+export default function Library({ scrollable = false }: Props) {
   const asideRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
@@ -25,39 +29,44 @@ export default function Sidebar() {
     defer: false,
   });
 
-  // Init OS on the aside directly
+  // Init OS only when used as sidebar panel
   useEffect(() => {
-    if (asideRef.current) initOS(asideRef.current);
-  }, [initOS]);
+    if (!scrollable && asideRef.current) initOS(asideRef.current);
+  }, [initOS, scrollable]);
 
-  // Once OS is ready, grab its viewport and hand it to ScrollTrigger
+  // Scroll shadow effect
   useEffect(() => {
-    const viewport = osInstance()?.elements().viewport;
-    if (!viewport || !headerRef.current) return;
+    // Get the actual scrolling element — OS viewport or the aside itself
+    const scroller = scrollable
+      ? asideRef.current
+      : osInstance()?.elements().viewport;
 
-    gsap.to(headerRef.current, {
-      background:"#100823",
-      boxShadow: "0 10px 30px rgba(0,0,0,0.8)",
-      delay:0,
-      ease: "none",
-      scrollTrigger: {
-        trigger: viewport,
-        scroller: viewport, // ← OS internal viewport, not the aside
-        start: "top top",
-        end: "+=80",
-        scrub: 0,
-      },
+    if (!scroller || !headerRef.current) return;
+
+    ScrollTrigger.create({
+      trigger: scroller,
+      scroller: scroller,
+      start: "top+=10 top",
+      // gsap.set applies instantly with no tween — no camera flash effect
+      onEnter: () =>
+        gsap.set(headerRef.current, {
+          background: "#100823",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.8)",
+        }),
+      onLeaveBack: () =>
+        gsap.set(headerRef.current, {
+          background: "transparent",
+          boxShadow: "none",
+        }),
     });
-  }, [osInstance]);
+
+    return () => ScrollTrigger.getAll().forEach((t) => t.kill());
+  }, [scrollable, osInstance]);
 
   return (
     <aside
       ref={asideRef}
-      className="min-h-full  
-      h-full
-      w-full
-      bg-white/5
-      "
+      className={`min-h-full h-full w-full bg-white/5 ${scrollable ? "overflow-y-auto scrollbar-none" : ""}`}
     >
       <div
         ref={headerRef}
@@ -70,7 +79,6 @@ export default function Sidebar() {
         <LibrarySearch />
         <LibraryList />
       </div>
-      {}
     </aside>
   );
 }

@@ -1,11 +1,10 @@
 import React from "react";
-import Sidebar from "@/features/LeftSidebar/Library/library";
+import Library from "@/features/LeftSidebar/Library/library";
 
 const LibraryPage = () => {
   return (
-    <div>
-      LibraryPage
-      <Sidebar />
+    <div className="flex items-center justify-center glass h-full w-auto overflow-hidden md:rounded-lg" >
+      <Library scrollable />
     </div>
   );
 };

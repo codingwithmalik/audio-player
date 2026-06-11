@@ -44,7 +44,7 @@ export default function LibrarySearch() {
     SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "Recents";
 
   return (
-    <div className="hidden lg:flex items-center justify-between gap-2">
+    <div className="flex md:hidden lg:flex items-center justify-between gap-2">
       {/* Search — icon toggles input */}
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <button

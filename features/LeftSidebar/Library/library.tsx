@@ -70,7 +70,7 @@ export default function Library({ scrollable = false }: Props) {
     >
       <div
         ref={headerRef}
-        className="sticky top-0 left-0 p-4 pb-2 w-full z-50 will-change-transform rounded-t-md"
+        className="sticky top-0 left-0 p-4 pb-2 w-full z-50 will-change-transform md:rounded-t-md"
       >
         <LibraryHeader />
         <LibraryFilters />

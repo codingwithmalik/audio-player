@@ -50,6 +50,9 @@ const librarySlice = createSlice({
     addPlaylist: (state, action: PayloadAction<LibraryItem>) => {
       state.items.push(action.payload);
     },
+    addFolder: (state, action: PayloadAction<LibraryItem>) => {
+      state.items.push(action.payload);
+    },
   },
 });
 

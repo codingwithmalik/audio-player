@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction,createSelector } from "@reduxjs/toolkit";
 
 import { LibraryItem, SortType, FilterType } from "./libraryTypes";
 
@@ -58,39 +58,43 @@ export const { setSearch, setSort, addPlaylist, toggleFilter, clearFilters } =
 
 export default librarySlice.reducer;
 
-export const selectFilteredItems = (state: { library: LibraryState }) => {
-  const { items, search, sort, filters } = state.library;
+export const selectFilteredItems = createSelector(
+  [
+    (state: { library: LibraryState }) => state.library.items,
+    (state: { library: LibraryState }) => state.library.search,
+    (state: { library: LibraryState }) => state.library.sort,
+    (state: { library: LibraryState }) => state.library.filters,
+  ],
+  (items, search, sort, filters) => {
+    let result = items.filter((item) => {
+      if (filters.length === 0) return true;
 
-  // 1. Filter by active pills
-  let result = items.filter((item) => {
-    // No active filters → show everything
-    if (filters.length === 0) return true;
+      if (filters.includes("playlists") && item.type !== "playlist") {
+        return false;
+      }
 
-    // "playlists" pill → only playlists
-    if (filters.includes("playlists") && item.type !== "playlist") return false;
+      if (filters.includes("folders") && item.type !== "folder") {
+        return false;
+      }
 
-    // "folders" pill → only folders
-    if (filters.includes("folders") && item.type !== "folder") return false;
+      return true;
+    });
 
-    return true;
-  });
-
-  // 2. Filter by search query
-  if (search.trim()) {
-    result = result.filter((item) =>
-      item.title.toLowerCase().includes(search.toLowerCase()),
-    );
-  }
-
-  // 3. Sort
-  result = [...result].sort((a, b) => {
-    if (sort === "alphabetical") {
-      return a.title.localeCompare(b.title);
+    if (search.trim()) {
+      const searchLower = search.toLowerCase()
+      result = result.filter((item) =>
+        item.title.toLowerCase().includes(searchLower),
+      );
     }
-    // recents / recently-added — preserve original insertion order
-    return 0;
-  });
 
-  return result;
-};
+    result = [...result].sort((a, b) => {
+      if (sort === "alphabetical") {
+        return a.title.localeCompare(b.title);
+      }
 
+      return 0;
+    });
+
+    return result;
+  },
+);

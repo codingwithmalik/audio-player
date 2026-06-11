@@ -19,3 +19,6 @@ header {
 .os-scrollbar {
   --os-size: 12px;
 }
+.os-viewport {
+  scroll-behavior: smooth;
+}

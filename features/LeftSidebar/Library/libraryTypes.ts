@@ -4,7 +4,7 @@ export interface Playlist {
   id: string;
   type: "playlist";
   title: string;
-  coverImage: string;
+  coverImage?: string;
   songsCount: number;
 }
 
@@ -12,13 +12,12 @@ export interface Folder {
   id: string;
   type: "folder";
   title: string;
-  icon: string;
+  icon?: string;
   playlistsCount: number;
 }
 
 export type LibraryItem = Playlist | Folder;
 
-export type SortType =
-  | "folders"
-  | "playlists"
-  | "mixed";
+export type SortType = "recents" | "recently-added" | "alphabetical";
+
+export type FilterType = "playlists" | "folders" ;

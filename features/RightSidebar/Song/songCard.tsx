@@ -143,7 +143,7 @@ export default function SongCard({ song, onSaveToggle }: SongCardProps) {
         className="w-full rounded-lg h-full
         bg-white/6
         shadow-[0_8px_32px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.09)]
-        overflow-y-auto
+        overflow-y-auto scrollbar-none
         "
       >
         {/* ── Purple glow orb (decorative, sits behind everything) ── */}

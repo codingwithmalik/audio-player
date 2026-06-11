@@ -5,7 +5,7 @@ export const libraryData: LibraryItem[] = [
     id: "1",
     type: "folder",
     title: "Workout",
-    icon: "/folder.png",
+    // icon: "/folder.png",
     playlistsCount: 8,
   },
 
@@ -13,7 +13,7 @@ export const libraryData: LibraryItem[] = [
     id: "2",
     type: "playlist",
     title: "GYM",
-    coverImage: "/gym.jpg",
+    // coverImage: "/gym.jpg",
     songsCount: 45,
   },
 
@@ -21,7 +21,7 @@ export const libraryData: LibraryItem[] = [
     id: "3",
     type: "playlist",
     title: "Jazz",
-    coverImage: "/jazz.jpg",
+    // coverImage: "/jazz.jpg",
     songsCount: 80,
   },
 
@@ -29,30 +29,30 @@ export const libraryData: LibraryItem[] = [
     id: "4",
     type: "folder",
     title: "Coding",
-    icon: "/folder.png",
+    // icon: "/folder.png",
     playlistsCount: 5,
   },
   {
     id: "5",
     type: "folder",
-    title: "Workout",
-    icon: "/folder.png",
+    title: "Yoga",
+    // icon: "/folder.png",
     playlistsCount: 8,
   },
 
   {
     id: "6",
     type: "playlist",
-    title: "GYM",
-    coverImage: "/gym.jpg",
+    title: "Massage",
+    // coverImage: "/gym.jpg",
     songsCount: 45,
   },
 
   {
     id: "7",
     type: "playlist",
-    title: "Jazz",
-    coverImage: "/jazz.jpg",
+    title: "Sex",
+    // coverImage: "/jazz.jpg",
     songsCount: 80,
   },
 
@@ -60,7 +60,7 @@ export const libraryData: LibraryItem[] = [
     id: "8",
     type: "folder",
     title: "Coding",
-    icon: "/folder.png",
+    // icon: "/folder.png",
     playlistsCount: 5,
   },
 ];

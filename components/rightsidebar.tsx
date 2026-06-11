@@ -26,7 +26,7 @@ const Rightsidebar = () => {
         options={{ scrollbars: { theme: "os-theme-light", autoHide: "leave" , autoHideDelay:0} }}
         className="h-full w-full "
       >
-        <div className="overflow-y-auto w-full">
+        <div className="overflow-y-auto w-full scrollbar-none ">
           <SongCard song={song} onSaveToggle={(s) => console.log(s)} />
         </div>
       </OverlayScrollbarsComponent>

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Folder, Playlist } from "@/features/LeftSidebar/Library/libraryTypes";
-import { Music, FolderClosed } from "lucide-react";
+import { ListMusic, FolderClosed } from "lucide-react";
 import { useState } from "react";
 type Props = {
   item: Folder | Playlist;
@@ -18,9 +18,9 @@ export default function LibraryItem({ item }: Props) {
       <div className="relative w-14 h-14 shrink-0">
         {hasError || !src ? (
           isFolder ? (
-            <FolderClosed className="w-12 h-12 text-zinc-500" />
+            <FolderClosed className="w-12 h-12" />
           ) : (
-            <Music className="w-12 h-12 text-zinc-500" />
+            <ListMusic className="w-12 h-12" />
           )
         ) : (<Image
             src={src}

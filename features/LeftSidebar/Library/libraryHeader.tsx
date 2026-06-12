@@ -1,5 +1,6 @@
 "use client";
-import { Library, Plus } from "lucide-react";
+import { Library } from "lucide-react";
+import CreateButton from "./libraryHeaderCreateButton";
 
 export default function LibraryHeader() {
   return (
@@ -8,10 +9,7 @@ export default function LibraryHeader() {
         <Library />
         <h2 className="md:hidden lg:block text-lg font-semibold">Your Library</h2>
       </div>
-      <button className="bg-white/10 hover:bg-white/20 transition rounded-full p-2 lg:px-4 flex items-center gap-2">
-        <Plus size={18} />
-        <span className="hidden lg:block">Create</span>
-      </button>
+      <CreateButton/>
     </div>
   );
 }

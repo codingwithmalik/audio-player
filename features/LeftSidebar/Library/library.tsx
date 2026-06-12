@@ -66,7 +66,7 @@ export default function Library({ scrollable = false }: Props) {
   return (
     <aside
       ref={asideRef}
-      className={`min-h-full h-full w-full bg-white/5 ${scrollable ? "overflow-y-auto scrollbar-none" : ""}`}
+      className={`min-h-full h-full w-full overflow-x-hidden scrollbar-none bg-white/5 ${scrollable ? "overflow-y-auto" : ""}`}
     >
       <div
         ref={headerRef}

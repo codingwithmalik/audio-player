@@ -56,7 +56,7 @@ const librarySlice = createSlice({
   },
 });
 
-export const { setSearch, setSort, addPlaylist, toggleFilter, clearFilters } =
+export const { setSearch, setSort, addPlaylist,addFolder, toggleFilter, clearFilters } =
   librarySlice.actions;
 
 export default librarySlice.reducer;

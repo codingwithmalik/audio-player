@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authslice from "../store/authslice";
+import authslice from "@/features/Auth/authSlice";
 import librarySlice from "@/features/LeftSidebar/Library/libraryslice";
 import playerSlice from "@/store/playerSlice";
 // ...

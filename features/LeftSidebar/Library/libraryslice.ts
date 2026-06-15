@@ -1,17 +1,20 @@
-import { createSlice, PayloadAction,createSelector } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, createSelector } from "@reduxjs/toolkit";
 
-import { LibraryItem, SortType, FilterType } from "./libraryTypes";
+import {
+  LibraryItem,
+  LibraryState,
+  SortType,
+  FilterType,
+} from "./libraryTypes";
 
-import { libraryData } from "@/lib/libraryData";
-interface LibraryState {
-  items: LibraryItem[];
-  search: string;
-  sort: SortType;
-  filters: FilterType[];
-}
+// import { libraryData } from "@/lib/libraryData";
+import { playlists, folders } from "@/lib/mockData";
+import { Folder } from "@/types/folder";
+import { Playlist } from "@/types/playlist";
 
 const initialState: LibraryState = {
-  items: libraryData,
+  playlists: playlists,
+  folders: folders,
   search: "",
   sort: "recents",
   filters: [],
@@ -47,44 +50,45 @@ const librarySlice = createSlice({
       state.filters = [];
     },
 
-    addPlaylist: (state, action: PayloadAction<LibraryItem>) => {
-      state.items.push(action.payload);
+    addPlaylist: (state, action: PayloadAction<Playlist>) => {
+      state.playlists.push(action.payload);
     },
-    addFolder: (state, action: PayloadAction<LibraryItem>) => {
-      state.items.push(action.payload);
+    addFolder: (state, action: PayloadAction<Folder>) => {
+      state.folders.push(action.payload);
     },
   },
 });
 
-export const { setSearch, setSort, addPlaylist,addFolder, toggleFilter, clearFilters } =
-  librarySlice.actions;
+export const {
+  setSearch,
+  setSort,
+  addPlaylist,
+  addFolder,
+  toggleFilter,
+  clearFilters,
+} = librarySlice.actions;
 
 export default librarySlice.reducer;
 
 export const selectFilteredItems = createSelector(
   [
-    (state: { library: LibraryState }) => state.library.items,
+    (state: { library: LibraryState }) => state.library.playlists,
+    (state: { library: LibraryState }) => state.library.folders,
     (state: { library: LibraryState }) => state.library.search,
     (state: { library: LibraryState }) => state.library.sort,
     (state: { library: LibraryState }) => state.library.filters,
   ],
-  (items, search, sort, filters) => {
-    let result = items.filter((item) => {
-      if (filters.length === 0) return true;
+  (playlists, folders, search, sort, filters) => {
+    // Determine which types to include based on active filters
+    const showPlaylists = filters.length === 0 || filters.includes("playlists");
+    const showFolders = filters.length === 0 || filters.includes("folders");
 
-      if (filters.includes("playlists") && item.type !== "playlist") {
-        return false;
-      }
-
-      if (filters.includes("folders") && item.type !== "folder") {
-        return false;
-      }
-
-      return true;
-    });
-
+    let result: LibraryItem[] = [
+      ...(showPlaylists ? playlists : []),
+      ...(showFolders ? folders : []),
+    ];
     if (search.trim()) {
-      const searchLower = search.toLowerCase()
+      const searchLower = search.toLowerCase();
       result = result.filter((item) =>
         item.title.toLowerCase().includes(searchLower),
       );
@@ -94,7 +98,11 @@ export const selectFilteredItems = createSelector(
       if (sort === "alphabetical") {
         return a.title.localeCompare(b.title);
       }
-
+      if (sort === "recently-added" || sort === "recents") {
+        // only recents are here for now but we have to create a seperate sort for recents because the recents means the recently played.
+        // Sort descending by createdAt ISO string (lexicographic works for ISO dates)
+        return b.createdAt.localeCompare(a.createdAt);
+      }
       return 0;
     });
 

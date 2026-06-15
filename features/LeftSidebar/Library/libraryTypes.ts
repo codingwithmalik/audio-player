@@ -1,23 +1,18 @@
-export type LibraryType = "playlist" | "folder";
+import { Playlist } from "@/types/playlist";
+import { Folder } from "@/types/folder";
 
-export interface Playlist {
-  id: string;
-  type: "playlist";
-  title: string;
-  coverImage?: string;
-  songsCount: number;
-}
-
-export interface Folder {
-  id: string;
-  type: "folder";
-  title: string;
-  icon?: string;
-  playlistsCount: number;
-}
+// export type LibraryType = "playlist" | "folder";
 
 export type LibraryItem = Playlist | Folder;
 
 export type SortType = "recents" | "recently-added" | "alphabetical";
 
-export type FilterType = "playlists" | "folders" ;
+export type FilterType = "playlists" | "folders";
+
+export interface LibraryState {
+  playlists: Playlist[];
+  folders: Folder[];
+  search: string;
+  sort: SortType;
+  filters: FilterType[];
+}

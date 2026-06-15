@@ -5,7 +5,6 @@ import { Plus, Music2, FolderClosed } from "lucide-react";
 import { gsap } from "gsap";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import { addFolder, addPlaylist, selectFilteredItems } from "./libraryslice";
-import { LibraryItem } from "./libraryTypes";
 // ─── Options config ───────────────────────────────────────────────────────────
 
 const OPTIONS = [
@@ -77,23 +76,39 @@ export default function CreateButton() {
 
   // ── Dispatch ──────────────────────────────────────────────────────────────
   const handleSelect = (type: "playlist" | "folder") => {
+    const now = new Date().toISOString();
     const itemNumber =
       type === "playlist" ? playlistCount + 1 : folderCount + 1;
-    const base = {
-      id: crypto.randomUUID(),
-      title:
-        type === "playlist"
-          ? "New Playlist " + itemNumber
-          : "New Folder " + itemNumber,
-    };
 
-    const item: LibraryItem =
-      type === "playlist"
-        ? { ...base, type: "playlist", coverImage: "", songsCount: 0 }
-        : { ...base, type: "folder", icon: "", playlistsCount: 0 };
+    if (type === "playlist") {
+      dispatch(
+        addPlaylist({
+          id: crypto.randomUUID(),
+          type: "playlist",
+          title: "New Playlist " + itemNumber,
+          description: "",
+          coverImage: "",
+          songIds: [],
+          folderId: null,
+          ownerId: "local",
+          createdAt: now,
+          updatedAt: now,
+        }),
+      );
+    } else {
+      dispatch(
+        addFolder({
+          id: crypto.randomUUID(),
+          type: "folder",
+          title: "New Folder " + itemNumber,
+          playlistIds: [],
+          ownerId: "local",
+          createdAt: now,
+          updatedAt: now,
+        }),
+      );
+    }
 
-    if (type === "playlist") dispatch(addPlaylist(item));
-    else dispatch(addFolder(item));
     console.log("Item added");
     setOpen(false);
   };

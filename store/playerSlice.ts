@@ -11,7 +11,6 @@ export type Song = {
   sourceType?: "playlist" | "folder" | null;
   sourceSlug?: string;
 };
-
 export type RepeatMode = "off" | "all" | "one";
 
 export interface PlayerState {

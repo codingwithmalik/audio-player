@@ -73,7 +73,9 @@ export default function CreateButton() {
   const items = useAppSelector(selectFilteredItems);
   const playlistCount = items.filter((item) => item.type === "playlist").length;
   const folderCount = items.filter((item) => item.type === "folder").length;
+  const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
 
+  // then in handleSelect:
   // ── Dispatch ──────────────────────────────────────────────────────────────
   const handleSelect = (type: "playlist" | "folder") => {
     const now = new Date().toISOString();
@@ -90,7 +92,7 @@ export default function CreateButton() {
           coverImage: "",
           songIds: [],
           folderId: null,
-          ownerId: "local",
+          ownerId: userId,
           createdAt: now,
           updatedAt: now,
         }),
@@ -102,7 +104,7 @@ export default function CreateButton() {
           type: "folder",
           title: "New Folder " + itemNumber,
           playlistIds: [],
-          ownerId: "local",
+          ownerId: userId,
           createdAt: now,
           updatedAt: now,
         }),

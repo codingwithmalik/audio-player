@@ -1,13 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "@/types/user";
 import { AuthState } from "@/types/auth";
-// const user: User = {
-//   id: "user-1",
-//   username: "codingwmalik",
-//   email: "codingwithmalik@gmail.com",
-// //   image: "./icon.jpg",
-//   createdAt: "2026-08-15T10:30:00.000Z",
-// };
+// const user:;
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,

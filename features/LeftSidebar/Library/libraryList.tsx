@@ -8,11 +8,26 @@ import { selectFilteredItems } from "./libraryslice";
 
 export default function LibraryList() {
   const items = useAppSelector(selectFilteredItems);
-
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   // Playlists inside a folder belong to that folder's view, not the root library
   const rootItems = items.filter(
-    (item) => item.type === "folder" || item.folderId === null
+    (item) => item.type === "folder" || item.folderId === null,
   );
+  if (!isAuthenticated) {
+    return (
+      <div className="mt-5 px-2 text-sm text-zinc-500 text-center">
+        Log in to see your library
+      </div>
+    );
+  }
+
+  if (rootItems.length === 0) {
+    return (
+      <div className="mt-5 px-2 text-sm text-zinc-500 text-center">
+        No playlists or folders yet
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-1 mt-5">

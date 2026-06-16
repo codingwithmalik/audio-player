@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction, createSelector } from "@reduxjs/toolkit";
+import { RootState } from "@/store/store";
 
 import {
   LibraryItem,
@@ -70,42 +71,81 @@ export const {
 
 export default librarySlice.reducer;
 
+// export const selectFilteredItems = createSelector(
+//   [
+//     (state: { library: LibraryState }) => state.library.playlists,
+//     (state: { library: LibraryState }) => state.library.folders,
+//     (state: { library: LibraryState }) => state.library.search,
+//     (state: { library: LibraryState }) => state.library.sort,
+//     (state: { library: LibraryState }) => state.library.filters,
+//   ],
+//   (playlists, folders, search, sort, filters) => {
+//     // Determine which types to include based on active filters
+//     const showPlaylists = filters.length === 0 || filters.includes("playlists");
+//     const showFolders = filters.length === 0 || filters.includes("folders");
+
+//     let result: LibraryItem[] = [
+//       ...(showPlaylists ? playlists : []),
+//       ...(showFolders ? folders : []),
+//     ];
+//     if (search.trim()) {
+//       const searchLower = search.toLowerCase();
+//       result = result.filter((item) =>
+//         item.title.toLowerCase().includes(searchLower),
+//       );
+//     }
+
+//     result = [...result].sort((a, b) => {
+//       if (sort === "alphabetical") {
+//         return a.title.localeCompare(b.title);
+//       }
+//       if (sort === "recently-added" || sort === "recents") {
+//         // only recents are here for now but we have to create a seperate sort for recents because the recents means the recently played.
+//         // Sort descending by createdAt ISO string (lexicographic works for ISO dates)
+//         return b.createdAt.localeCompare(a.createdAt);
+//       }
+//       return 0;
+//     });
+
+//     return result;
+//   },
+// );
+
 export const selectFilteredItems = createSelector(
   [
-    (state: { library: LibraryState }) => state.library.playlists,
-    (state: { library: LibraryState }) => state.library.folders,
-    (state: { library: LibraryState }) => state.library.search,
-    (state: { library: LibraryState }) => state.library.sort,
-    (state: { library: LibraryState }) => state.library.filters,
+    (state: RootState) => state.library.playlists,
+    (state: RootState) => state.library.folders,
+    (state: RootState) => state.library.search,
+    (state: RootState) => state.library.sort,
+    (state: RootState) => state.library.filters,
+    (state: RootState) => state.auth.user?.id,
   ],
-  (playlists, folders, search, sort, filters) => {
-    // Determine which types to include based on active filters
+
+  (playlists, folders, search, sort, filters, userId): LibraryItem[] => {
+    if (!userId) return []; // not logged in — nothing to show
+
     const showPlaylists = filters.length === 0 || filters.includes("playlists");
     const showFolders = filters.length === 0 || filters.includes("folders");
 
     let result: LibraryItem[] = [
-      ...(showPlaylists ? playlists : []),
-      ...(showFolders ? folders : []),
+      ...(showPlaylists ? playlists.filter((p) => p.ownerId === userId) : []),
+      ...(showFolders ? folders.filter((f) => f.ownerId === userId) : []),
     ];
+
     if (search.trim()) {
       const searchLower = search.toLowerCase();
       result = result.filter((item) =>
-        item.title.toLowerCase().includes(searchLower),
+        item.title.toLowerCase().includes(searchLower)
       );
     }
 
     result = [...result].sort((a, b) => {
-      if (sort === "alphabetical") {
-        return a.title.localeCompare(b.title);
-      }
-      if (sort === "recently-added" || sort === "recents") {
-        // only recents are here for now but we have to create a seperate sort for recents because the recents means the recently played.
-        // Sort descending by createdAt ISO string (lexicographic works for ISO dates)
+      if (sort === "alphabetical") return a.title.localeCompare(b.title);
+      if (sort === "recently-added" || sort === "recents")
         return b.createdAt.localeCompare(a.createdAt);
-      }
       return 0;
     });
 
     return result;
-  },
+  }
 );

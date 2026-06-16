@@ -16,7 +16,7 @@ import {
   Cloud,
 } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
-import { logout } from "../Auth/authSlice";
+import { logout, setUser } from "../Auth/authSlice";
 
 export default function HeaderAuth() {
   const dispatch = useAppDispatch();
@@ -33,7 +33,7 @@ export default function HeaderAuth() {
     gsap.fromTo(
       profileMenuRef.current,
       { opacity: 0, y: -12, scale: 0.95 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: "power3.out" }
+      { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: "power3.out" },
     );
   }, [profileMenu]);
 
@@ -52,6 +52,16 @@ export default function HeaderAuth() {
     dispatch(logout());
     setProfileMenu(false);
   };
+  const handleLogin = () => {
+    dispatch(
+      setUser({
+        id: "user-1",
+        username: "codingwmalik",
+        email: "codingwithmalik@gmail.com",
+        createdAt: new Date().toISOString(),
+      }),
+    );
+  };
 
   return (
     <div className="hidden md:flex items-center gap-3">
@@ -59,7 +69,8 @@ export default function HeaderAuth() {
       {!isAuthenticated && (
         <>
           <Link
-            href="/login"
+            href="#"
+            onClick={handleLogin}
             className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-white/10 hover:text-white"
           >
             <LogIn className="h-4 w-4" />

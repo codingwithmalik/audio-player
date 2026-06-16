@@ -117,4 +117,18 @@ export const folders: Folder[] = [
     createdAt: "2025-01-10",
     updatedAt: "2025-01-010",
   },
+  {
+    id: "folder-1",
+
+    type: "folder",
+
+    title: "Pakistani Music",
+
+    playlistIds: ["playlist-1"],
+
+    ownerId: "user-2",
+
+    createdAt: "2025-01-10",
+    updatedAt: "2025-01-010",
+  },
 ];

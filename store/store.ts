@@ -2,6 +2,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import authslice from "@/features/Auth/authSlice";
 import librarySlice from "@/features/LeftSidebar/Library/libraryslice";
 import playerSlice from "@/store/playerSlice";
+import playlistSlice from "@/features/Playlist/playlistSlice"
+import songsSlice from "@/features/Songs/songsSlice"
 // ...
 
 export const store = configureStore({
@@ -9,6 +11,8 @@ export const store = configureStore({
     auth: authslice,
     player:playerSlice,
     library: librarySlice,
+    playlists: playlistSlice,
+    songs: songsSlice,
   },
 });
 

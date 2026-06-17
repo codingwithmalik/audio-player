@@ -62,7 +62,7 @@ export default function LibraryItem({ item }: Props) {
         <p className="text-sm text-zinc-400">
           {isFolder
             ? `Folder • ${item.playlistIds.length} playlists`
-            : `Playlist • ${item.songIds.length} songs`}
+            : `Playlist • ${item.songs.length} songs`}
         </p>
       </div>
     </div>

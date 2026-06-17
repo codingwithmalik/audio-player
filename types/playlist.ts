@@ -1,3 +1,7 @@
+export interface PlaylistSong {
+  songId: string;
+  addedAt: string;
+}
 export interface Playlist {
   id: string;
 
@@ -9,7 +13,7 @@ export interface Playlist {
 
   coverImage?: string;
 
-  songIds: string[];
+  songs:PlaylistSong[];
 
   folderId: string | null;
 

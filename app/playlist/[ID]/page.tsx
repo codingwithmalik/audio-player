@@ -1,9 +1,10 @@
 "use client";
 import React from "react";
-import { useParams } from "next/navigation";
+// import { useParams } from "next/navigation";
+import PlaylistPage from "@/features/Playlist/playlistCard";
 const Playlist = () => {
-  const { ID } = useParams<{ ID: string }>();
-  return <div>This is playlist id: {ID} </div>;
+  // const { ID } = useParams<{ ID: string }>();
+  return <PlaylistPage />;
 };
 
 export default Playlist;

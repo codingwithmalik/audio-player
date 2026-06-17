@@ -51,7 +51,20 @@ export const playlists: Playlist[] = [
 
     coverImage: "/covers/chill.jpg",
 
-    songIds: ["song-1", "song-2", "song-3"],
+    songs: [
+      {
+        songId: "song-1",
+        addedAt: "2025-01-03",
+      },
+      {
+        songId: "song-2",
+        addedAt: "2025-01-03",
+      },
+      {
+        songId: "song-3",
+        addedAt: "2025-01-03",
+      },
+    ],
 
     folderId: "folder-1",
 
@@ -71,7 +84,12 @@ export const playlists: Playlist[] = [
 
     coverImage: "/covers/favorites.jpg",
 
-    songIds: ["song-1"],
+    songs: [
+      {
+        songId: "song-1",
+        addedAt: "2025-01-05",
+      },
+    ],
 
     folderId: null,
 
@@ -91,7 +109,12 @@ export const playlists: Playlist[] = [
 
     coverImage: "/covers/favorites.jpg",
 
-    songIds: ["song-1"],
+    songs: [
+      {
+        songId: "song-1",
+        addedAt: "2025-01-10",
+      },
+    ],
 
     folderId: null,
 

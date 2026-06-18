@@ -31,6 +31,23 @@ export const MOCK_PLAYLISTS: Playlist[] = [
     createdAt: "2025-01-01T00:00:00Z",
     updatedAt: "2025-10-11T00:00:00Z",
   },
+  {
+  id: "sex",
+  type: "playlist",
+  title: "SEX",
+  description: "Late night vibes",
+  coverImage: "https://picsum.photos/seed/sexplaylist/600/600",
+  songs: [
+    { songId: "s7", addedAt: "2025-10-12T00:00:00Z" },
+    { songId: "s8", addedAt: "2025-10-12T00:00:00Z" },
+    { songId: "s9", addedAt: "2025-10-12T00:00:00Z" },
+    { songId: "s10", addedAt: "2025-10-12T00:00:00Z" },
+  ],
+  folderId: null,
+  ownerId: "user-1",
+  createdAt: "2025-10-12T00:00:00Z",
+  updatedAt: "2025-10-12T00:00:00Z",
+}
 ];
 
 export const MOCK_SONGS: Song[] = [
@@ -100,4 +117,48 @@ export const MOCK_SONGS: Song[] = [
     createdAt: "2025-06-30T00:00:00Z",
     updatedAt: "2025-06-30T00:00:00Z",
   },
+  {
+  id: "s7",
+  title: "Earned It",
+  artists: ["The Weeknd"],
+  coverImage: "https://picsum.photos/seed/earnedit/600/600",
+  audioUrl: "",
+  duration: 277,
+  uploadedBy: "user-1",
+  createdAt: "2025-10-12T00:00:00Z",
+  updatedAt: "2025-10-12T00:00:00Z",
+},
+{
+  id: "s8",
+  title: "Often",
+  artists: ["The Weeknd"],
+  coverImage: "https://picsum.photos/seed/often/600/600",
+  audioUrl: "",
+  duration: 249,
+  uploadedBy: "user-1",
+  createdAt: "2025-10-12T00:00:00Z",
+  updatedAt: "2025-10-12T00:00:00Z",
+},
+{
+  id: "s9",
+  title: "Call Out My Name",
+  artists: ["The Weeknd"],
+  coverImage: "https://picsum.photos/seed/calloutmyname/600/600",
+  audioUrl: "",
+  duration: 228,
+  uploadedBy: "user-1",
+  createdAt: "2025-10-12T00:00:00Z",
+  updatedAt: "2025-10-12T00:00:00Z",
+},
+{
+  id: "s10",
+  title: "Love Me Harder",
+  artists: ["Ariana Grande", "The Weeknd"],
+  coverImage: "https://picsum.photos/seed/lovemeharder/600/600",
+  audioUrl: "",
+  duration: 236,
+  uploadedBy: "user-1",
+  createdAt: "2025-10-12T00:00:00Z",
+  updatedAt: "2025-10-12T00:00:00Z",
+}
 ];

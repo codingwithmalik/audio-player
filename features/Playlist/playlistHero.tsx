@@ -34,7 +34,7 @@ export default function PlaylistHero({
         background: `linear-gradient(180deg, ${accentColor}CC 0%, ${accentColor}44 60%, transparent 100%)`,
       }}
     >
-      <div className="flex items-end gap-6 px-6 pt-10 pb-6">
+      <div className="flex items-end gap-6 p-6">
         {/* Cover art — mosaic or single */}
         <PlaylistMosaicCover
           coverImage={playlist.coverImage}

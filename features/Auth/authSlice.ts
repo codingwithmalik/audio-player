@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "@/types/user";
 import { AuthState } from "@/types/auth";
+import { RootState } from "@/store/store";
 // const user:;
 const initialState: AuthState = {
   user: null,
@@ -31,4 +32,16 @@ const authSlice = createSlice({
 });
 
 export const { setUser, logout, setLoading } = authSlice.actions;
+export const selectUsernameById = (
+  state: RootState,
+  userId: string
+) => {
+  const user = state.auth.user;
+
+  if (user && user.id === userId) {
+    return user.username;
+  }
+
+  return "Unknown User";
+};
 export default authSlice.reducer;

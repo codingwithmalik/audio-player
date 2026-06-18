@@ -44,13 +44,9 @@ export const playlists: Playlist[] = [
   {
     id: "playlist-1",
     type: "playlist",
-
     title: "Chill Vibes",
-
     description: "Late night music",
-
-    coverImage: "/covers/chill.jpg",
-
+    coverImage: "https://picsum.photos/seed/darkside/600/600",
     songs: [
       {
         songId: "song-1",
@@ -65,11 +61,8 @@ export const playlists: Playlist[] = [
         addedAt: "2025-01-03",
       },
     ],
-
     folderId: "folder-1",
-
     ownerId: "user-1",
-
     createdAt: "2025-01-03",
     updatedAt: "2025-01-03",
   },
@@ -77,24 +70,17 @@ export const playlists: Playlist[] = [
   {
     id: "playlist-2",
     type: "playlist",
-
     title: "Favorites",
-
     description: "Best tracks",
-
     coverImage: "/covers/favorites.jpg",
-
     songs: [
       {
         songId: "song-1",
         addedAt: "2025-01-05",
       },
     ],
-
     folderId: null,
-
     ownerId: "user-1",
-
     createdAt: "2025-01-05",
     updatedAt: "2025-01-05",
   },
@@ -102,24 +88,17 @@ export const playlists: Playlist[] = [
   {
     id: "playlist-3",
     type: "playlist",
-
     title: "Dark",
-
     description: "Best tracks",
-
-    coverImage: "/covers/favorites.jpg",
-
+    coverImage: "https://picsum.photos/seed/darkside/600/600",
     songs: [
       {
         songId: "song-1",
         addedAt: "2025-01-10",
       },
     ],
-
     folderId: null,
-
     ownerId: "user-1",
-
     createdAt: "2025-01-10",
     updatedAt: "2025-01-10",
   },
@@ -128,29 +107,19 @@ export const playlists: Playlist[] = [
 export const folders: Folder[] = [
   {
     id: "folder-1",
-
     type: "folder",
-
     title: "Pakistani Music",
-
     playlistIds: ["playlist-1"],
-
     ownerId: "user-1",
-
     createdAt: "2025-01-10",
     updatedAt: "2025-01-010",
   },
   {
     id: "folder-1",
-
     type: "folder",
-
     title: "Pakistani Music",
-
     playlistIds: ["playlist-1"],
-
     ownerId: "user-2",
-
     createdAt: "2025-01-10",
     updatedAt: "2025-01-010",
   },

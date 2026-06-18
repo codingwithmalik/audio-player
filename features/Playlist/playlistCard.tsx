@@ -22,20 +22,19 @@ import { useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import "overlayscrollbars/overlayscrollbars.css";
-
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
   upsertPlaylists,
   selectPlaylistById,
 } from "@/features/Playlist/playlistSlice";
 import { upsertSongs, selectSongsByIds } from "@/features/Songs/songsSlice";
-import { MOCK_PLAYLISTS, MOCK_SONGS } from "@/lib/MockPlaylistsData";
+import { selectUsernameById } from "@/features/Auth/authSlice";
+import { playlists, songs as mockSongs } from "@/lib/mockData";
 
 import PlaylistView from "./playlistView";
 
 export default function PlaylistPage() {
   const { id } = useParams<{ id: string }>();
-  console.log(id);
   const dispatch = useAppDispatch();
 
   // ── Step 1: Load mock data into store on mount ──────────────────────────
@@ -43,21 +42,24 @@ export default function PlaylistPage() {
   // Replace with: dispatch(fetchPlaylistById(id))
   useEffect(() => {
     if (!id) return;
-    dispatch(upsertPlaylists(MOCK_PLAYLISTS));
-    dispatch(upsertSongs(MOCK_SONGS));
+    dispatch(upsertPlaylists(playlists));
+    dispatch(upsertSongs(mockSongs));
   }, [id, dispatch]);
 
   // ── Step 2: Read from store ─────────────────────────────────────────────
   const playlist = useAppSelector((s) => selectPlaylistById(s, id));
   const songIds = playlist?.songs.map((s) => s.songId) ?? [];
   const songs = useAppSelector((s) => selectSongsByIds(s, songIds));
+  // console.log(playlist);
+  const ownerId = playlist?.ownerId;
+  const ownername = useAppSelector((s) => selectUsernameById(s, ownerId ?? ""));
 
   // ── Step 3: Derive computed values ──────────────────────────────────────
   const totalSecs = songs.reduce((total, s) => total + s.duration, 0);
   const hrs = Math.floor(totalSecs / 3600);
   const mins = Math.floor((totalSecs % 3600) / 60);
-  const secs = Math.floor((totalSecs % 60) );
-  
+  const secs = Math.floor(totalSecs % 60);
+
   const durationLabel =
     hrs > 0 ? `about ${hrs} hr ${mins} min` : `${mins} min ${secs} seconds`;
 
@@ -110,7 +112,7 @@ export default function PlaylistPage() {
         songs={songs}
         playlistSongs={playlist.songs}
         likedSongIds={likedSongIds}
-        ownerName="CodingWithMalik"
+        ownerName={ownername}
         totalDurationLabel={durationLabel}
         accentColor="#8B1A1A"
         currentSongId={currentSongId}

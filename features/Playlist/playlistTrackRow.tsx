@@ -15,6 +15,7 @@ import { useState } from "react";
 import { Music2, Play, Heart, MoreHorizontal } from "lucide-react";
 import { Song } from "@/types/song";
 import Image from "next/image";
+import EqBars from "../Common/EQBars";
 
 interface PlaylistTrackRowProps {
   song: Song;
@@ -42,29 +43,6 @@ function formatDate(iso: string): string {
   });
 }
 
-/** Animated equalizer — 3 green bars */
-function EqBars() {
-  return (
-    <div className="flex items-end gap-0.5 h-4" aria-label="Now playing">
-      {[
-        "animate-[eq1_0.9s_ease-in-out_infinite_alternate]",
-        "animate-[eq2_0.9s_ease-in-out_infinite_alternate]",
-        "animate-[eq3_0.9s_ease-in-out_infinite_alternate]",
-      ].map((cls, i) => (
-        <span
-          key={i}
-          className={`w-0.75 h-full bg-[#1DB954] rounded-sm origin-bottom ${cls}`}
-        />
-      ))}
-      <style>{`
-        @keyframes eq1{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
-        @keyframes eq2{from{transform:scaleY(.7)}to{transform:scaleY(.2)}}
-        @keyframes eq3{from{transform:scaleY(1)}to{transform:scaleY(.4)}}
-      `}</style>
-    </div>
-  );
-}
-
 export default function PlaylistTrackRow({
   song,
   index,
@@ -75,6 +53,11 @@ export default function PlaylistTrackRow({
   onLike,
 }: PlaylistTrackRowProps) {
   const [hovered, setHovered] = useState(false);
+  const [imgReady, setImgReady] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
+
+  const handleLoad = () => setImgReady(true);
+  const handleError = () => setImgFailed(true);
 
   const artistLabel = song.artists.join(", ");
 
@@ -90,7 +73,7 @@ export default function PlaylistTrackRow({
         ${hovered ? "bg-white/10" : "bg-transparent"}
       `}
       style={{
-        gridTemplateColumns: "32px 1fr 1fr minmax(100px,160px) 48px 32px",
+        gridTemplateColumns: "32px 1.5fr 1fr 48px 32px",
       }}
     >
       {/* ── 1: index / play / equalizer ── */}
@@ -103,7 +86,7 @@ export default function PlaylistTrackRow({
           </button>
         ) : (
           <span
-            className={`text-sm ${isPlaying ? "text-[#1DB954]" : "text-white/50"}`}
+            className={`text-sm ${isPlaying ? "text-purple-600" : "text-white/50"}`}
           >
             {index}
           </span>
@@ -113,25 +96,36 @@ export default function PlaylistTrackRow({
       {/* ── 2: cover + title + artists + like ── */}
       <div className="flex items-center gap-3 min-w-0">
         {/* Cover */}
-        {song.coverImage ? (
-          <Image
-            src={song.coverImage}
-            alt={song.title}
-            width={40}
-            height={40}
-            className="w-10 h-10 rounded object-cover shrink-0"
-            draggable={false}
-          />
-        ) : (
-          <div className="">
-            <Music2 className="w-4 h-4" />
+        {/* Fallback icon */}
+        <div className="relative w-11 h-11 rounded-md shrink-0 flex items-center justify-center">
+          <div
+            className={`absolute inset-0 flex items-center justify-center bg-white/10 transition-opacity duration-200 rounded-md ${
+              imgReady || (song.coverImage && !imgFailed)
+                ? "opacity-0 pointer-events-none"
+                : "opacity-100"
+            }`}
+          >
+            <Music2 className="w-7 h-7 text-white/60" />
           </div>
-        )}
 
+          {/* Image layer */}
+          {song.coverImage && !imgFailed && (
+            <Image
+              src={song.coverImage}
+              alt={song.title}
+              fill
+              className={`object-cover rounded-md transition-opacity duration-200 ${
+                imgReady ? "opacity-100" : "opacity-0"
+              }`}
+              onLoad={handleLoad}
+              onError={handleError}
+            />
+          )}
+        </div>
         {/* Text */}
         <div className="flex flex-col min-w-0">
           <span
-            className={`text-sm font-medium truncate ${isPlaying ? "text-[#1DB954]" : "text-white"}`}
+            className={`text-sm font-medium truncate ${isPlaying ? "text-purple-600" : "text-white"}`}
           >
             {song.title}
           </span>
@@ -150,11 +144,10 @@ export default function PlaylistTrackRow({
           className={`ml-2 shrink-0 transition-opacity duration-150 ${hovered || isLiked ? "opacity-100" : "opacity-0"}`}
         >
           <Heart
-            className={`w-4 h-4 transition-colors ${isLiked ? "text-[#1DB954] fill-[#1DB954]" : "text-white/60 hover:text-white"}`}
+            className={`w-4 h-4 transition-colors ${isLiked ? "text-purple-600 fill-purple-600" : "text-white/60 hover:text-white"}`}
           />
         </button>
       </div>
-
 
       {/* ── 4: date added ── */}
       <span className="text-sm text-white/50 truncate">

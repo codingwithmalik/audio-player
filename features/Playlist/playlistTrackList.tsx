@@ -24,7 +24,6 @@ interface PlaylistTrackListProps {
   songs: Song[];
   playlistSongs: PlaylistSong[];     // parallel array — carries addedAt per song
   likedSongIds: Set<string>;
-  currentSongId: string | null;
   onPlaySong: (songId: string, index: number) => void;
   onLikeSong: (songId: string) => void;
 }
@@ -33,7 +32,6 @@ export default function PlaylistTrackList({
   songs,
   playlistSongs,
   likedSongIds,
-  currentSongId,
   onPlaySong,
   onLikeSong,
 }: PlaylistTrackListProps) {
@@ -44,7 +42,7 @@ export default function PlaylistTrackList({
       </div>
     );
   }
-
+  const currentSongId = "s2"
   return (
     <div role="table" aria-label="Playlist tracks" className="w-full px-2">
       {/* Column header */}
@@ -52,7 +50,7 @@ export default function PlaylistTrackList({
         role="row"
         className="grid items-center gap-4 px-4 pb-2 mb-1 border-b border-white/10"
         style={{
-          gridTemplateColumns: "32px 1fr 1fr minmax(100px,160px) 48px 32px",
+          gridTemplateColumns: "32px 1.5fr 1fr  48px 32px",
         }}
       >
         <span className="text-xs text-white/40 text-center font-semibold">

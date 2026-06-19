@@ -3,79 +3,109 @@
 /**
  * PlaylistView
  * ------------
- * Root composer. Assembles Hero → Actions → TrackList.
- * Render this inside an OverlayScrollbars wrapper in your page.
- *
- * GSAP entrance:
- *   hero slides up → actions slides up → track rows stagger in from left.
- *   Replays whenever playlist.id changes (navigating between playlists).
+ * Root composer. Assembles Hero → Actions → TrackList (list or grid).
+ * filteredSongs comes from selectFilteredSongs selector in the page — no
+ * filter logic lives here.
  */
 
-import { useRef } from "react";
+import { useRef , useState, useCallback} from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
-import PlaylistHero       from "./playlistHero";
-import PlaylistActions    from "./playlistActions";
-import PlaylistTrackList  from "./playlistTrackList";
+import PlaylistHero from "./playlistHero";
+import PlaylistActions from "./playlistActions";
+import PlaylistTrackList from "./playlistTrackList";
+import PlaylistEditModal from "./playlistEditModal";
+import PlaylistTrackGrid from "./playlistTrackGrid";
+import { useAppSelector , useAppDispatch} from "@/globalHooks";
 
-import { Playlist, PlaylistSong } from "@/types/playlist";
-import { Song }     from "@/types/song";
+import { Song } from "@/types/song";
+import { Playlist } from "@/types/playlist";
+import {
+  selectViewMode,
+  updatePlaylistMeta,
+} from "@/features/Playlist/playlistSlice";
 
 interface PlaylistViewProps {
   playlist: Playlist;
   songs: Song[];
-  playlistSongs:PlaylistSong[]
+  filteredSongs: Song[];
   likedSongIds: Set<string>;
-  ownerName: string;
   totalDurationLabel: string;
   accentColor?: string;
-  currentSongId: string | null;
   isPlaylistPlaying: boolean;
-  onPlay: () => void;
-  onShuffle: () => void;
   onPlaySong: (songId: string, index: number) => void;
   onLikeSong: (songId: string) => void;
 }
 
+// ── Grid card ─────────────────────────────────────────────────────────────────
+
+// ── Root ──────────────────────────────────────────────────────────────────────
+
 export default function PlaylistView({
   playlist,
   songs,
-  playlistSongs,
+  filteredSongs,
   likedSongIds,
-  ownerName,
   totalDurationLabel,
   accentColor = "#8B1A1A",
-  currentSongId,
   isPlaylistPlaying,
-  onPlay,
-  onShuffle,
   onPlaySong,
   onLikeSong,
 }: PlaylistViewProps) {
+  const dispatch = useAppDispatch()
+  const viewMode = useAppSelector(selectViewMode);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // First 4 covers for mosaic (Song.coverImage is optional → pass as-is)
-  const songCovers = songs.slice(0, 4).map(s => s.coverImage);
+  const songCovers = songs.slice(0, 4).map((s) => s.coverImage);
+  const songCoversStrings = songCovers.filter((c): c is string => Boolean(c));
 
-  // ── GSAP entrance ──────────────────────────────────────────────────────────
-  useGSAP(() => {
-    const el = containerRef.current;
-    if (!el) return;
+  // ── Local UI state ──────────────────────────────────────────────────────────
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    const hero    = el.querySelector<HTMLElement>("[data-gsap='hero']");
-    const actions = el.querySelector<HTMLElement>("[data-gsap='actions']");
-    const rows    = el.querySelectorAll<HTMLElement>("[data-gsap='track-row']");
+  useGSAP(
+    () => {
+      const el = containerRef.current;
+      if (!el) return;
 
-    gsap.set([hero, actions], { opacity: 0, y: 24 });
-    gsap.set(rows, { opacity: 0, x: -12 });
+      const hero = el.querySelector<HTMLElement>("[data-gsap='hero']");
+      const actions = el.querySelector<HTMLElement>("[data-gsap='actions']");
+      const rows = el.querySelectorAll<HTMLElement>("[data-gsap='track-row']");
 
-    gsap.timeline({ defaults: { ease: "power2.out" } })
-      .to(hero,    { opacity: 1, y: 0, duration: 0.45 })
-      .to(actions, { opacity: 1, y: 0, duration: 0.3 }, "-=0.2")
-      .to(rows,    { opacity: 1, x: 0, duration: 0.25, stagger: 0.03 }, "-=0.1");
+      gsap.set([hero, actions], { opacity: 0, y: 24 });
+      gsap.set(rows, { opacity: 0, x: -12 });
 
-  }, { scope: containerRef, dependencies: [playlist.id] });
+      gsap
+        .timeline({ defaults: { ease: "power2.out" } })
+        .to(hero, { opacity: 1, y: 0, duration: 0.45 })
+        .to(actions, { opacity: 1, y: 0, duration: 0.3 }, "-=0.2")
+        .to(rows, { opacity: 1, x: 0, duration: 0.25, stagger: 0.03 }, "-=0.1");
+    },
+    { scope: containerRef, dependencies: [playlist.id] },
+  );
+  // ── Edit modal handlers ─────────────────────────────────────────────────────
+  const handleEditDetails = useCallback(() => {
+    setIsEditModalOpen(true);
+  }, []);
+
+  const handleCloseEditModal = useCallback(() => {
+    setIsEditModalOpen(false);
+  }, []);
+
+  const handleSaveDetails = useCallback(
+    (data: { title: string; description: string }) => {
+      if (!playlist) return;
+      dispatch(updatePlaylistMeta({ id: playlist.id, ...data }));
+      // TODO: persist to MongoDB when backend is ready
+    },
+    [dispatch, playlist],
+  );
+
+  const handleEditCover = useCallback(() => {
+    // TODO: open Cloudinary upload widget
+    setIsEditModalOpen(true);
+    console.log("edit cover");
+  }, []);
 
   return (
     <div
@@ -88,32 +118,55 @@ export default function PlaylistView({
       <div data-gsap="hero">
         <PlaylistHero
           playlist={playlist}
-          ownerName={ownerName}
           songCount={playlist.songs.length}
           totalDurationLabel={totalDurationLabel}
-          songCovers={songCovers.filter((c): c is string => Boolean(c))}
+          songCovers={songCovers}
           accentColor={accentColor}
+          onEditDetails={handleEditDetails}
+          onEditCover={handleEditCover}
         />
       </div>
 
       <div data-gsap="actions">
         <PlaylistActions
           isPlaying={isPlaylistPlaying}
-          onPlay={onPlay}
-          onShuffle={onShuffle}
+          onEditDetails={handleEditDetails}
         />
       </div>
 
       <div className="pb-8">
-        <PlaylistTrackList
-          songs={songs}
-          playlistSongs={playlistSongs}
-          likedSongIds={likedSongIds}
-          currentSongId={currentSongId}
-          onPlaySong={onPlaySong}
-          onLikeSong={onLikeSong}
-        />
+        {viewMode === "list" ? (
+          <PlaylistTrackList
+            songs={filteredSongs}
+            playlistSongs={playlist.songs}
+            likedSongIds={likedSongIds}
+            onPlaySong={onPlaySong}
+            onLikeSong={onLikeSong}
+          />
+        ) : (
+          /* Grid view */
+          <PlaylistTrackGrid
+            filteredSongs={filteredSongs}
+            onPlaySong={onPlaySong}
+          />
+        )}
+
+        {/* Empty search result */}
+        {filteredSongs.length === 0 && (
+          <div className="px-6 py-16 text-center text-white/40 text-sm">
+            No songs match your search.
+          </div>
+        )}
       </div>
+
+      <PlaylistEditModal
+        playlist={playlist}
+        isOpen={isEditModalOpen}
+        songCovers={songCoversStrings}
+        onClose={handleCloseEditModal}
+        onSave={handleSaveDetails}
+        onEditCover={handleEditCover}
+      />
     </div>
   );
 }

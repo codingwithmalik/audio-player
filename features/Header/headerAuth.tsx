@@ -17,6 +17,9 @@ import {
 } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import { logout, setUser } from "../Auth/authSlice";
+import { playlists } from "@/lib/mockData";
+import { upsertPlaylists } from "../Playlist/playlistSlice";
+
 
 export default function HeaderAuth() {
   const dispatch = useAppDispatch();
@@ -53,6 +56,7 @@ export default function HeaderAuth() {
     setProfileMenu(false);
   };
   const handleLogin = () => {
+    
     dispatch(
       setUser({
         id: "user-1",
@@ -62,6 +66,11 @@ export default function HeaderAuth() {
       }),
     );
   };
+  useEffect(() => {
+  if (user) {
+        dispatch(upsertPlaylists(playlists));    
+  }
+}, [user, dispatch]);
 
   return (
     <div className="hidden md:flex items-center gap-3">

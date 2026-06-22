@@ -6,6 +6,7 @@ import { gsap } from "gsap";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import { addFolder, selectFilteredItems } from "./libraryslice";
 import { addPlaylist } from "@/features/Playlist/playlistSlice";
+import { useRouter } from "next/navigation";
 // ─── Options config ───────────────────────────────────────────────────────────
 
 const OPTIONS = [
@@ -30,6 +31,7 @@ const OPTIONS = [
 
 export default function CreateButton() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   const plusRef = useRef<SVGSVGElement>(null);
@@ -84,9 +86,10 @@ export default function CreateButton() {
       type === "playlist" ? playlistCount + 1 : folderCount + 1;
 
     if (type === "playlist") {
+      const playlistId = crypto.randomUUID();
       dispatch(
         addPlaylist({
-          id: crypto.randomUUID(),
+          id: playlistId,
           type: "playlist",
           title: "New Playlist " + itemNumber,
           description: "",
@@ -97,11 +100,13 @@ export default function CreateButton() {
           createdAt: now,
           updatedAt: now,
         }),
+        router.push(`/playlist/${playlistId}`),
       );
     } else {
+      const folderId = crypto.randomUUID();
       dispatch(
         addFolder({
-          id: crypto.randomUUID(),
+          id: folderId,
           type: "folder",
           title: "New Folder " + itemNumber,
           playlistIds: [],
@@ -109,6 +114,7 @@ export default function CreateButton() {
           createdAt: now,
           updatedAt: now,
         }),
+        router.push(`/folder/${folderId}`),
       );
     }
 
@@ -136,7 +142,7 @@ export default function CreateButton() {
           ref={dropdownRef}
           className="
           absolute right-0 top-11
-            w-56 rounded-xl
+            w-58 rounded-xl
             bg-[#1a0a2e] border border-white/10
             shadow-[0_8px_32px_rgba(0,0,0,0.6)]
             overflow-hidden

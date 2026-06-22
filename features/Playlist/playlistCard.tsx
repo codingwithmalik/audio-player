@@ -15,13 +15,12 @@ import "overlayscrollbars/overlayscrollbars.css";
 
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
-  upsertPlaylists,
   selectPlaylistById,
   selectFilteredSongs,
   resetPlaylistUI,
 } from "@/features/Playlist/playlistSlice";
 import { upsertSongs, selectSongsByIds } from "@/features/Songs/songsSlice";
-import { playlists,songs as mocksongs } from "@/lib/mockData";
+import { songs as mocksongs } from "@/lib/mockData";
 
 import PlaylistView from "./playlistView";
 
@@ -32,7 +31,6 @@ export default function PlaylistPage() {
   // ── Load mock data on mount ─────────────────────────────────────────────────
   useEffect(() => {
     if (!id) return;
-    dispatch(upsertPlaylists(playlists));
     dispatch(upsertSongs(mocksongs));
     // Reset search/sort/view when navigating to a new playlist
     return () => { dispatch(resetPlaylistUI()); };

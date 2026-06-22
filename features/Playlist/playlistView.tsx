@@ -8,7 +8,7 @@
  * filter logic lives here.
  */
 
-import { useRef , useState, useCallback} from "react";
+import { useRef, useState, useCallback } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -17,7 +17,7 @@ import PlaylistActions from "./playlistActions";
 import PlaylistTrackList from "./playlistTrackList";
 import PlaylistEditModal from "./playlistEditModal";
 import PlaylistTrackGrid from "./playlistTrackGrid";
-import { useAppSelector , useAppDispatch} from "@/globalHooks";
+import { useAppSelector, useAppDispatch } from "@/globalHooks";
 
 import { Song } from "@/types/song";
 import { Playlist } from "@/types/playlist";
@@ -53,7 +53,7 @@ export default function PlaylistView({
   onPlaySong,
   onLikeSong,
 }: PlaylistViewProps) {
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
   const viewMode = useAppSelector(selectViewMode);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -76,7 +76,12 @@ export default function PlaylistView({
       gsap.set(rows, { opacity: 0, x: -12 });
 
       gsap
-        .timeline({ defaults: { ease: "power2.out" } })
+        .timeline({
+          defaults: { ease: "power2.out" },
+          onComplete: () => {
+            gsap.set([hero, actions], { clearProps: "transform" });
+          },
+        })
         .to(hero, { opacity: 1, y: 0, duration: 0.45 })
         .to(actions, { opacity: 1, y: 0, duration: 0.3 }, "-=0.2")
         .to(rows, { opacity: 1, x: 0, duration: 0.25, stagger: 0.03 }, "-=0.1");

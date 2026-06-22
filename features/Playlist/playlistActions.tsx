@@ -13,7 +13,7 @@
  * All Redux dispatches happen in the page — this component emits callbacks.
  */
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect,} from "react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
   Play,
@@ -219,7 +219,7 @@ export default function PlaylistActions({
           </div>
 
           {/* Sort dropdown */}
-          <div className="" ref={dropdownRef}>
+          <div className="z-500" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen((v) => !v)}
               aria-label="Sort options"
@@ -233,7 +233,7 @@ export default function PlaylistActions({
             {/* Dropdown panel */}
             {dropdownOpen && (
               <div
-                className="fixed right-5 top-15 mt-2 w-52 z-50
+                className="fixed right-0 top-30 mt-2 w-52 z-500
                            bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
                            py-2 overflow-hidden"
               >

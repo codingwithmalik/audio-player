@@ -219,7 +219,7 @@ export default function PlaylistActions({
           </div>
 
           {/* Sort dropdown */}
-          <div className="z-500" ref={dropdownRef}>
+          <div className="" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen((v) => !v)}
               aria-label="Sort options"
@@ -233,7 +233,7 @@ export default function PlaylistActions({
             {/* Dropdown panel */}
             {dropdownOpen && (
               <div
-                className="fixed right-0 top-30 mt-2 w-52 z-500
+                className="absolute right-0 top-82 mt-2 w-52 z-500
                            bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
                            py-2 overflow-hidden"
               >
@@ -353,7 +353,7 @@ export default function PlaylistActions({
                      hover:border-white/50 hover:text-white transition-colors duration-150"
         >
           <Pencil className="w-4 h-4" />
-          Name &amp; details
+          Edit Details
         </button>
       </div>
     </div>

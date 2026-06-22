@@ -140,6 +140,9 @@ const playlistsSlice = createSlice({
       delete state.entities[action.payload];
       delete state.fetchStatus[action.payload];
     },
+    addPlaylist(state,action:PayloadAction<Playlist>){
+    state.entities[action.payload.id]=action.payload
+    },
 
     // ── UI actions ────────────────────────────────────────────────────────────
 
@@ -197,6 +200,7 @@ export const {
   setSortBy,
   setViewMode,
   resetPlaylistUI,
+  addPlaylist,
 } = playlistsSlice.actions;
 
 // ─── Base selectors ───────────────────────────────────────────────────────────

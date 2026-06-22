@@ -10,7 +10,6 @@ export type SortType = "recents" | "recently-added" | "alphabetical";
 export type FilterType = "playlists" | "folders";
 
 export interface LibraryState {
-  playlists: Playlist[];
   folders: Folder[];
   search: string;
   sort: SortType;

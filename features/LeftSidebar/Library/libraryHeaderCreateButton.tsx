@@ -4,7 +4,8 @@ import { useRef, useEffect, useState } from "react";
 import { Plus, Music2, FolderClosed } from "lucide-react";
 import { gsap } from "gsap";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
-import { addFolder, addPlaylist, selectFilteredItems } from "./libraryslice";
+import { addFolder, selectFilteredItems } from "./libraryslice";
+import { addPlaylist } from "@/features/Playlist/playlistSlice";
 // ─── Options config ───────────────────────────────────────────────────────────
 
 const OPTIONS = [

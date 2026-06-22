@@ -63,6 +63,7 @@ export default function PlaylistMosaicCover({
             }`}
           >
             {slots.map((src, i) => (
+              src &&
               <Image
                 key={i}
                 src={src!}

@@ -5,6 +5,7 @@ import { Playlist } from "@/types/playlist";
 import { Folder } from "@/types/folder";
 import { ListMusic, FolderClosed } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 const brokenImageCache = new Set<string>();
 
@@ -31,40 +32,42 @@ export default function LibraryItem({ item }: Props) {
   };
 
   return (
-    <div className="group flex items-center gap-3 rounded-xl lg:p-1 pl-0 py-1 hover:bg-white/10 transition cursor-pointer">
-      <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
-        {/* Icon is always rendered as the base — instantly visible */}
-        <div
-          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${imgReady ? "opacity-0 pointer-events-none" : "opacity-100"}`}
-        >
-          {isFolder ? (
-            <FolderClosed className="w-12 h-12" />
-          ) : (
-            <ListMusic className="w-12 h-12" />
+    <Link href={`${isFolder ? `/folder/${item.id}` :`/playlist/${item.id}`}`} >
+      <div className="group flex items-center gap-3 rounded-xl lg:p-1 pl-0 py-1 hover:bg-white/10 transition cursor-pointer">
+        <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
+          {/* Icon is always rendered as the base — instantly visible */}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${imgReady ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+          >
+            {isFolder ? (
+              <FolderClosed className="w-12 h-12" />
+            ) : (
+              <ListMusic className="w-12 h-12" />
+            )}
+          </div>
+
+          {/* Image loads silently on top — fades in only when ready */}
+          {src && !imgFailed && (
+            <Image
+              src={src}
+              alt={item.title}
+              fill
+              className={`rounded-lg object-cover transition-opacity duration-200 ${imgReady ? "opacity-100" : "opacity-0"}`}
+              onLoad={handleLoad}
+              onError={handleError}
+            />
           )}
         </div>
 
-        {/* Image loads silently on top — fades in only when ready */}
-        {src && !imgFailed && (
-          <Image
-            src={src}
-            alt={item.title}
-            fill
-            className={`rounded-lg object-cover transition-opacity duration-200 ${imgReady ? "opacity-100" : "opacity-0"}`}
-            onLoad={handleLoad}
-            onError={handleError}
-          />
-        )}
+        <div className="md:hidden lg:block">
+          <h3 className="text-white font-medium">{item.title}</h3>
+          <p className="text-sm text-zinc-400">
+            {isFolder
+              ? `Folder • ${item.playlistIds.length} playlists`
+              : `Playlist • ${item.songs.length} songs`}
+          </p>
+        </div>
       </div>
-
-      <div className="md:hidden lg:block">
-        <h3 className="text-white font-medium">{item.title}</h3>
-        <p className="text-sm text-zinc-400">
-          {isFolder
-            ? `Folder • ${item.playlistIds.length} playlists`
-            : `Playlist • ${item.songs.length} songs`}
-        </p>
-      </div>
-    </div>
+    </Link>
   );
 }

@@ -78,21 +78,22 @@ export default function LibrarySearch() {
 
         {sortOpen && (
           <div className="absolute right-0 top-7 z-50 w-44 rounded-lg bg-[#1a0a2e] border border-white/10 py-1 shadow-xl">
-            {SORT_OPTIONS.map((o) => (
-              <button
-                key={o.value}
-                onClick={() => {
-                  dispatch(setSort(o.value));
-                  setSortOpen(false);
-                }}
-                className="flex w-full items-center justify-between px-3 py-2 text-sm text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
-              >
-                {o.label}
-                {sort === o.value && (
-                  <Check size={14} className="text-green-400" />
-                )}
-              </button>
-            ))}
+            {SORT_OPTIONS.map((o) => {
+              const isActive = sort === o.value;
+              return (
+                <button
+                  key={o.value}
+                  onClick={() => {
+                    dispatch(setSort(o.value));
+                    setSortOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between px-3 py-2 text-sm  hover:bg-white/10 transition-colors ${isActive ? "text-purple-600" : "text-zinc-300"}`}
+                >
+                  {o.label}
+                  {isActive && <Check size={14} className="text-purple-600" />}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>

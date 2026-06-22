@@ -90,7 +90,7 @@ export default function CreateButton() {
           title: "New Playlist " + itemNumber,
           description: "",
           coverImage: "",
-          songIds: [],
+          songs: [],
           folderId: null,
           ownerId: userId,
           createdAt: now,

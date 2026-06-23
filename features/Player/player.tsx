@@ -90,7 +90,7 @@ export default function Player({
         {isActive ? (
           <SongInfo />
         ) : (
-          <p className="text-xs text-neutral-600">No song playing</p>
+          <p className="text-xs text-neutral-600 w-40">No song playing</p>
         )}
         {/* Center */}
         <PlayerControls isActive={isActive} />

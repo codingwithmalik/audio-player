@@ -1,34 +1,44 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@/globalHooks";
 import { gsap } from "gsap";
 
-import SongInfo, { MobileSaveButton } from "./songInfo";
+import SongInfo from "./songInfo";
 import PlayerControls, { ProgressBar } from "./playerControls";
 import PlayerExtras from "./playerExtras";
 import { useProgressDrag } from "@/hooks/UseSliderDrag";
 import {
-  selectSong, selectCurrentTime, selectProgress, selectIsDraggingProgress,
+  selectCurrentSong,
+  selectCurrentTime,
+  selectProgress,
+  selectIsDraggingProgress,
 } from "@/store/playerSlice";
 import usePlaybackTicker from "./UseplaybackTicker";
 
 type PlayerShellProps = {
-  onQueueOpen?:  () => void;
+  onQueueOpen?: () => void;
   onMiniPlayer?: () => void;
   onFullscreen?: () => void;
 };
 
-export default function Player({ onQueueOpen, onMiniPlayer, onFullscreen }: PlayerShellProps) {
-  const song        = useSelector(selectSong);
-  const currentTime = useSelector(selectCurrentTime);
-  const progress    = useSelector(selectProgress);
-  const isDragging  = useSelector(selectIsDraggingProgress);
+export default function Player({
+  onQueueOpen,
+  onMiniPlayer,
+  onFullscreen,
+}: PlayerShellProps) {
+  const song = useAppSelector(selectCurrentSong);
+  const currentTime = useAppSelector(selectCurrentTime);
+  const isDragging = useAppSelector(selectIsDraggingProgress);
 
-  const containerRef   = useRef<HTMLDivElement>(null);
+  // Duration resolved from the song — 0 when nothing is loaded
+  const duration = song?.duration ?? 0;
+  const progress = useAppSelector(selectProgress(duration));
+
+  const containerRef = useRef<HTMLDivElement>(null);
   const mobileTrackRef = useRef<HTMLDivElement>(null!);
 
-    // ── Ticker: single interval, lives here at the root, never duplicated ─────
+  // ── Ticker: single interval, lives here at the root, never duplicated ─────
   usePlaybackTicker();
 
   // ── Mount animation ────────────────────────────────────────────────────────
@@ -44,12 +54,10 @@ export default function Player({ onQueueOpen, onMiniPlayer, onFullscreen }: Play
   // ── Mobile progress bar — same hook, zero duplicated logic ─────────────────
   const mobileProgressHandlers = useProgressDrag(
     mobileTrackRef,
-    song?.duration ?? 0,
+    duration,
     isDragging,
   );
-
-  if (!song) return null;
-
+  const isActive = !!song;
   return (
     <div
       ref={containerRef}
@@ -58,43 +66,42 @@ export default function Player({ onQueueOpen, onMiniPlayer, onFullscreen }: Play
     >
       {/* Top glow line */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent" />
-
       {/* ── MOBILE ── */}
-      <div className="flex flex-col gap-2 px-3 py-2.5 md:hidden">
-        <div className="flex items-center justify-around gap-2.5">
-          <SongInfo />
-          <PlayerControls />
-          <MobileSaveButton />
+      {isActive && (
+        <div className="flex flex-col gap-2 px-3 py-2.5 md:hidden">
+          <div className="flex items-center justify-around gap-2.5">
+            <SongInfo />
+            <PlayerControls isActive={isActive}/>
+          </div>
+
+          <ProgressBar
+            progressTrackRef={mobileTrackRef}
+            {...mobileProgressHandlers}
+            progress={progress}
+            isDragging={isDragging}
+            currentTime={currentTime}
+            duration={duration}
+            compact
+          />
         </div>
-
-        <ProgressBar
-          progressTrackRef={mobileTrackRef}
-          {...mobileProgressHandlers}
-          progress={progress}
-          isDragging={isDragging}
-          currentTime={currentTime}
-          duration={song.duration}
-          compact
-        />
-      </div>
-
+      )}
       {/* ── DESKTOP ── */}
-      <div className="mx-auto hidden h-[82px] max-w-[1600px] items-center justify-between gap-2 px-4 md:flex lg:h-[90px] lg:px-5">
-        <SongInfo />
-        <PlayerControls />
+      <div className="mx-auto hidden h-20.5 max-w-400 items-center justify-between gap-2 px-4 md:flex lg:h-22.5 lg:px-5 shrink-0">
+        {isActive ? (
+          <SongInfo />
+        ) : (
+          <p className="text-xs text-neutral-600">No song playing</p>
+        )}
+        {/* Center */}
+        <PlayerControls isActive={isActive} />
+        {/* Right — same treatment */}
         <PlayerExtras
+          isActive={isActive}
           onQueueOpen={onQueueOpen}
           onMiniPlayer={onMiniPlayer}
           onFullscreen={onFullscreen}
         />
       </div>
-
-      <style>{`
-        @keyframes eq-bar {
-          from { transform: scaleY(0.3); }
-          to   { transform: scaleY(1); }
-        }
-      `}</style>
     </div>
   );
 }

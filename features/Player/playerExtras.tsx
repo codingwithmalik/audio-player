@@ -14,9 +14,10 @@ type PlayerExtrasProps = {
   onQueueOpen?:  () => void;
   onMiniPlayer?: () => void;
   onFullscreen?: () => void;
+  isActive:boolean
 };
 
-export default function PlayerExtras({ onQueueOpen, onMiniPlayer, onFullscreen }: PlayerExtrasProps) {
+export default function PlayerExtras({isActive, onQueueOpen, onMiniPlayer, onFullscreen }: PlayerExtrasProps) {
   const dispatch     = useDispatch();
   const effectiveVol = useSelector(selectEffectiveVol);
   const isDragging   = useSelector(selectIsDraggingVolume);
@@ -31,7 +32,7 @@ export default function PlayerExtras({ onQueueOpen, onMiniPlayer, onFullscreen }
 
   return (
     <div
-      className="hidden shrink-0 items-center justify-end gap-1 md:flex lg:gap-1.5"
+      className={`hidden shrink-0 items-center justify-end gap-1 md:flex lg:gap-1.5 ${isActive ?"":"pointer-events-none opacity-40"}`}
       style={{ width: "clamp(200px, 22%, 280px)" }}
     >
       {/* Queue */}

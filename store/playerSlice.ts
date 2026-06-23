@@ -1,65 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type Song = {
-  id: string;
-  title: string;
-  artists: string[];
-  coverImage?: string;
-  duration: number; // seconds
-  sourceType?: "playlist" | "folder" | null;
-  sourceSlug?: string;
-};
-export type RepeatMode = "off" | "all" | "one";
-
-export interface PlayerState {
-  // Current track
-  currentSong: Song | null;
-
-  // Playback
-  isPlaying: boolean;
-  currentTime: number; // seconds
-  isShuffle: boolean;
-  repeatMode: RepeatMode;
-
-  // Volume
-  volume: number; // 0–100
-  prevVolume: number; // saved before mute
-  isMuted: boolean;
-
-  // Library
-  isSaved: boolean;
-
-  // UI flags
-  isDraggingProgress: boolean;
-  isDraggingVolume: boolean;
-}
+import { RootState } from "@/store/store";
+import { RepeatMode, PlayerState } from "@/features/Player/playerTypes";
+import { selectSongById } from "@/features/Songs/songsSlice";
 
 // ─── Initial state ─────────────────────────────────────────────────────────────
 
 const initialState: PlayerState = {
-  currentSong: {
-    id: "1",
-    title: "love lost",
-    artists: ["Umair", "Talha Anjum"],
-    coverImage: "/covers/love-lost.jpg",
-    duration: 240,
-    sourceType: "playlist",
-    sourceSlug: "/playlists/chill-vibes",
-  },
-
+  currentSongId: "s1",
   isPlaying: false,
-  currentTime: 79,
+  currentTime: 0,
   isShuffle: false,
   repeatMode: "off",
-
   volume: 80,
   prevVolume: 80,
   isMuted: false,
-
-  isSaved: false,
-
   isDraggingProgress: false,
   isDraggingVolume: false,
 };
@@ -71,13 +25,13 @@ const playerSlice = createSlice({
   initialState,
   reducers: {
     // ── Track ──────────────────────────────────────────────────────────────
-    setSong(state, action: PayloadAction<Song>) {
-      state.currentSong = action.payload;
+    setSong(state, action: PayloadAction<string>) {
+      state.currentSongId = action.payload;
       state.currentTime = 0;
       state.isPlaying = true;
     },
     clearSong(state) {
-      state.currentSong = null;
+      state.currentSongId = null;
       state.isPlaying = false;
       state.currentTime = 0;
     },
@@ -92,9 +46,11 @@ const playerSlice = createSlice({
     setCurrentTime(state, action: PayloadAction<number>) {
       state.currentTime = action.payload;
     },
-    tick(state) {
-      if (!state.currentSong) return;
-      if (state.currentTime >= state.currentSong.duration) {
+    // duration passed in as payload since song data no longer lives in this slice
+    tick(state, action: PayloadAction<number>) {
+      const duration = action.payload;
+      if (!state.currentSongId) return;
+      if (state.currentTime >= duration) {
         state.isPlaying = false;
         state.currentTime = 0;
       } else {
@@ -132,12 +88,12 @@ const playerSlice = createSlice({
     },
 
     // ── Library ────────────────────────────────────────────────────────────
-    toggleSaved(state) {
-      state.isSaved = !state.isSaved;
-    },
-    setSaved(state, action: PayloadAction<boolean>) {
-      state.isSaved = action.payload;
-    },
+    // toggleSaved(state) {
+    //   state.isSaved = !state.isSaved;
+    // },
+    // setSaved(state, action: PayloadAction<boolean>) {
+    //   state.isSaved = action.payload;
+    // },
 
     // ── Drag flags (used to coordinate CSS changes across components) ──────
     setDraggingProgress(state, action: PayloadAction<boolean>) {
@@ -161,8 +117,8 @@ export const {
   setRepeatMode,
   setVolume,
   toggleMute,
-  toggleSaved,
-  setSaved,
+  // toggleSaved,
+  // setSaved,
   setDraggingProgress,
   setDraggingVolume,
 } = playerSlice.actions;
@@ -172,28 +128,29 @@ export default playerSlice.reducer;
 // ─── Selectors ─────────────────────────────────────────────────────────────────
 // Colocated selectors so components never reach into raw state shape directly.
 
-export const selectSong = (s: { player: PlayerState }) => s.player.currentSong;
-export const selectIsPlaying = (s: { player: PlayerState }) =>
-  s.player.isPlaying;
-export const selectCurrentTime = (s: { player: PlayerState }) =>
-  s.player.currentTime;
-export const selectIsShuffle = (s: { player: PlayerState }) =>
-  s.player.isShuffle;
-export const selectRepeatMode = (s: { player: PlayerState }) =>
-  s.player.repeatMode;
+export const selectCurrentSongId = (s: RootState) => s.player.currentSongId;
+export const selectIsPlaying = (s: RootState) => s.player.isPlaying;
+export const selectCurrentTime = (s: RootState) => s.player.currentTime;
+export const selectIsShuffle = (s: RootState) => s.player.isShuffle;
+export const selectRepeatMode = (s: RootState) => s.player.repeatMode;
 export const selectVolume = (s: { player: PlayerState }) => s.player.volume;
-export const selectPrevVolume = (s: { player: PlayerState }) =>
-  s.player.prevVolume;
-export const selectIsMuted = (s: { player: PlayerState }) => s.player.isMuted;
-export const selectIsSaved = (s: { player: PlayerState }) => s.player.isSaved;
-export const selectEffectiveVol = (s: { player: PlayerState }) =>
-  s.player.isMuted ? 0 : s.player.volume;
-export const selectProgress = (s: { player: PlayerState }) => {
-  const { currentTime, currentSong } = s.player;
-  if (!currentSong || currentSong.duration === 0) return 0;
-  return (currentTime / currentSong.duration) * 100;
-};
-export const selectIsDraggingProgress = (s: { player: PlayerState }) =>
+export const selectPrevVolume = (s: RootState) => s.player.prevVolume;
+export const selectIsDraggingProgress = (s: RootState) =>
   s.player.isDraggingProgress;
-export const selectIsDraggingVolume = (s: { player: PlayerState }) =>
+export const selectIsDraggingVolume = (s: RootState) =>
   s.player.isDraggingVolume;
+// export const selectIsSaved = (s: { player: PlayerState }) => s.player.isSaved;
+// export const selectIsMuted = (s: { player: PlayerState }) => s.player.isMuted;
+
+export const selectEffectiveVol = (s: RootState) =>
+  s.player.isMuted ? 0 : s.player.volume;
+// Duration must be passed in from the component which has access to the current song
+export const selectProgress = (duration: number) => (s: RootState) => {
+  if (!duration) return 0;
+  return (s.player.currentTime / duration) * 100;
+};
+export const selectCurrentSong = (state: RootState) => {
+  const id = state.player.currentSongId;
+  if (!id) return null;
+  return selectSongById(state, id);
+};

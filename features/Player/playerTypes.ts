@@ -7,15 +7,15 @@ export interface PlayerState {
 
   currentTime: number;
 
-  volume: number;
-
-  prevVolume: number;
-
-  isMuted: boolean;
-
   isShuffle: boolean;
-
+  
   repeatMode: RepeatMode;
+  
+  volume: number;
+  
+  prevVolume: number;
+  
+  isMuted: boolean;
 
   isDraggingProgress: boolean;
 

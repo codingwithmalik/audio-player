@@ -9,7 +9,7 @@ import {
   tick,
   selectIsPlaying,
   selectCurrentTime,
-  selectSong,
+  selectCurrentSong,
   selectRepeatMode,
   setCurrentTime,
 } from "@/store/playerSlice";
@@ -18,9 +18,10 @@ export default function usePlaybackTicker() {
   const dispatch = useAppDispatch();
 
   const isPlaying = useAppSelector(selectIsPlaying);
-  const currentSong = useAppSelector(selectSong);
+  const currentSong = useAppSelector(selectCurrentSong);
   const currentTime = useAppSelector(selectCurrentTime);
   const repeatMode = useAppSelector(selectRepeatMode);
+  const duration = currentSong?.duration ?? 0
 
   const tickRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -38,13 +39,13 @@ export default function usePlaybackTicker() {
 
     tickRef.current = setInterval(() => {
       // repeat one mode
-      if (repeatMode === "one" && currentTime >= currentSong.duration) {
+      if (repeatMode === "one" && currentTime >= duration) {
         dispatch(setCurrentTime(0));
         return;
       }
 
       // normal ticking
-      dispatch(tick());
+      dispatch(tick(duration));
     }, 1000);
 
     return () => {
@@ -52,5 +53,5 @@ export default function usePlaybackTicker() {
         clearInterval(tickRef.current);
       }
     };
-  }, [isPlaying, currentSong, currentTime, repeatMode, dispatch]);
+  }, [isPlaying, currentSong, currentTime, repeatMode, dispatch,duration]);
 }

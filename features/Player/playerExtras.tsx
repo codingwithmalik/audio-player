@@ -42,7 +42,7 @@ export default function PlayerExtras({isActive, onQueueOpen, onMiniPlayer, onFul
         title="Queue"
         className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition hover:scale-110 hover:text-neutral-200"
       >
-        <ListMusic className="h-[16px] w-[16px] lg:h-[17px] lg:w-[17px]" />
+        <ListMusic className="h-4 w-4 lg:h-4.25 lg:w-4.25" />
       </button>
 
       {/* Mute */}
@@ -52,7 +52,7 @@ export default function PlayerExtras({isActive, onQueueOpen, onMiniPlayer, onFul
         title={effectiveVol === 0 ? "Unmute" : "Mute"}
         className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition hover:scale-110 hover:text-neutral-200"
       >
-        <VolumeIcon className="h-[16px] w-[16px] lg:h-[17px] lg:w-[17px]" />
+        <VolumeIcon className="h-4 w-4 lg:h-4.25 lg:w-4.25" />
       </button>
 
       {/* Volume slider */}
@@ -91,7 +91,7 @@ export default function PlayerExtras({isActive, onQueueOpen, onMiniPlayer, onFul
         title="Mini Player"
         className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition hover:scale-110 hover:text-neutral-200"
       >
-        <Minimize2 className="h-[14px] w-[14px] lg:h-[15px] lg:w-[15px]" />
+        <Minimize2 className="h-3.5 w-3.5 lg:h-3.75 lg:w-3.75" />
       </button>
 
       {/* Full screen */}
@@ -101,7 +101,7 @@ export default function PlayerExtras({isActive, onQueueOpen, onMiniPlayer, onFul
         title="Full Screen"
         className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition hover:scale-110 hover:text-neutral-200"
       >
-        <Maximize2 className="h-[14px] w-[14px] lg:h-[15px] lg:w-[15px]" />
+        <Maximize2 className="h-3.5 w-3.5 lg:h-3.75 lg:w-3.75" />
       </button>
     </div>
   );

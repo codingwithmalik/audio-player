@@ -6,7 +6,7 @@ import { selectSongById } from "@/features/Songs/songsSlice";
 // ─── Initial state ─────────────────────────────────────────────────────────────
 
 const initialState: PlayerState = {
-  currentSongId: "s1",
+  currentSongId: null,
   isPlaying: false,
   currentTime: 0,
   isShuffle: false,

@@ -13,7 +13,7 @@
  * All Redux dispatches happen in the page — this component emits callbacks.
  */
 
-import { useState, useRef, useEffect,} from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
   Play,
@@ -41,6 +41,17 @@ import {
   selectSortDir,
   selectViewMode,
 } from "@/features/Playlist/playlistSlice";
+import {
+  selectIsShuffle,
+  selectSourceId,
+  setSong,
+  setSourceId,
+  setSourceType,
+  togglePlay,
+  toggleShuffle,
+} from "@/store/playerSlice";
+import { useParams } from "next/navigation";
+import { Song } from "@/types/song";
 
 // ─── Sort option config ───────────────────────────────────────────────────────
 
@@ -53,24 +64,27 @@ const SORT_OPTIONS: { value: SortBy; label: string }[] = [
 ];
 
 // ─── Props ────────────────────────────────────────────────────────────────────
-
 interface PlaylistActionsProps {
   isPlaying: boolean;
   onEditDetails: () => void;
+  songs: Song[];
 }
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function PlaylistActions({
   isPlaying,
   onEditDetails,
+  songs,
 }: PlaylistActionsProps) {
   const dispatch = useAppDispatch();
+  const { id } = useParams<{ id: string }>();
 
   // ── Read UI state from store ────────────────────────────────────────────────
   const sortBy = useAppSelector(selectSortBy);
   const sortDir = useAppSelector(selectSortDir);
   const viewMode = useAppSelector(selectViewMode);
+  const sourceId = useAppSelector(selectSourceId);
+  const isShuffle = useAppSelector(selectIsShuffle);
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -97,11 +111,21 @@ export default function PlaylistActions({
 
   // ── Search / sort / view handlers — dispatch to Redux ──────────────────────
   const handlePlay = () => {
-    console.log("play playlist");
+    console.log("play playlist" + " first song is " + songs.at(0)?.id);
+    const firstSongId = songs.at(0)?.id;
+    if (!firstSongId) return;
+    if (sourceId !== id) {
+      dispatch(setSourceId(id));
+      dispatch(setSourceType("playlist"));
+      dispatch(setSong(firstSongId));
+    } else {
+      dispatch(togglePlay());
+    }
   };
 
   const handleShuffle = () => {
     console.log("shuffle playlist");
+    dispatch(toggleShuffle());
   };
 
   const handleSortChange = (newSortBy: SortBy) => {
@@ -157,8 +181,8 @@ export default function PlaylistActions({
           <button
             onClick={handleShuffle}
             aria-label="Shuffle"
-            className="text-white/60 hover:text-white hover:scale-105 active:scale-95
-                       transition-all duration-150"
+            className={` hover:scale-105 active:scale-95
+                       transition-all duration-150 ${isShuffle ? "text-purple-500" : "text-white/60 hover:text-white"}`}
           >
             <Shuffle className="w-6 h-6" />
           </button>

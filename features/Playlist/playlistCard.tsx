@@ -8,7 +8,7 @@
  * selectFilteredSongs selector handles all filtering + sorting.
  */
 
-import { useEffect, useCallback} from "react";
+import { useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import "overlayscrollbars/overlayscrollbars.css";
@@ -23,6 +23,14 @@ import { upsertSongs, selectSongsByIds } from "@/features/Songs/songsSlice";
 import { songs as mocksongs } from "@/lib/mockData";
 
 import PlaylistView from "./playlistView";
+import {
+  setSong,
+  setSourceId,
+  setSourceType,
+  selectIsPlaying,
+  selectSourceType,
+  selectSourceId,
+} from "@/store/playerSlice";
 
 export default function PlaylistPage() {
   const { id } = useParams<{ id: string }>();
@@ -33,39 +41,50 @@ export default function PlaylistPage() {
     if (!id) return;
     dispatch(upsertSongs(mocksongs));
     // Reset search/sort/view when navigating to a new playlist
-    return () => { dispatch(resetPlaylistUI()); };
+    return () => {
+      dispatch(resetPlaylistUI());
+    };
   }, [id, dispatch]);
 
   // ── Read entities from store ────────────────────────────────────────────────
   const playlist = useAppSelector((s) => selectPlaylistById(s, id));
   const songIds = playlist?.songs.map((s) => s.songId) ?? [];
   const songs = useAppSelector((s) => selectSongsByIds(s, songIds));
-
+  const sourceType = useAppSelector(selectSourceType);
+  const sourceId = useAppSelector(selectSourceId);
   // ── Filtered + sorted songs via selector ───────────────────────────────────
   const filteredSongs = useAppSelector((s) => selectFilteredSongs(s, songs));
 
   // ── Derived values ──────────────────────────────────────────────────────────
   const totalSecs = songs.reduce((total, s) => total + s.duration, 0);
-  const hrs  = Math.floor(totalSecs / 3600);
+  const hrs = Math.floor(totalSecs / 3600);
   const mins = Math.floor((totalSecs % 3600) / 60);
   const secs = Math.floor(totalSecs % 60);
   const durationLabel =
     hrs > 0 ? `about ${hrs} hr ${mins} min` : `${mins} min ${secs} seconds`;
 
+  // Checking is the playlistPlaying
+  const isplaying = useAppSelector(selectIsPlaying);
+  const isPlaylistPlaying =
+    isplaying && sourceType === "playlist" && sourceId === id;
+  console.log(sourceId, sourceType, isplaying, isPlaylistPlaying);
   // Hardcoded until auth + liked-songs slices are built
   const likedSongIds = new Set<string>(["s2", "s5"]);
-  const isPlaylistPlaying = false;
-
+  // const isPlaylistPlaying = false;
   // ── Playback handlers ───────────────────────────────────────────────────────
-  const handlePlaySong = useCallback((songId: string, index: number) => {
-    console.log("play song", songId, "at index", index);
-  }, []);
+  const handlePlaySong = useCallback(
+    (songId: string, index: number) => {
+      dispatch(setSong(songId));
+      dispatch(setSourceId(id));
+      dispatch(setSourceType("playlist"));
+      console.log("play song", songId, "at index", index);
+    },
+    [dispatch, id],
+  );
 
   const handleLikeSong = useCallback((songId: string) => {
     console.log("like song", songId);
   }, []);
-
-
 
   // ── Loading state ───────────────────────────────────────────────────────────
   if (!playlist) {

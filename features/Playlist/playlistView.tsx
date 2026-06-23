@@ -25,6 +25,7 @@ import {
   selectViewMode,
   updatePlaylistMeta,
 } from "@/features/Playlist/playlistSlice";
+import { selectCurrentSongId } from "@/store/playerSlice";
 
 interface PlaylistViewProps {
   playlist: Playlist;
@@ -56,6 +57,7 @@ export default function PlaylistView({
   const dispatch = useAppDispatch();
   const viewMode = useAppSelector(selectViewMode);
   const containerRef = useRef<HTMLDivElement>(null);
+  const currentSongId = useAppSelector(selectCurrentSongId) ?? "";
 
   const songCovers = songs.slice(0, 4).map((s) => s.coverImage);
   const songCoversStrings = songCovers.filter((c): c is string => Boolean(c));
@@ -134,6 +136,7 @@ export default function PlaylistView({
 
       <div data-gsap="actions">
         <PlaylistActions
+          songs={filteredSongs}
           isPlaying={isPlaylistPlaying}
           onEditDetails={handleEditDetails}
         />
@@ -145,14 +148,18 @@ export default function PlaylistView({
             songs={filteredSongs}
             playlistSongs={playlist.songs}
             likedSongIds={likedSongIds}
+            currentSongId={currentSongId}
             onPlaySong={onPlaySong}
+            isPlaylistPlaying={isPlaylistPlaying}
             onLikeSong={onLikeSong}
           />
         ) : (
           /* Grid view */
           <PlaylistTrackGrid
             filteredSongs={filteredSongs}
+            currentSongId={currentSongId}
             onPlaySong={onPlaySong}
+            isPlaylistPlaying={isPlaylistPlaying}
           />
         )}
 

@@ -22,15 +22,20 @@ import { PlaylistSong } from "@/types/playlist";
 
 interface PlaylistTrackListProps {
   songs: Song[];
-  playlistSongs: PlaylistSong[];     // parallel array — carries addedAt per song
+  playlistSongs: PlaylistSong[]; // parallel array — carries addedAt per song
   likedSongIds: Set<string>;
+  currentSongId: string | null;
   onPlaySong: (songId: string, index: number) => void;
   onLikeSong: (songId: string) => void;
+  isPlaylistPlaying:boolean
+
 }
 
 export default function PlaylistTrackList({
   songs,
   playlistSongs,
+  currentSongId,
+  isPlaylistPlaying,
   likedSongIds,
   onPlaySong,
   onLikeSong,
@@ -42,7 +47,6 @@ export default function PlaylistTrackList({
       </div>
     );
   }
-  const currentSongId = "s2"
   return (
     <div role="table" aria-label="Playlist tracks" className="w-full px-2">
       {/* Column header */}
@@ -76,7 +80,7 @@ export default function PlaylistTrackList({
               song={song}
               index={i + 1}
               addedAt={playlistSongs[i]?.addedAt ?? song.createdAt}
-              isPlaying={song.id === currentSongId}
+              isPlaying={isPlaylistPlaying && song.id === currentSongId}
               isLiked={likedSongIds.has(song.id)}
               onPlay={() => onPlaySong(song.id, i)}
               onLike={() => onLikeSong(song.id)}

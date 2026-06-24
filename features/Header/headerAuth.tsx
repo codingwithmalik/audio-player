@@ -20,7 +20,6 @@ import { logout, setUser } from "../Auth/authSlice";
 import { playlists } from "@/lib/mockData";
 import { upsertPlaylists } from "../Playlist/playlistSlice";
 
-
 export default function HeaderAuth() {
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
@@ -56,7 +55,6 @@ export default function HeaderAuth() {
     setProfileMenu(false);
   };
   const handleLogin = () => {
-    
     dispatch(
       setUser({
         id: "user-1",
@@ -66,11 +64,11 @@ export default function HeaderAuth() {
       }),
     );
   };
+  console.log(user);
   useEffect(() => {
-  if (user) {
-        dispatch(upsertPlaylists(playlists));    
-  }
-}, [user, dispatch]);
+    console.log("User signed in now setting the playlists");
+    dispatch(upsertPlaylists(playlists));
+  }, [dispatch]);
 
   return (
     <div className="hidden md:flex items-center gap-3">

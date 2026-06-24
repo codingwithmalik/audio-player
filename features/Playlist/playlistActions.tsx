@@ -77,7 +77,7 @@ export default function PlaylistActions({
   songs,
 }: PlaylistActionsProps) {
   const dispatch = useAppDispatch();
-  const { id } = useParams<{ id: string }>();
+  const { ID } = useParams<{ ID: string }>();
 
   // ── Read UI state from store ────────────────────────────────────────────────
   const sortBy = useAppSelector(selectSortBy);
@@ -114,8 +114,8 @@ export default function PlaylistActions({
     console.log("play playlist" + " first song is " + songs.at(0)?.id);
     const firstSongId = songs.at(0)?.id;
     if (!firstSongId) return;
-    if (sourceId !== id) {
-      dispatch(setSourceId(id));
+    if (sourceId !== ID) {
+      dispatch(setSourceId(ID));
       dispatch(setSourceType("playlist"));
       dispatch(setSong(firstSongId));
     } else {

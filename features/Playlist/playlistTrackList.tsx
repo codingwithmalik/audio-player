@@ -71,7 +71,6 @@ export default function PlaylistTrackList({
         </span>
         <span /> {/* more button column */}
       </div>
-
       {/* Rows */}
       <div role="rowgroup" className="flex flex-col gap-0.5 mt-1">
         {songs.map((song, i) => (

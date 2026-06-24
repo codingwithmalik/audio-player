@@ -9,10 +9,8 @@
  */
 
 import { useEffect, useCallback } from "react";
-import { useParams } from "next/navigation";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import "overlayscrollbars/overlayscrollbars.css";
-
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
   selectPlaylistById,
@@ -21,7 +19,6 @@ import {
 } from "@/features/Playlist/playlistSlice";
 import { upsertSongs, selectSongsByIds } from "@/features/Songs/songsSlice";
 import { songs as mocksongs } from "@/lib/mockData";
-
 import PlaylistView from "./playlistView";
 import {
   setSong,
@@ -32,8 +29,8 @@ import {
   selectSourceId,
 } from "@/store/playerSlice";
 
-export default function PlaylistPage() {
-  const { id } = useParams<{ id: string }>();
+export default function PlaylistPage({id}:{id:string}) {
+  console.log("Playlist found : "+id)
   const dispatch = useAppDispatch();
 
   // ── Load mock data on mount ─────────────────────────────────────────────────

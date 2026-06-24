@@ -17,12 +17,19 @@ export default function LibraryItem({ item }: Props) {
   const isFolder = item.type === "folder";
 
   const isPlaylist = item.type === "playlist";
+  // console.log(isPlaylist)
   const id = isPlaylist ? item.id : "";
+  // console.log(id);
   const playlist = useAppSelector((s) => selectPlaylistById(s, id));
+  // console.log(playlist);
   const songIds = playlist?.songs.map((s) => s.songId) ?? [];
+  // console.log(songIds);
   const songs = useAppSelector((s) => selectSongsByIds(s, songIds));
+  // console.log(songs);
   const songCovers = songs.slice(0, 4).map((s) => s.coverImage);
+  // console.log(songCovers);
   const songCoversStrings = songCovers.filter((c): c is string => Boolean(c));
+  // console.log(songCoversStrings);
 
   return (
     <Link href={`${isFolder ? `/folder/${item.id}` : `/playlist/${item.id}`}`}>
@@ -33,12 +40,13 @@ export default function LibraryItem({ item }: Props) {
             {isFolder ? (
               <FolderClosed className="w-12 h-12" />
             ) : (
+              <div className=" w-14 h-14 aspect-square">
               <PlaylistMosaicCover
                 songCovers={songCoversStrings}
                 title={isPlaylist ? item.title : ""}
                 coverImage={item.coverImage}
-                size={50}
               />
+              </div>
             )}
           </div>
         </div>

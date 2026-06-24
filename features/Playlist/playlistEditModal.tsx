@@ -102,7 +102,6 @@ export default function PlaylistEditModal({
               coverImage={playlist.coverImage}
               songCovers={songCovers}
               title={playlist.title}
-              size={180}
             />
             {/* Hover overlay */}
             <div

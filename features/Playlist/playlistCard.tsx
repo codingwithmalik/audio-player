@@ -8,17 +8,15 @@
  * selectFilteredSongs selector handles all filtering + sorting.
  */
 
-import { useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import "overlayscrollbars/overlayscrollbars.css";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
   selectPlaylistById,
   selectFilteredSongs,
-  resetPlaylistUI,
 } from "@/features/Playlist/playlistSlice";
-import { upsertSongs, selectSongsByIds } from "@/features/Songs/songsSlice";
-import { songs as mocksongs } from "@/lib/mockData";
+import {  selectSongsByIds } from "@/features/Songs/songsSlice";
 import PlaylistView from "./playlistView";
 import {
   setSong,
@@ -30,18 +28,17 @@ import {
 } from "@/store/playerSlice";
 
 export default function PlaylistPage({id}:{id:string}) {
-  console.log("Playlist found : "+id)
+  // console.log("Playlist found : "+id)
   const dispatch = useAppDispatch();
 
   // ── Load mock data on mount ─────────────────────────────────────────────────
-  useEffect(() => {
-    if (!id) return;
-    dispatch(upsertSongs(mocksongs));
-    // Reset search/sort/view when navigating to a new playlist
-    return () => {
-      dispatch(resetPlaylistUI());
-    };
-  }, [id, dispatch]);
+  // useEffect(() => {
+  //   if (!id) return;
+  //   // Reset search/sort/view when navigating to a new playlist
+  //   return () => {
+  //     dispatch(resetPlaylistUI());
+  //   };
+  // }, [id, dispatch]);
 
   // ── Read entities from store ────────────────────────────────────────────────
   const playlist = useAppSelector((s) => selectPlaylistById(s, id));

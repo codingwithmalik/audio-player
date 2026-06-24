@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import { logout, setUser } from "../Auth/authSlice";
-import { playlists } from "@/lib/mockData";
+import { playlists, songs } from "@/lib/mockData";
 import { upsertPlaylists } from "../Playlist/playlistSlice";
+import { upsertSongs } from "../Songs/songsSlice";
 
 export default function HeaderAuth() {
   const dispatch = useAppDispatch();
@@ -68,6 +69,8 @@ export default function HeaderAuth() {
   useEffect(() => {
     console.log("User signed in now setting the playlists");
     dispatch(upsertPlaylists(playlists));
+    dispatch(upsertSongs(songs));
+
   }, [dispatch]);
 
   return (

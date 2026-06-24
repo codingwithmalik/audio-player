@@ -5,8 +5,8 @@ import { useParams } from "next/navigation";
 
 export default function Page() {
   const { ID } = useParams<{ ID: string }>();
-  const params = useParams();
-  console.log(params);
-  console.log("ID found: " + ID);
+  // const params = useParams();
+  // console.log(params);
+  // console.log("ID found: " + ID);
   return <PlaylistCard id={ID} />;
 }

@@ -133,7 +133,7 @@ export default function CreateButton() {
         className="bg-white/10 hover:bg-white/20 transition rounded-full p-2 lg:px-4 flex items-center gap-2 text-sm font-medium"
       >
         <Plus ref={plusRef} size={18} />
-        <span className="hidden lg:block">{open ? "Cancel" : "Create"}</span>
+        <span className="hidden xl:block">{open ? "Cancel" : "Create"}</span>
       </button>
 
       {/* Dropdown */}

@@ -44,7 +44,7 @@ export default function PlaylistHero({
       <div className="flex items-end gap-6 p-6" >
         {/* Cover art — mosaic or single */}
         <div className="relative rounded-lg overflow-hidden shrink-0 shadow-xl group
-                       cursor-pointer"
+                       cursor-pointer bg-white/10"
                        onClick={onEditCover}
                        >
           <PlaylistMosaicCover

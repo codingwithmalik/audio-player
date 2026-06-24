@@ -75,7 +75,7 @@ export default function Library({ scrollable = false }: Props) {
         <LibraryHeader />
         <LibraryFilters />
       </div>
-      <div className="p-4">
+      <div className="pr-4 pb-4 pl-3">
         <LibrarySearch />
         <LibraryList />
       </div>

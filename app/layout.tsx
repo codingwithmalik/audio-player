@@ -31,7 +31,7 @@ export default function RootLayout({
         <ReduxProvider>
             <div className="hidden md:grid h-screen grid-rows-[auto_1fr_auto] max-w-screen">
               <Header />
-              <div className="grid gap-2 m-1 my-4 overflow-hidden grid-cols-[80px_6fr_3fr] lg:grid-cols-[320px_3fr_320px] layout-grid">
+              <div className="grid gap-2 m-1 my-4 overflow-hidden grid-cols-[80px_6fr_3fr] lg:grid-cols-[clamp(260px,20vw,320px)_3fr_clamp(260px,20vw,320px)] layout-grid">
                 <LeftSidebar />
                 <div className="overflow-hidden min-w-0">{children}</div>
                 <Rightsidebar />

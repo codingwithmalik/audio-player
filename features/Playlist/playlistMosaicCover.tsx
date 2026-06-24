@@ -34,7 +34,7 @@ export default function PlaylistMosaicCover({
       aria-label={`${title} cover`}
     >
       {/* Base fallback icon */}
-      <div className="absolute inset-0 bg-white/10 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center">
         <ListMusic className="w-16 h-16 text-zinc-200 " />
       </div>
 

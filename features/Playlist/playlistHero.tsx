@@ -111,8 +111,8 @@ export default function PlaylistHero({
               {ownerName}
             </span>
 
-            <span className="text-sm text-white/60 mx-1">•</span>
             <span className="text-sm text-white/60 font-medium ">
+            <span className="text-sm text-white/60 mx-1">•</span>
               {songCount} songs,{" "}
               <span className="text-white/60">{totalDurationLabel}</span>
             </span>

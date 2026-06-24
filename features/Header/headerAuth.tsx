@@ -71,7 +71,7 @@ export default function HeaderAuth() {
   }, [dispatch]);
 
   return (
-    <div className="hidden md:flex items-center gap-3">
+    <div className="flex items-center gap-3">
       {/* ── NOT LOGGED IN ── */}
       {!isAuthenticated && (
         <>

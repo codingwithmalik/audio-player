@@ -159,55 +159,54 @@ export default function PlaylistActions({
 
   return (
     <div className="flex flex-col px-6 py-4 gap-3">
-      {/* ── Row 1 ── */}
+    {/* ── Row 1 ── */}
       <div className="flex items-center justify-between gap-4">
-        {/* Left: playback controls — always visible */}
-        <div className="flex items-center gap-4 shrink-0">
+        {/* Left: playback controls */}
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
           {/* Play / Pause */}
           <button
             onClick={handlePlay}
             aria-label={isPlaying ? "Pause" : "Play"}
-            className="w-14 h-14 rounded-full bg-white/60 flex items-center justify-center
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/60 flex items-center justify-center
                        shadow-lg hover:scale-105 active:scale-95 transition-transform duration-150
                        hover:bg-white shrink-0"
           >
             {isPlaying ? (
-              <Pause className="w-6 h-6 text-black fill-black" />
+              <Pause className="w-5 h-5 sm:w-6 sm:h-6 text-black fill-black" />
             ) : (
-              <Play className="w-6 h-6 text-black fill-black ml-0.5" />
+              <Play className="w-5 h-5 sm:w-6 sm:h-6 text-black fill-black ml-0.5" />
             )}
           </button>
 
           <button
             onClick={handleShuffle}
             aria-label="Shuffle"
-            className={` hover:scale-105 active:scale-95
-                       transition-all duration-150 ${isShuffle ? "text-purple-500" : "text-white/60 hover:text-white"}`}
+            className={`hover:scale-105 active:scale-95 transition-all duration-150
+                       ${isShuffle ? "text-purple-500" : "text-white/60 hover:text-white"}`}
           >
-            <Shuffle className="w-6 h-6" />
+            <Shuffle className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           <button
             aria-label="Download"
             className="text-white/60 hover:text-white transition-colors duration-150"
           >
-            <Download className="w-6 h-6" />
+            <Download className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           <button
             aria-label="More options"
             className="text-white/60 hover:text-white transition-colors duration-150"
           >
-            <MoreHorizontal className="w-6 h-6" />
+            <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
-        {/* Right: search bar (inline) + sort + view */}
-        <div className="flex items-center gap-3 min-w-0">
-          {/* Search bar — expands inline, collapses to icon */}
+        {/* Right: search + sort — always on same line as controls */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Search */}
           <div className="flex items-center">
             {searchOpen ? (
-              /* Expanded search input */
               <div className="relative flex items-center">
                 <Search className="absolute left-3 w-4 h-4 text-white/40 pointer-events-none" />
                 <input
@@ -215,7 +214,7 @@ export default function PlaylistActions({
                   type="text"
                   onChange={handleQueryChange}
                   placeholder="Search in playlist"
-                  className="w-48 sm:w-56 bg-white/10 border border-white/20 rounded-lg
+                  className="w-36 sm:w-48 md:w-56 bg-white/10 border border-white/20 rounded-lg
                              pl-9 pr-8 py-2 text-sm text-white placeholder:text-white/30
                              focus:outline-none focus:border-white/40 focus:bg-white/15
                              transition-all duration-200"
@@ -223,19 +222,16 @@ export default function PlaylistActions({
                 <button
                   onClick={handleSearchToggle}
                   aria-label="Close search"
-                  className="absolute right-2 text-white/40 hover:text-white
-                             transition-colors duration-150"
+                  className="absolute right-2 text-white/40 hover:text-white transition-colors duration-150"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              /* Collapsed — just the icon */
               <button
                 onClick={handleSearchToggle}
                 aria-label="Search in playlist"
-                className="text-white/60 hover:text-white hover:scale-105
-                           transition-all duration-150"
+                className="text-white/60 hover:text-white hover:scale-105 transition-all duration-150"
               >
                 <Search className="w-5 h-5" />
               </button>
@@ -254,18 +250,13 @@ export default function PlaylistActions({
               <LayoutList className="w-5 h-5" />
             </button>
 
-            {/* Dropdown panel */}
             {dropdownOpen && (
               <div
                 className="absolute right-0 top-82 mt-2 w-52 z-500
                            bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
                            py-2 overflow-hidden"
               >
-                {/* Sort by section */}
-                <p
-                  className="text-[11px] text-white/40 font-semibold uppercase
-                               tracking-wider px-4 py-1.5"
-                >
+                <p className="text-[11px] text-white/40 font-semibold uppercase tracking-wider px-4 py-1.5">
                   Sort by
                 </p>
                 {SORT_OPTIONS.map((opt) => {
@@ -275,30 +266,20 @@ export default function PlaylistActions({
                       key={opt.value}
                       onClick={() => {
                         handleSortChange(opt.value);
-                        // keep dropdown open so user can see dir change
                         if (opt.value === "custom") setDropdownOpen(false);
                       }}
                       className="w-full flex items-center justify-between px-4 py-2.5
-                                 text-sm hover:bg-white/10 transition-colors duration-100
-                                 text-left"
+                                 text-sm hover:bg-white/10 transition-colors duration-100 text-left"
                     >
-                      <span
-                        className={
-                          isActive
-                            ? "text-purple-600 font-medium"
-                            : "text-white"
-                        }
-                      >
+                      <span className={isActive ? "text-purple-600 font-medium" : "text-white"}>
                         {opt.label}
                       </span>
                       <span className="flex items-center gap-1">
-                        {isActive &&
-                          opt.value !== "custom" &&
-                          (sortDir === "asc" ? (
-                            <ChevronUp className="w-3.5 h-3.5 text-purple-600" />
-                          ) : (
-                            <ChevronDown className="w-3.5 h-3.5 text-purple-600" />
-                          ))}
+                        {isActive && opt.value !== "custom" && (
+                          sortDir === "asc"
+                            ? <ChevronUp className="w-3.5 h-3.5 text-purple-600" />
+                            : <ChevronDown className="w-3.5 h-3.5 text-purple-600" />
+                        )}
                         {isActive && opt.value === "custom" && (
                           <Check className="w-3.5 h-3.5 text-purple-600" />
                         )}
@@ -307,14 +288,9 @@ export default function PlaylistActions({
                   );
                 })}
 
-                {/* Divider */}
                 <div className="border-t border-white/10 my-2" />
 
-                {/* View as section */}
-                <p
-                  className="text-[11px] text-white/40 font-semibold uppercase
-                               tracking-wider px-4 py-1.5"
-                >
+                <p className="text-[11px] text-white/40 font-semibold uppercase tracking-wider px-4 py-1.5">
                   View as
                 </p>
                 {(["list", "grid"] as ViewMode[]).map((mode) => {
@@ -331,22 +307,12 @@ export default function PlaylistActions({
                                  text-sm hover:bg-white/10 transition-colors duration-100"
                     >
                       <span className="flex items-center gap-2">
-                        <Icon
-                          className={`w-4 h-4 ${isActive ? "text-purple-600" : "text-white/60"}`}
-                        />
-                        <span
-                          className={
-                            isActive
-                              ? "text-purple-600 font-medium capitalize"
-                              : "text-white capitalize"
-                          }
-                        >
+                        <Icon className={`w-4 h-4 ${isActive ? "text-purple-600" : "text-white/60"}`} />
+                        <span className={isActive ? "text-purple-600 font-medium capitalize" : "text-white capitalize"}>
                           {mode}
                         </span>
                       </span>
-                      {isActive && (
-                        <Check className="w-3.5 h-3.5 text-purple-600" />
-                      )}
+                      {isActive && <Check className="w-3.5 h-3.5 text-purple-600" />}
                     </button>
                   );
                 })}

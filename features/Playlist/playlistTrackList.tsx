@@ -52,10 +52,7 @@ export default function PlaylistTrackList({
       {/* Column header */}
       <div
         role="row"
-        className="grid items-center gap-4 px-4 pb-2 mb-1 border-b border-white/10"
-        style={{
-          gridTemplateColumns: "32px 1.5fr 1fr  48px 32px",
-        }}
+        className="hidden sm:grid items-center gap-4 px-4 pb-2 mb-1 border-b border-white/10 sm:grid-cols-[32px_1.5fr_1fr_48px_32px]  "
       >
         <span className="text-xs text-white/40 text-center font-semibold">
           #

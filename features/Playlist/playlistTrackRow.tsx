@@ -69,15 +69,12 @@ export default function PlaylistTrackRow({
       onDoubleClick={onPlay}
       className={`
         grid items-center gap-4 px-4 py-2 rounded-md cursor-default select-none
-        transition-colors duration-100
+        transition-colors duration-100 sm:grid-cols-[32px_1.5fr_1fr_48px_32px] grid-cols-[1.5fr_32px]
         ${hovered ? "bg-white/10" : "bg-transparent"}
       `}
-      style={{
-        gridTemplateColumns: "32px 1.5fr 1fr 48px 32px",
-      }}
     >
       {/* ── 1: index / play / equalizer ── */}
-      <div className="flex items-center justify-center">
+      <div className="hidden sm:flex items-center justify-center">
         {isPlaying && !hovered ? (
           <EqBars />
         ) : hovered ? (
@@ -150,12 +147,12 @@ export default function PlaylistTrackRow({
       </div>
 
       {/* ── 4: date added ── */}
-      <span className="text-sm text-white/50 truncate">
+      <span className="hidden sm:block text-sm text-white/50 truncate">
         {formatDate(addedAt)}
       </span>
 
       {/* ── 5: duration ── */}
-      <span className="text-sm text-white/50 text-right tabular-nums">
+      <span className="hidden sm:block text-sm text-white/50 text-right tabular-nums">
         {formatDuration(song.duration)}
       </span>
 

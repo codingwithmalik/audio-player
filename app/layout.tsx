@@ -41,7 +41,7 @@ export default function RootLayout({
             <Player />
           </div>
           <div className="flex md:hidden flex-col h-screen">
-            <main className="flex-1 overflow-y-auto pb-34">{children}</main>
+            <main className="flex-1 overflow-y-auto pb-37">{children}</main>
             <div className="fixed bottom-16 left-0 right-0 z-40">
               <Player />
             </div>

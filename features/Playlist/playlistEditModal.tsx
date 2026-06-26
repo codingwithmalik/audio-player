@@ -8,7 +8,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
-import { X, } from "lucide-react";
+import { X } from "lucide-react";
 import { Playlist } from "@/types/playlist";
 import PlaylistMosaicCover from "./playlistMosaicCover";
 
@@ -89,42 +89,44 @@ export default function PlaylistEditModal({
         </div>
 
         {/* Body */}
-        <div className="flex gap-5">
+        <div className="flex-col sm:flex-row flex gap-5">
           {/* Cover — reuses PlaylistMosaicCover, wrapped in a clickable button */}
-          <button
-            onClick={onEditCover}
-            aria-label="Change playlist cover"
-            className="relative rounded-lg overflow-hidden shrink-0 shadow-xl
+          <div className="max-sm:w-full flex justify-center">
+            <button
+              onClick={onEditCover}
+              aria-label="Change playlist cover"
+              className="relative rounded-lg overflow-hidden shrink-0 shadow-xl
                        w-40 h-40 sm:w-45 sm:h-45
                        group cursor-pointer"
-          >
-            <PlaylistMosaicCover
-              coverImage={playlist.coverImage}
-              songCovers={songCovers}
-              title={playlist.title}
-            />
-            {/* Hover overlay */}
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center gap-2
+            >
+              <PlaylistMosaicCover
+                coverImage={playlist.coverImage}
+                songCovers={songCovers}
+                title={playlist.title}
+              />
+              {/* Hover overlay */}
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center gap-2
                          bg-black/60 opacity-0 group-hover:opacity-100
                          transition-opacity duration-200"
-            >
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                <svg
-                  className="w-5 h-5 text-white"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-                </svg>
+              >
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                  <svg
+                    className="w-5 h-5 text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                  </svg>
+                </div>
+                <span className="text-white text-xs font-semibold">
+                  Choose photo
+                </span>
               </div>
-              <span className="text-white text-xs font-semibold">
-                Choose photo
-              </span>
-            </div>
-          </button>
+            </button>
+          </div>
 
           {/* Inputs */}
           <div className="flex flex-col gap-3 flex-1 min-w-0">

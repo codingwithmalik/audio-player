@@ -52,6 +52,7 @@ import {
 } from "@/store/playerSlice";
 import { useParams } from "next/navigation";
 import { Song } from "@/types/song";
+import BottomSheet from "../Common/BottomSheet";
 
 // ─── Sort option config ───────────────────────────────────────────────────────
 
@@ -159,7 +160,7 @@ export default function PlaylistActions({
 
   return (
     <div className="flex flex-col px-6 py-4 gap-3">
-    {/* ── Row 1 ── */}
+      {/* ── Row 1 ── */}
       <div className="flex items-center justify-between gap-4">
         {/* Left: playback controls */}
         <div className="flex items-center gap-3 sm:gap-4 shrink-0">
@@ -252,7 +253,7 @@ export default function PlaylistActions({
 
             {dropdownOpen && (
               <div
-                className="absolute right-0 top-82 mt-2 w-52 z-500
+                className="hidden sm:block absolute right-0 top-82 mt-2 w-52 z-500
                            bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
                            py-2 overflow-hidden"
               >
@@ -271,15 +272,23 @@ export default function PlaylistActions({
                       className="w-full flex items-center justify-between px-4 py-2.5
                                  text-sm hover:bg-white/10 transition-colors duration-100 text-left"
                     >
-                      <span className={isActive ? "text-purple-600 font-medium" : "text-white"}>
+                      <span
+                        className={
+                          isActive
+                            ? "text-purple-600 font-medium"
+                            : "text-white"
+                        }
+                      >
                         {opt.label}
                       </span>
                       <span className="flex items-center gap-1">
-                        {isActive && opt.value !== "custom" && (
-                          sortDir === "asc"
-                            ? <ChevronUp className="w-3.5 h-3.5 text-purple-600" />
-                            : <ChevronDown className="w-3.5 h-3.5 text-purple-600" />
-                        )}
+                        {isActive &&
+                          opt.value !== "custom" &&
+                          (sortDir === "asc" ? (
+                            <ChevronUp className="w-3.5 h-3.5 text-purple-600" />
+                          ) : (
+                            <ChevronDown className="w-3.5 h-3.5 text-purple-600" />
+                          ))}
                         {isActive && opt.value === "custom" && (
                           <Check className="w-3.5 h-3.5 text-purple-600" />
                         )}
@@ -307,17 +316,109 @@ export default function PlaylistActions({
                                  text-sm hover:bg-white/10 transition-colors duration-100"
                     >
                       <span className="flex items-center gap-2">
-                        <Icon className={`w-4 h-4 ${isActive ? "text-purple-600" : "text-white/60"}`} />
-                        <span className={isActive ? "text-purple-600 font-medium capitalize" : "text-white capitalize"}>
+                        <Icon
+                          className={`w-4 h-4 ${isActive ? "text-purple-600" : "text-white/60"}`}
+                        />
+                        <span
+                          className={
+                            isActive
+                              ? "text-purple-600 font-medium capitalize"
+                              : "text-white capitalize"
+                          }
+                        >
                           {mode}
                         </span>
                       </span>
-                      {isActive && <Check className="w-3.5 h-3.5 text-purple-600" />}
+                      {isActive && (
+                        <Check className="w-3.5 h-3.5 text-purple-600" />
+                      )}
                     </button>
                   );
                 })}
               </div>
             )}
+            <BottomSheet
+              onClose={() => setDropdownOpen(false)}
+              title="Sort by"
+              isOpen={dropdownOpen}
+            >
+           
+                {SORT_OPTIONS.map((opt) => {
+                  const isActive = sortBy === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        handleSortChange(opt.value);
+                        if (opt.value === "custom") setDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-4 py-2.5
+                                 text-sm hover:bg-white/10 transition-colors duration-100 text-left"
+                    >
+                      <span
+                        className={
+                          isActive
+                            ? "text-purple-600 font-medium"
+                            : "text-white"
+                        }
+                      >
+                        {opt.label}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        {isActive &&
+                          opt.value !== "custom" &&
+                          (sortDir === "asc" ? (
+                            <ChevronUp className="w-3.5 h-3.5 text-purple-600" />
+                          ) : (
+                            <ChevronDown className="w-3.5 h-3.5 text-purple-600" />
+                          ))}
+                        {isActive && opt.value === "custom" && (
+                          <Check className="w-3.5 h-3.5 text-purple-600" />
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+
+                <div className="border-t border-white/10 my-2" />
+
+                <p className="text-[11px] text-white/40 font-semibold uppercase tracking-wider px-4 py-1.5">
+                  View as
+                </p>
+                {(["list", "grid"] as ViewMode[]).map((mode) => {
+                  const isActive = viewMode === mode;
+                  const Icon = mode === "list" ? LayoutList : LayoutGrid;
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => {
+                        handleViewModeChange(mode);
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-4 py-2.5
+                                 text-sm hover:bg-white/10 transition-colors duration-100"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Icon
+                          className={`w-4 h-4 ${isActive ? "text-purple-600" : "text-white/60"}`}
+                        />
+                        <span
+                          className={
+                            isActive
+                              ? "text-purple-600 font-medium capitalize"
+                              : "text-white capitalize"
+                          }
+                        >
+                          {mode}
+                        </span>
+                      </span>
+                      {isActive && (
+                        <Check className="w-3.5 h-3.5 text-purple-600" />
+                      )}
+                    </button>
+                  );
+                })}
+            </BottomSheet>
           </div>
         </div>
       </div>

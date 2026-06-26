@@ -233,7 +233,7 @@ export function ProgressBar({
           className="pointer-events-none absolute left-0 top-0 h-full rounded-full transition-colors duration-100"
           style={{
             width: `${progress}%`,
-            background: isDragging ? "#4ade80" : "white",
+            background: isDragging ? "bg-purple-600" : "white",
           }}
         />
         <div

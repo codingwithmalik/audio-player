@@ -20,31 +20,23 @@ export default function BottomSheet({
 }: BottomSheetProps) {
   const sheetRef    = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
-  const quickY      = useRef<gsap.QuickToFunc | null>(null);
   const touchStartY = useRef(0);
   const dragDelta   = useRef(0);
 
-  // Controls DOM presence — stays true during exit animation
   const [visible, setVisible] = useState(false);
 
-  // ── Step 1: mount when isOpen becomes true ────────────────────────────────
+  // ── Step 1: mount ─────────────────────────────────────────────────────────
   useEffect(() => {
     if (isOpen) setVisible(true);
   }, [isOpen]);
 
-  // ── Step 2: animate after DOM is rendered (visible changed) ──────────────
+  // ── Step 2: animate after DOM renders ────────────────────────────────────
   useEffect(() => {
     const sheet    = sheetRef.current;
     const backdrop = backdropRef.current;
     if (!sheet || !backdrop) return;
 
     if (isOpen && visible) {
-      // Refs exist now — animate in
-      quickY.current = gsap.quickTo(sheet, "y", {
-        duration: 0.2,
-        ease: "power2.out",
-      });
-
       gsap.set(sheet,    { y: "100%" });
       gsap.set(backdrop, { opacity: 0, pointerEvents: "auto" });
 
@@ -53,7 +45,6 @@ export default function BottomSheet({
         .to(sheet,    { y: "30%",  duration: 0.4, ease: "power3.out" }, "-=0.1");
 
     } else if (!isOpen && visible) {
-      // Animate out then unmount
       gsap.set(backdrop, { pointerEvents: "none" });
 
       gsap.timeline({ onComplete: () => setVisible(false) })
@@ -76,25 +67,35 @@ export default function BottomSheet({
     return () => document.removeEventListener("keydown", handler);
   }, [isOpen, onClose]);
 
-  // ── Touch swipe to close ──────────────────────────────────────────────────
+  // ── Touch — drag handle only, swipe down to close ────────────────────────
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
     dragDelta.current   = 0;
   }, []);
 
   const onTouchMove = useCallback((e: React.TouchEvent) => {
+    const sheet = sheetRef.current;
+    if (!sheet) return;
+
     const delta = e.touches[0].clientY - touchStartY.current;
-    if (delta < 0) return;
+    if (delta < 0) return; // block upward drag
+
     dragDelta.current = delta;
-    const y = 30 + (delta / window.innerHeight) * 100;
-    quickY.current?.(`${y}%`);
+
+    // Sheet starts at 30% — dragging down increases translateY
+    const dragPercent = (delta / window.innerHeight) * 100;
+    gsap.set(sheet, { y: `${30 + dragPercent}%` });
   }, []);
 
   const onTouchEnd = useCallback(() => {
+    const sheet = sheetRef.current;
+    if (!sheet) return;
+
     if (dragDelta.current > window.innerHeight * 0.2) {
       onClose();
     } else {
-      gsap.to(sheetRef.current, { y: "30%", duration: 0.3, ease: "power3.out" });
+      // Snap back
+      gsap.to(sheet, { y: "30%", duration: 0.3, ease: "power3.out" });
     }
     dragDelta.current = 0;
   }, [onClose]);
@@ -105,7 +106,7 @@ export default function BottomSheet({
 
   return createPortal(
     <div className="sm:hidden">
-      {/* Backdrop */}
+      {/* Backdrop — click closes */}
       <div
         ref={backdropRef}
         onClick={onClose}
@@ -113,9 +114,10 @@ export default function BottomSheet({
         style={{ opacity: 0, pointerEvents: "none" }}
       />
 
-      {/* Sheet */}
+      {/* Sheet — stopPropagation stops clicks reaching backdrop */}
       <div
         ref={sheetRef}
+        onClick={(e) => e.stopPropagation()}
         className="fixed inset-x-0 bottom-0 z-[9999] flex flex-col
                    rounded-t-2xl border-t border-white/10 shadow-2xl"
         style={{
@@ -124,7 +126,7 @@ export default function BottomSheet({
           transform: "translateY(100%)",
         }}
       >
-        {/* Drag handle */}
+        {/* Drag handle — touch events only here */}
         <div
           className="flex flex-col items-center pt-3 shrink-0 select-none
                      cursor-grab active:cursor-grabbing"

@@ -26,6 +26,7 @@ import {
   updatePlaylistMeta,
 } from "@/features/Playlist/playlistSlice";
 import { selectCurrentSongId } from "@/store/playerSlice";
+import { useAccentColor } from "@/hooks/UseAccentColor";
 
 interface PlaylistViewProps {
   playlist: Playlist;
@@ -33,14 +34,15 @@ interface PlaylistViewProps {
   filteredSongs: Song[];
   likedSongIds: Set<string>;
   totalDurationLabel: string;
-  accentColor?: string;
   isPlaylistPlaying: boolean;
   onPlaySong: (songId: string, index: number) => void;
   onLikeSong: (songId: string) => void;
 }
-
+// interface theme {
+//   primary:string;
+//   secondary:string;
+// }
 // ── Grid card ─────────────────────────────────────────────────────────────────
-
 // ── Root ──────────────────────────────────────────────────────────────────────
 
 export default function PlaylistView({
@@ -49,7 +51,6 @@ export default function PlaylistView({
   filteredSongs,
   likedSongIds,
   totalDurationLabel,
-  accentColor = "#8B1A1A",
   isPlaylistPlaying,
   onPlaySong,
   onLikeSong,
@@ -61,6 +62,8 @@ export default function PlaylistView({
 
   const songCovers = songs.slice(0, 4).map((s) => s.coverImage);
   const songCoversStrings = songCovers.filter((c): c is string => Boolean(c));
+  // const accentColor = useAccentColor(playlist?.coverImage, songCovers);
+  const accentColor = "#1a0a2e"
 
   // ── Local UI state ──────────────────────────────────────────────────────────
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

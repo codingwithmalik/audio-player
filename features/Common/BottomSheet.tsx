@@ -27,6 +27,7 @@ export default function BottomSheet({
 
   // ── Step 1: mount ─────────────────────────────────────────────────────────
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isOpen) setVisible(true);
   }, [isOpen]);
 
@@ -110,7 +111,7 @@ export default function BottomSheet({
       <div
         ref={backdropRef}
         onClick={onClose}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-9998"
         style={{ opacity: 0, pointerEvents: "none" }}
       />
 
@@ -118,7 +119,7 @@ export default function BottomSheet({
       <div
         ref={sheetRef}
         onClick={(e) => e.stopPropagation()}
-        className="fixed inset-x-0 bottom-0 z-[9999] flex flex-col
+        className="fixed inset-x-0 bottom-0 z-9999 flex flex-col
                    rounded-t-2xl border-t border-white/10 shadow-2xl"
         style={{
           height: "100dvh",

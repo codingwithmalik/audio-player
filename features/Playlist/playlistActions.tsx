@@ -112,7 +112,7 @@ export default function PlaylistActions({
 
   // ── Search / sort / view handlers — dispatch to Redux ──────────────────────
   const handlePlay = () => {
-    console.log("play playlist" + " first song is " + songs.at(0)?.id);
+    // console.log("play playlist" + " first song is " + songs.at(0)?.id);
     const firstSongId = songs.at(0)?.id;
     if (!firstSongId) return;
     if (sourceId !== ID) {
@@ -125,7 +125,7 @@ export default function PlaylistActions({
   };
 
   const handleShuffle = () => {
-    console.log("shuffle playlist");
+    // console.log("shuffle playlist");
     dispatch(toggleShuffle());
   };
 

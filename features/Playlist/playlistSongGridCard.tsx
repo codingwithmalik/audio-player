@@ -18,7 +18,12 @@ export default function PlaylistSongGridCard({
   const handleError = () => setImgFailed(true);
   return (
     <div
-      onDoubleClick={onPlaySong}
+      onClick={() => {
+        if (window.innerWidth < 640) onPlaySong();
+      }}
+      onDoubleClick={() => {
+        if (window.innerWidth >= 640) onPlaySong();
+      }}
       className={`flex flex-col gap-2 p-3 rounded-xl hover:bg-black/50
                  transition-colors duration-150 cursor-default group ${isPlaying ? "bg-[#141424]" : "bg-white/5"}`}
     >

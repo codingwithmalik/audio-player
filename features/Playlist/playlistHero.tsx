@@ -20,13 +20,12 @@ export default function PlaylistHero({
   songCount,
   totalDurationLabel,
   songCovers,
-  accentColor = "#8B1A1A",
+  accentColor,
   onEditDetails,
   onEditCover,
 }: PlaylistHeroProps) {
   const ownerId = playlist?.ownerId;
   const ownerName = useAppSelector((s) => selectUsernameById(s, ownerId ?? ""));
-
   return (
     <div
       className="relative w-full"
@@ -36,9 +35,7 @@ export default function PlaylistHero({
     >
       {/* ── Mobile: cover full width on top ── */}
       <div className="block sm:hidden w-full">
-        <div
-          className="flex justify-center pt-8 mx-10 overflow-hidden group cursor-pointer  shadow-b-2xl"
-        >
+        <div className="flex justify-center pt-8 mx-10 overflow-hidden group cursor-pointer  shadow-b-2xl">
           <div className="w-[90%] aspect-square">
             <PlaylistMosaicCover
               coverImage={playlist.coverImage}

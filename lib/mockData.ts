@@ -114,6 +114,9 @@ export const playlists: Playlist[] = [
     title: "Chill Vibes",
     description: "Late night music",
     // coverImage: "https://picsum.photos/seed/darkside/600/600",
+    coverImage: "https://picsum.photos/seed/glory/600/600", 
+    // coverImage: "https://picsum.photos/seed/highest/600/600",
+
     songs: [
       {
         songId: "song-1",

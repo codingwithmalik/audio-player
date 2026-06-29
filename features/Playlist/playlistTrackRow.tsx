@@ -66,7 +66,12 @@ export default function PlaylistTrackRow({
       role="row"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onDoubleClick={onPlay}
+      onClick={() => {
+        if (window.innerWidth < 640) onPlay();
+      }}
+      onDoubleClick={() => {
+        if (window.innerWidth >= 640) onPlay();
+      }}
       className={`
         grid items-center gap-4 px-4 py-2 rounded-md cursor-default select-none
         transition-colors duration-100 sm:grid-cols-[32px_1.5fr_1fr_48px_32px] grid-cols-[1.5fr_32px]

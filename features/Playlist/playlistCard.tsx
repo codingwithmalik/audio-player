@@ -61,7 +61,7 @@ export default function PlaylistPage({id}:{id:string}) {
   const isplaying = useAppSelector(selectIsPlaying);
   const isPlaylistPlaying =
     isplaying && sourceType === "playlist" && sourceId === id;
-  console.log(sourceId, sourceType, isplaying, isPlaylistPlaying);
+  // console.log(sourceId, sourceType, isplaying, isPlaylistPlaying);
   // Hardcoded until auth + liked-songs slices are built
   const likedSongIds = new Set<string>(["s2", "s5"]);
   // const isPlaylistPlaying = false;
@@ -71,7 +71,7 @@ export default function PlaylistPage({id}:{id:string}) {
       dispatch(setSong(songId));
       dispatch(setSourceId(id));
       dispatch(setSourceType("playlist"));
-      console.log("play song", songId, "at index", index);
+      // console.log("play song", songId, "at index", index);
     },
     [dispatch, id],
   );
@@ -104,7 +104,6 @@ export default function PlaylistPage({id}:{id:string}) {
         filteredSongs={filteredSongs}
         likedSongIds={likedSongIds}
         totalDurationLabel={durationLabel}
-        accentColor="#8B1A1A"
         isPlaylistPlaying={isPlaylistPlaying}
         onPlaySong={handlePlaySong}
         onLikeSong={handleLikeSong}

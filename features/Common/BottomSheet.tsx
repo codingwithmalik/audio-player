@@ -106,7 +106,7 @@ export default function BottomSheet({
   if (typeof window === "undefined") return null;
 
   return createPortal(
-    <div className="sm:hidden">
+    <div className="md:hidden">
       {/* Backdrop — click closes */}
       <div
         ref={backdropRef}

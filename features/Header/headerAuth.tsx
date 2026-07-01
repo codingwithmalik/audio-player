@@ -17,16 +17,15 @@ import {
 } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import { logout, setUser } from "../Auth/authSlice";
-import { playlists, songs } from "@/lib/mockData";
+import { folders, playlists, songs } from "@/lib/mockData";
 import { upsertPlaylists } from "../Playlist/playlistSlice";
 import { upsertSongs } from "../Songs/songsSlice";
+import { upsertFolders } from "../Folder/folderSlice";
 
 export default function HeaderAuth() {
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
-
   const [profileMenu, setProfileMenu] = useState(false);
-
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -65,9 +64,10 @@ export default function HeaderAuth() {
       }),
     );
   };
-  console.log(user);
+  // console.log(user);
   useEffect(() => {
-    console.log("User signed in now setting the playlists");
+    // console.log("User signed in now setting the playlists");
+    dispatch(upsertFolders(folders));
     dispatch(upsertPlaylists(playlists));
     dispatch(upsertSongs(songs));
 

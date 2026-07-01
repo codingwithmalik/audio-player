@@ -9,11 +9,8 @@ import {
 } from "./libraryTypes";
 
 // import { libraryData } from "@/lib/libraryData";
-import { folders } from "@/lib/mockData";
-import { Folder } from "@/types/folder";
 
 const initialState: LibraryState = {
-  folders: folders,
   search: "",
   sort: "recents",
   filters: [],
@@ -48,17 +45,12 @@ const librarySlice = createSlice({
     clearFilters: (state) => {
       state.filters = [];
     },
-
-    addFolder: (state, action: PayloadAction<Folder>) => {
-      state.folders.push(action.payload);
-    },
   },
 });
 
 export const {
   setSearch,
   setSort,
-  addFolder,
   toggleFilter,
   clearFilters,
 } = librarySlice.actions;
@@ -108,7 +100,7 @@ export default librarySlice.reducer;
 export const selectFilteredItems = createSelector(
   [
     (state: RootState) => Object.values(state.playlists.entities),
-    (state: RootState) => state.library.folders,
+    (state: RootState) => Object.values(state.folders.entities),
     (state: RootState) => state.library.search,
     (state: RootState) => state.library.sort,
     (state: RootState) => state.library.filters,

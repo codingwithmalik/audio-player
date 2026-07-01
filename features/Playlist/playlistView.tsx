@@ -26,7 +26,7 @@ import {
   updatePlaylistMeta,
 } from "@/features/Playlist/playlistSlice";
 import { selectCurrentSongId } from "@/store/playerSlice";
-import { useAccentColor } from "@/hooks/UseAccentColor";
+// import { useAccentColor } from "@/hooks/UseAccentColor";
 
 interface PlaylistViewProps {
   playlist: Playlist;
@@ -142,6 +142,7 @@ export default function PlaylistView({
           songs={filteredSongs}
           isPlaying={isPlaylistPlaying}
           onEditDetails={handleEditDetails}
+          playlist={playlist}
         />
       </div>
 

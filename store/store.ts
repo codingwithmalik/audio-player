@@ -3,7 +3,9 @@ import authslice from "@/features/Auth/authSlice";
 import librarySlice from "@/features/LeftSidebar/Library/libraryslice";
 import playerSlice from "@/store/playerSlice";
 import playlistSlice from "@/features/Playlist/playlistSlice"
+import foldersSlice from "@/features/Folder/folderSlice"
 import songsSlice from "@/features/Songs/songsSlice"
+
 // ...
 
 export const store = configureStore({
@@ -12,6 +14,7 @@ export const store = configureStore({
     player:playerSlice,
     library: librarySlice,
     playlists: playlistSlice,
+    folders:foldersSlice,
     songs: songsSlice,
   },
 });

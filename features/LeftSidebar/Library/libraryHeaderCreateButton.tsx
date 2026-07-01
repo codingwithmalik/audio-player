@@ -4,8 +4,11 @@ import { useRef, useEffect, useState } from "react";
 import { Plus, Music2, FolderClosed } from "lucide-react";
 import { gsap } from "gsap";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
-import { addFolder, selectFilteredItems } from "./libraryslice";
-import { addPlaylist } from "@/features/Playlist/playlistSlice";
+import {
+  addPlaylist,
+  selectPlaylistCount,
+} from "@/features/Playlist/playlistSlice";
+import { addFolder, selectFolderCount } from "@/features/Folder/folderSlice";
 import { useRouter } from "next/navigation";
 // ─── Options config ───────────────────────────────────────────────────────────
 
@@ -73,25 +76,21 @@ export default function CreateButton() {
   }, [open]);
 
   // Get Number for the playlist and folders
-  const items = useAppSelector(selectFilteredItems);
-  const playlistCount = items.filter((item) => item.type === "playlist").length;
-  const folderCount = items.filter((item) => item.type === "folder").length;
   const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
+  const folderCount = useAppSelector(selectFolderCount);
+  const playlistCount = useAppSelector(selectPlaylistCount);
 
   // then in handleSelect:
   // ── Dispatch ──────────────────────────────────────────────────────────────
   const handleSelect = (type: "playlist" | "folder") => {
     const now = new Date().toISOString();
-    const itemNumber =
-      type === "playlist" ? playlistCount + 1 : folderCount + 1;
-
     if (type === "playlist") {
       const playlistId = crypto.randomUUID();
       dispatch(
         addPlaylist({
           id: playlistId,
           type: "playlist",
-          title: "New Playlist " + itemNumber,
+          title: "New Playlist " + (playlistCount + 1),
           description: "",
           coverImage: "",
           songs: [],
@@ -108,7 +107,7 @@ export default function CreateButton() {
         addFolder({
           id: folderId,
           type: "folder",
-          title: "New Folder " + itemNumber,
+          title: "New Folder " + (folderCount + 1),
           playlistIds: [],
           ownerId: userId,
           createdAt: now,

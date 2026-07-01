@@ -50,9 +50,11 @@ import {
   togglePlay,
   toggleShuffle,
 } from "@/store/playerSlice";
-import { useParams } from "next/navigation";
 import { Song } from "@/types/song";
 import BottomSheet from "../Common/BottomSheet";
+import PlaylistMoreOptions from "./playlistMoreOptions";
+import { Playlist } from "@/types/playlist";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 // ─── Sort option config ───────────────────────────────────────────────────────
 
@@ -69,6 +71,7 @@ interface PlaylistActionsProps {
   isPlaying: boolean;
   onEditDetails: () => void;
   songs: Song[];
+  playlist: Playlist;
 }
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -76,9 +79,9 @@ export default function PlaylistActions({
   isPlaying,
   onEditDetails,
   songs,
+  playlist,
 }: PlaylistActionsProps) {
   const dispatch = useAppDispatch();
-  const { ID } = useParams<{ ID: string }>();
 
   // ── Read UI state from store ────────────────────────────────────────────────
   const sortBy = useAppSelector(selectSortBy);
@@ -86,9 +89,10 @@ export default function PlaylistActions({
   const viewMode = useAppSelector(selectViewMode);
   const sourceId = useAppSelector(selectSourceId);
   const isShuffle = useAppSelector(selectIsShuffle);
-
+  const isMobile = useIsMobile();
   const [searchOpen, setSearchOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [MorePlaylistOptionsOpen, setMorePlaylistOptionsOpen] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -115,8 +119,8 @@ export default function PlaylistActions({
     // console.log("play playlist" + " first song is " + songs.at(0)?.id);
     const firstSongId = songs.at(0)?.id;
     if (!firstSongId) return;
-    if (sourceId !== ID) {
-      dispatch(setSourceId(ID));
+    if (sourceId !== playlist.id) {
+      dispatch(setSourceId(playlist.id));
       dispatch(setSourceType("playlist"));
       dispatch(setSong(firstSongId));
     } else {
@@ -154,7 +158,9 @@ export default function PlaylistActions({
     // TODO: open add song modal
     console.log("add song to playlist");
   };
-
+  const handleDownload = () => {
+    console.log("download");
+  };
   const activeSortLabel =
     SORT_OPTIONS.find((o) => o.value === sortBy)?.label ?? "Custom order";
 
@@ -190,17 +196,61 @@ export default function PlaylistActions({
 
           <button
             aria-label="Download"
+            onClick={handleDownload}
             className="text-white/60 hover:text-white transition-colors duration-150"
           >
             <Download className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
-
-          <button
-            aria-label="More options"
-            className="text-white/60 hover:text-white transition-colors duration-150"
-          >
-            <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setMorePlaylistOptionsOpen((v) => !v)}
+              aria-label="More options"
+              className="text-white/60 hover:text-white transition-colors duration-150"
+            >
+              <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+            <div className="hidden md:block">
+              {isMobile ? (
+                <div className="md:hidden">
+                  <BottomSheet
+                    isOpen={MorePlaylistOptionsOpen}
+                    onClose={() => setMorePlaylistOptionsOpen(false)}
+                    title={playlist.title}
+                  >
+                    <PlaylistMoreOptions
+                      onClose={() => {
+                        setMorePlaylistOptionsOpen(false);
+                      }}
+                      onEditDetails={onEditDetails}
+                      onDownload={handleDownload}
+                      currentFolderId={playlist.folderId}
+                      playlistId={playlist.id}
+                      variant="sheet"
+                    />
+                  </BottomSheet>
+                </div>
+              ) : (
+                MorePlaylistOptionsOpen && (
+                  <div
+                    className="absolute left-0 top-5 mt-2 w-60 z-9999
+                           bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
+                           py-2 "
+                  >
+                    <PlaylistMoreOptions
+                      onClose={() => {
+                        setMorePlaylistOptionsOpen(false);
+                      }}
+                      onEditDetails={onEditDetails}
+                      onDownload={handleDownload}
+                      currentFolderId={playlist.folderId}
+                      playlistId={playlist.id}
+                      variant="dropdown"
+                    />
+                  </div>
+                )
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Right: search + sort — always on same line as controls */}
@@ -253,7 +303,7 @@ export default function PlaylistActions({
 
             {dropdownOpen && (
               <div
-                className="hidden sm:block absolute right-0 top-82 mt-2 w-52 z-500
+                className="hidden md:block absolute right-0 top-82 mt-2 w-52 z-500
                            bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
                            py-2 overflow-hidden"
               >
@@ -342,82 +392,79 @@ export default function PlaylistActions({
               title="Sort by"
               isOpen={dropdownOpen}
             >
-           
-                {SORT_OPTIONS.map((opt) => {
-                  const isActive = sortBy === opt.value;
-                  return (
-                    <button
-                      key={opt.value}
-                      onClick={() => {
-                        handleSortChange(opt.value);
-                        if (opt.value === "custom") setDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-4 py-2.5
+              {SORT_OPTIONS.map((opt) => {
+                const isActive = sortBy === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => {
+                      handleSortChange(opt.value);
+                      if (opt.value === "custom") setDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between px-4 py-2.5
                                  text-sm hover:bg-white/10 transition-colors duration-100 text-left"
+                  >
+                    <span
+                      className={
+                        isActive ? "text-purple-600 font-medium" : "text-white"
+                      }
                     >
+                      {opt.label}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      {isActive &&
+                        opt.value !== "custom" &&
+                        (sortDir === "asc" ? (
+                          <ChevronUp className="w-3.5 h-3.5 text-purple-600" />
+                        ) : (
+                          <ChevronDown className="w-3.5 h-3.5 text-purple-600" />
+                        ))}
+                      {isActive && opt.value === "custom" && (
+                        <Check className="w-3.5 h-3.5 text-purple-600" />
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+
+              <div className="border-t border-white/10 my-2" />
+
+              <p className="text-[11px] text-white/40 font-semibold uppercase tracking-wider px-4 py-1.5">
+                View as
+              </p>
+              {(["list", "grid"] as ViewMode[]).map((mode) => {
+                const isActive = viewMode === mode;
+                const Icon = mode === "list" ? LayoutList : LayoutGrid;
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => {
+                      handleViewModeChange(mode);
+                      setDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between px-4 py-2.5
+                                 text-sm hover:bg-white/10 transition-colors duration-100"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Icon
+                        className={`w-4 h-4 ${isActive ? "text-purple-600" : "text-white/60"}`}
+                      />
                       <span
                         className={
                           isActive
-                            ? "text-purple-600 font-medium"
-                            : "text-white"
+                            ? "text-purple-600 font-medium capitalize"
+                            : "text-white capitalize"
                         }
                       >
-                        {opt.label}
+                        {mode}
                       </span>
-                      <span className="flex items-center gap-1">
-                        {isActive &&
-                          opt.value !== "custom" &&
-                          (sortDir === "asc" ? (
-                            <ChevronUp className="w-3.5 h-3.5 text-purple-600" />
-                          ) : (
-                            <ChevronDown className="w-3.5 h-3.5 text-purple-600" />
-                          ))}
-                        {isActive && opt.value === "custom" && (
-                          <Check className="w-3.5 h-3.5 text-purple-600" />
-                        )}
-                      </span>
-                    </button>
-                  );
-                })}
-
-                <div className="border-t border-white/10 my-2" />
-
-                <p className="text-[11px] text-white/40 font-semibold uppercase tracking-wider px-4 py-1.5">
-                  View as
-                </p>
-                {(["list", "grid"] as ViewMode[]).map((mode) => {
-                  const isActive = viewMode === mode;
-                  const Icon = mode === "list" ? LayoutList : LayoutGrid;
-                  return (
-                    <button
-                      key={mode}
-                      onClick={() => {
-                        handleViewModeChange(mode);
-                        setDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-4 py-2.5
-                                 text-sm hover:bg-white/10 transition-colors duration-100"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Icon
-                          className={`w-4 h-4 ${isActive ? "text-purple-600" : "text-white/60"}`}
-                        />
-                        <span
-                          className={
-                            isActive
-                              ? "text-purple-600 font-medium capitalize"
-                              : "text-white capitalize"
-                          }
-                        >
-                          {mode}
-                        </span>
-                      </span>
-                      {isActive && (
-                        <Check className="w-3.5 h-3.5 text-purple-600" />
-                      )}
-                    </button>
-                  );
-                })}
+                    </span>
+                    {isActive && (
+                      <Check className="w-3.5 h-3.5 text-purple-600" />
+                    )}
+                  </button>
+                );
+              })}
             </BottomSheet>
           </div>
         </div>

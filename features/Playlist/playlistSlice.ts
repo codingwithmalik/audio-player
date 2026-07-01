@@ -75,6 +75,31 @@ const playlistsSlice = createSlice({
       state.error = action.payload;
     },
 
+    // in playlistsSlice.ts — add to reducers
+
+    addSongsToPlaylist(
+      state,
+      action: PayloadAction<{
+        targetPlaylistId: string;
+        songs: PlaylistSong[];
+      }>,
+    ) {
+      const target = state.entities[action.payload.targetPlaylistId];
+      if (!target) return;
+
+      const existingIds = new Set(target.songs.map((s) => s.songId));
+
+      for (const song of action.payload.songs) {
+        if (existingIds.has(song.songId)) continue; // skip duplicates
+        target.songs.push({
+          songId: song.songId,
+          addedAt: new Date().toISOString(), // fresh timestamp for the new playlist
+        });
+        existingIds.add(song.songId);
+      }
+
+      target.updatedAt = new Date().toISOString();
+    },
     addSongToPlaylist(
       state,
       action: PayloadAction<{ playlistId: string; songId: string }>,
@@ -131,6 +156,7 @@ const playlistsSlice = createSlice({
     ) {
       const playlist = state.entities[action.payload.id];
       if (!playlist) return;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, ...updates } = action.payload;
       Object.assign(playlist, updates);
       playlist.updatedAt = new Date().toISOString();
@@ -140,10 +166,18 @@ const playlistsSlice = createSlice({
       delete state.entities[action.payload];
       delete state.fetchStatus[action.payload];
     },
-    addPlaylist(state,action:PayloadAction<Playlist>){
-    state.entities[action.payload.id]=action.payload
+    addPlaylist(state, action: PayloadAction<Playlist>) {
+      state.entities[action.payload.id] = action.payload;
     },
-
+    setPlaylistFolder(
+      state,
+      action: PayloadAction<{ playlistId: string; folderId: string | null }>,
+    ) {
+      const playlist = state.entities[action.payload.playlistId];
+      if (!playlist) return;
+      playlist.folderId = action.payload.folderId;
+      playlist.updatedAt = new Date().toISOString();
+    },
     // ── UI actions ────────────────────────────────────────────────────────────
 
     /** Update the search query for the active playlist page. */
@@ -192,9 +226,11 @@ export const {
   setFetchStatus,
   setError,
   addSongToPlaylist,
+  addSongsToPlaylist,
   removeSongFromPlaylist,
   reorderPlaylistSongs,
   updatePlaylistMeta,
+  setPlaylistFolder,
   removePlaylist,
   setSearchQuery,
   setSortBy,
@@ -205,6 +241,10 @@ export const {
 
 // ─── Base selectors ───────────────────────────────────────────────────────────
 
+export const selectPlaylists = createSelector(
+  [(state: RootState) => state.playlists.entities],
+  (entities) => Object.values(entities),
+);
 export const selectPlaylistById = (state: RootState, id: string) =>
   state.playlists.entities[id] ?? null;
 
@@ -221,6 +261,10 @@ export const selectSearchQuery = (state: RootState) =>
 export const selectSortBy = (state: RootState) => state.playlists.sortBy;
 export const selectSortDir = (state: RootState) => state.playlists.sortDir;
 export const selectViewMode = (state: RootState) => state.playlists.viewMode;
+
+// in playlistsSlice.ts
+export const selectPlaylistCount = (state: RootState) =>
+  Object.values(state.playlists.entities).length;
 
 // ─── selectFilteredSongs ──────────────────────────────────────────────────────
 /**

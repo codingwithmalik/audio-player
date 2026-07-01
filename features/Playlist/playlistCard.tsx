@@ -67,7 +67,7 @@ export default function PlaylistPage({id}:{id:string}) {
   // const isPlaylistPlaying = false;
   // ── Playback handlers ───────────────────────────────────────────────────────
   const handlePlaySong = useCallback(
-    (songId: string, index: number) => {
+    (songId: string) => {
       dispatch(setSong(songId));
       dispatch(setSourceId(id));
       dispatch(setSourceType("playlist"));

@@ -178,6 +178,23 @@ export const playlists: Playlist[] = [
     createdAt: "2025-01-10",
     updatedAt: "2025-01-10",
   },
+  {
+    id: "playlist-4",
+    type: "playlist",
+    title: "Dark",
+    description: "Best tracks",
+    coverImage: "https://picsum.photos/seed/darkside/600/600",
+    songs: [
+      {
+        songId: "song-1",
+        addedAt: "2025-01-10",
+      },
+    ],
+    folderId: null,
+    ownerId: "user-2",
+    createdAt: "2025-01-10",
+    updatedAt: "2025-01-10",
+  },
 ];
 
 export const folders: Folder[] = [
@@ -191,7 +208,7 @@ export const folders: Folder[] = [
     updatedAt: "2025-01-010",
   },
   {
-    id: "folder-1",
+    id: "folder-2",
     type: "folder",
     title: "Pakistani Music",
     playlistIds: ["playlist-1"],

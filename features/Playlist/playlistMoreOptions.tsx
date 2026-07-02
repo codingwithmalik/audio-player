@@ -60,10 +60,12 @@ function Submenu({
   options,
   searchPlaceholder,
   inline = false,
+  maxHeight = 220,
 }: {
   options: SubOption[];
   searchPlaceholder: string;
   inline?: boolean;
+  maxHeight?: number | string;
 }) {
   const [query, setQuery] = useState("");
 
@@ -100,7 +102,7 @@ function Submenu({
       {/* Scrollable list */}
       <OverlayScrollbarsComponent
         options={{ scrollbars: { autoHide: "scroll" } }}
-        style={{ maxHeight: 220 }}
+        style={{ maxHeight}}
       >
         {items.map((sub) => {
           const SubIcon = sub.icon;
@@ -192,6 +194,7 @@ export default function PlaylistMoreOptions({
   const confirmDelete = () => {
     console.log("Delete Confirmed");
     dispatch(removePlaylist(playlistId));
+    handleRemoveFromFolder();
     setConfirmOpen(false);
     router.push("/");
     // onClose();
@@ -414,6 +417,7 @@ export default function PlaylistMoreOptions({
                   }`}
                 >
                   <Submenu
+                    maxHeight={220}
                     options={option.submenu}
                     searchPlaceholder={
                       option.id === "move-folder"
@@ -435,9 +439,10 @@ export default function PlaylistMoreOptions({
             <ChevronLeft className="w-4 h-4" />
             Back
           </button>
-          <div className="border-t border-white/10 mb-2" />
+          <div className="border-t border-white/10" />
           <Submenu
             inline
+            maxHeight="100%"
             options={options.find((o) => o.id === sheetView)!.submenu!}
             searchPlaceholder={
               sheetView === "move-folder" ? "Find a folder" : "Find a playlist"

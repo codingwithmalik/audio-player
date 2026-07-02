@@ -75,7 +75,7 @@ export default function PlaylistTrackRow({
       className={`
         grid items-center gap-4 px-4 py-2 rounded-md cursor-default select-none
         transition-colors duration-100 sm:grid-cols-[32px_1.5fr_1fr_48px_32px] grid-cols-[1.5fr_32px]
-        ${hovered ? "bg-white/10" : "bg-transparent"}
+        ${hovered ? "md:bg-white/10" : "bg-transparent"}
       `}
     >
       {/* ── 1: index / play / equalizer ── */}
@@ -165,7 +165,7 @@ export default function PlaylistTrackRow({
       <button
         onClick={(e) => e.stopPropagation()}
         aria-label="More options"
-        className={`text-white/50 hover:text-white transition-all duration-100 ${hovered ? "opacity-100" : "opacity-0"}`}
+        className={`text-white/50 hover:text-white transition-all duration-100 max-md:opacity-100 ${hovered ? "md:opacity-100" : "opacity-0"}`}
       >
         <MoreHorizontal className="w-4 h-4" />
       </button>

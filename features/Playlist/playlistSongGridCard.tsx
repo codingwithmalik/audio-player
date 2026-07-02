@@ -24,7 +24,7 @@ export default function PlaylistSongGridCard({
       onDoubleClick={() => {
         if (window.innerWidth >= 640) onPlaySong();
       }}
-      className={`flex flex-col gap-2 p-3 rounded-xl hover:bg-black/50
+      className={`flex flex-col gap-2 p-3 rounded-xl md:hover:bg-black/50
                  transition-colors duration-150 cursor-default group ${isPlaying ? "bg-[#141424]" : "bg-white/5"}`}
     >
       <div className="relative aspect-square rounded-lg overflow-hidden z-10">

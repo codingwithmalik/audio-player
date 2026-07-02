@@ -5,6 +5,7 @@ import { Search, List, Check } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import { setSearch, setSort } from "./libraryslice";
 import { SortType } from "./libraryTypes";
+import BottomSheet from "@/features/Common/BottomSheet";
 
 const SORT_OPTIONS: { value: SortType; label: string }[] = [
   { value: "recents", label: "Recents" },
@@ -39,6 +40,16 @@ export default function LibrarySearch() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [sortOpen]);
+  // Reset Search on outside click
+  useEffect(() => {
+    if (!searchOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (!inputRef.current?.contains(e.target as Node)) setSearchOpen(false);
+      dispatch(setSearch(""));
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [searchOpen, dispatch]);
 
   const currentLabel =
     SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "Recents";
@@ -77,7 +88,7 @@ export default function LibrarySearch() {
         </button>
 
         {sortOpen && (
-          <div className="absolute right-0 top-7 z-50 w-44 rounded-lg bg-[#1a0a2e] border border-white/10 py-1 shadow-xl">
+          <div className="absolute max-md:hidden right-0 top-7 z-50 w-44 rounded-lg bg-[#1a0a2e] border border-white/10 py-1 shadow-xl">
             {SORT_OPTIONS.map((o) => {
               const isActive = sort === o.value;
               return (
@@ -96,6 +107,26 @@ export default function LibrarySearch() {
             })}
           </div>
         )}
+        <BottomSheet isOpen={sortOpen} onClose={() => setSortOpen(false)}>
+          <div className="mt-2">
+          {SORT_OPTIONS.map((o) => {
+            const isActive = sort === o.value;
+            return (
+              <button
+                key={o.value}
+                onClick={() => {
+                  dispatch(setSort(o.value));
+                  setSortOpen(false);
+                }}
+                className={`flex w-full items-center justify-between px-3 py-4 text-lg  hover:bg-white/10 transition-colors ${isActive ? "text-purple-600" : "text-zinc-300"}`}
+              >
+                {o.label}
+                {isActive && <Check size={14} className="text-purple-600" />}
+              </button>
+            );
+          })}
+          </div>
+        </BottomSheet>
       </div>
     </div>
   );

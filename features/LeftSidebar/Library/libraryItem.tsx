@@ -33,7 +33,7 @@ export default function LibraryItem({ item }: Props) {
 
   return (
     <Link href={`${isFolder ? `/folder/${item.id}` : `/playlist/${item.id}`}`}>
-      <div className="group flex items-center gap-3 rounded-xl lg:p-1 pl-0 py-1 hover:bg-white/10 transition cursor-pointer">
+      <div className="group flex items-center gap-3 rounded-xl lg:p-1 pl-0 py-1 md:hover:bg-white/10 transition cursor-pointer">
         <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
           {/* Icon is always rendered as the base — instantly visible */}
           <div className="flex items-center justify-center transition-opacity duration-200 overflow-hidden">

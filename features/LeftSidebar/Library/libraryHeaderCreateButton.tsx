@@ -10,6 +10,7 @@ import {
 } from "@/features/Playlist/playlistSlice";
 import { addFolder, selectFolderCount } from "@/features/Folder/folderSlice";
 import { useRouter } from "next/navigation";
+import BottomSheet from "@/features/Common/BottomSheet";
 // ─── Options config ───────────────────────────────────────────────────────────
 
 const OPTIONS = [
@@ -140,12 +141,14 @@ export default function CreateButton() {
         <div
           ref={dropdownRef}
           className="
-          absolute right-0 top-11
-            w-58 rounded-xl
+          absolute  top-11
+            rounded-xl
             bg-[#1a0a2e] border border-white/10
             shadow-[0_8px_32px_rgba(0,0,0,0.6)]
             overflow-hidden
             z-9999
+            max-md:hidden w-18 lg:w-58
+            max-md:right-0 -right-4.5 lg:right-0
           "
         >
           {OPTIONS.map(
@@ -167,7 +170,7 @@ export default function CreateButton() {
                 </div>
 
                 {/* Text */}
-                <div className="min-w-0">
+                <div className="min-w-0 max-md:block hidden lg:block">
                   <p className="text-sm font-semibold text-white group-hover:text-white/90">
                     {label}
                   </p>
@@ -180,6 +183,36 @@ export default function CreateButton() {
           )}
         </div>
       )}
+      <BottomSheet isOpen={open} onClose={() => setOpen(false)}>
+        {OPTIONS.map(({ type, label, description, icon: Icon, color, bg }) => (
+          <button
+            key={type}
+            onClick={() => handleSelect(type)}
+            className="
+                w-full flex items-center gap-4
+                px-4 py-3.5
+                hover:bg-white/5 active:bg-white/10
+                transition-colors duration-150
+                text-left group
+              "
+          >
+            {/* Icon box */}
+            <div className={`shrink-0 rounded-lg p-2.5 ${bg}`}>
+              <Icon size={20} className={color} />
+            </div>
+
+            {/* Text */}
+            <div className="min-w-0 max-md:block hidden lg:block">
+              <p className="text-sm font-semibold text-white group-hover:text-white/90">
+                {label}
+              </p>
+              <p className="text-xs text-zinc-400 group-hover:text-zinc-300 mt-0.5">
+                {description}
+              </p>
+            </div>
+          </button>
+        ))}
+      </BottomSheet>
     </div>
   );
 }

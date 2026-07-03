@@ -230,7 +230,6 @@ export default function PlaylistActions({
               </div>
             ) : (
               MorePlaylistOptionsOpen && (
-                <div className="hidden md:block">
                   <div
                     className="absolute left-0 top-5 mt-2 w-60 z-9999
                            bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
@@ -247,7 +246,6 @@ export default function PlaylistActions({
                       variant="dropdown"
                     />
                   </div>
-                </div>
               )
             )}
           </div>

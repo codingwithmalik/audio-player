@@ -3,17 +3,14 @@
 import {
   Download,
   ListPlus,
-  LucideIcon,
   Pencil,
   Trash2,
   Plus,
   FolderClosed,
-  ChevronRight,
   ListMusic,
   FolderMinus,
-  ChevronLeft,
 } from "lucide-react";
-import React, { useRef, useState, useEffect } from "react";
+import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
   removePlaylist,
@@ -31,21 +28,8 @@ import {
   selectFolders,
 } from "@/features/Folder/folderSlice";
 import ConfirmDialog from "@/features/Common/ConfirmDialog";
-import Submenu , {SubOption} from "@/features/Common/Submenu";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-type SheetView = "main" | "move-folder" | "add-playlist";
-
-type Option = {
-  id: string;
-  label?: string;
-  icon?: LucideIcon;
-  action?: () => void;
-  separatorAbove?: boolean;
-  submenu?: SubOption[];
-};
-
-// ─── Component ────────────────────────────────────────────────────────────────
+import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
+import { setQueue } from "../RightSidebar/Queue/queueSlice";
 
 export default function PlaylistMoreOptions({
   onEditDetails,
@@ -53,7 +37,7 @@ export default function PlaylistMoreOptions({
   playlistId,
   onDownload,
   onClose,
-  variant = "dropdown", // new
+  variant = "dropdown",
 }: {
   playlistId: string;
   currentFolderId: string | null;
@@ -68,46 +52,25 @@ export default function PlaylistMoreOptions({
   const folders = useAppSelector(selectFolders);
   const now = new Date().toISOString();
   const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
-
-  // Pull folders from librarySlice — no more mockData
-
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const sourcePlaylist = useAppSelector((state) =>
+    selectPlaylistById(state, playlistId),
+  );
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
-  const [sheetView, setSheetView] = useState<SheetView>("main");
-
-  // ── Outside click closes the whole menu ───────────────────────────────────
-  useEffect(() => {
-    console.log("PlaylistMoreOptions mounted");
-    const handler = (e: MouseEvent) => {
-      if (confirmOpen) return;
-      if (!wrapperRef.current?.contains(e.target as Node)) {
-        onClose();
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [onClose, confirmOpen]);
 
   // ── Actions ───────────────────────────────────────────────────────────────
-  const handleAddToQueue = () => {
-    // dispatch(addToQueue(playlistId)) — wire when queueSlice is ready
-    console.log("Add to Queue Clicked");
-    onClose();
+  const handleRemoveFromFolder = () => {
+    if (!currentFolderId) return;
+    dispatch(
+      removePlaylistFromFolder({ folderId: currentFolderId, playlistId }),
+    );
+    dispatch(setPlaylistFolder({ playlistId, folderId: null }));
   };
 
-  const handleDelete = () => {
-    setConfirmOpen(true);
-    console.log("Delete Clicked");
-    // onClose();
-  };
-  const confirmDelete = () => {
-    console.log("Delete Confirmed");
-    dispatch(removePlaylist(playlistId));
-    handleRemoveFromFolder();
-    setConfirmOpen(false);
-    router.push("/");
-    // onClose();
+  const handleAddToFolder = (folderId: string) => {
+    if (currentFolderId) handleRemoveFromFolder();
+    dispatch(addPlaylistToFolder({ folderId, playlistId }));
+    dispatch(setPlaylistFolder({ playlistId, folderId }));
+    onClose();
   };
 
   const handleCreateFolder = () => {
@@ -124,20 +87,13 @@ export default function PlaylistMoreOptions({
       }),
     );
     handleAddToFolder(newFolderId);
-    onClose();
   };
-  const handleRemoveFromFolder = () => {
-    if (!currentFolderId) return;
+
+  const handleAddToPlaylist = (targetPlaylistId: string) => {
+    if (!sourcePlaylist) return;
     dispatch(
-      removePlaylistFromFolder({ folderId: currentFolderId, playlistId }),
+      addSongsToPlaylist({ targetPlaylistId, songs: sourcePlaylist.songs }),
     );
-    dispatch(setPlaylistFolder({ playlistId, folderId: null }));
-    onClose();
-  };
-  const handleAddToFolder = (folderId: string) => {
-    if (currentFolderId) handleRemoveFromFolder();
-    dispatch(addPlaylistToFolder({ folderId, playlistId }));
-    dispatch(setPlaylistFolder({ playlistId, folderId }));
     onClose();
   };
 
@@ -158,39 +114,25 @@ export default function PlaylistMoreOptions({
       }),
     );
     handleAddToPlaylist(newPlaylistId);
-    onClose();
   };
 
-  const sourcePlaylist = useAppSelector((state) =>
-    selectPlaylistById(state, playlistId),
-  );
-
-  const handleAddToPlaylist = (targetPlaylistId: string) => {
-    if (!sourcePlaylist) return;
-    dispatch(
-      addSongsToPlaylist({
-        targetPlaylistId,
-        songs: sourcePlaylist.songs,
-      }),
-    );
-    onClose();
-  };
-  const handleOptionEnter = (option: Option) => {
-    if (variant === "sheet") return; // no hover behavior on mobile
-    if (option.submenu) {
-      setActiveSubmenu(option.id);
-    } else {
-      // Hovering a non-submenu option closes any open submenu
-      setActiveSubmenu(null);
-    }
-  };
-  // ── Options config ────────────────────────────────────────────────────────
-  const options: Option[] = [
+  // ── Options ───────────────────────────────────────────────────────────────
+  const options: MoreOption[] = [
     {
       id: "queue",
       label: "Add to queue",
       icon: ListPlus,
-      action: handleAddToQueue,
+      action: () => {
+        console.log("Add to Queue");
+        dispatch(
+          setQueue({
+            songIds: sourcePlaylist.songs.map((s) => s.songId),
+            sourceType: "playlist",
+            sourceId: playlistId,
+          }),
+        );
+        onClose();
+      },
     },
     {
       id: "download",
@@ -214,12 +156,14 @@ export default function PlaylistMoreOptions({
       id: "delete",
       label: "Delete",
       icon: Trash2,
-      action: handleDelete,
+      action: () => setConfirmOpen(true),
     },
     {
       id: "move-folder",
       label: "Move to folder",
       icon: FolderClosed,
+      submenuPlaceholder: "Find a folder",
+      submenuPosition: "right",
       submenu: [
         { id: "search", searchable: true },
         {
@@ -229,23 +173,24 @@ export default function PlaylistMoreOptions({
           action: handleCreateFolder,
           separatorAbove: true,
         },
-        // Only shown if the playlist is currently inside a folder
         ...(currentFolderId
           ? [
               {
                 id: "remove-folder",
                 label: "Remove from Folder",
-                icon: FolderMinus, // import from lucide-react
-                action: handleRemoveFromFolder,
+                icon: FolderMinus,
+                action: () => {
+                  handleRemoveFromFolder();
+                  onClose();
+                },
                 separatorAbove: true,
-              } as Option,
+              },
             ]
           : []),
-
-        ...folders.map((folder) => ({
-          id: folder.id,
-          label: folder.title,
-          action: () => handleAddToFolder(folder.id),
+        ...folders.map((f) => ({
+          id: f.id,
+          label: f.title,
+          action: () => handleAddToFolder(f.id),
         })),
       ],
     },
@@ -253,6 +198,8 @@ export default function PlaylistMoreOptions({
       id: "add-playlist",
       label: "Add to other playlist",
       icon: ListMusic,
+      submenuPlaceholder: "Find a playlist",
+      submenuPosition: "right",
       submenu: [
         { id: "search", searchable: true },
         {
@@ -263,7 +210,7 @@ export default function PlaylistMoreOptions({
           separatorAbove: true,
         },
         ...playlists
-          .filter((p) => p.id !== playlistId) // exclude current playlist
+          .filter((p) => p.id !== playlistId)
           .map((p) => ({
             id: p.id,
             label: p.title,
@@ -274,112 +221,37 @@ export default function PlaylistMoreOptions({
   ];
 
   return (
-    <div ref={wrapperRef}>
-      {(variant === "dropdown" || sheetView === "main") &&
-        options.map((option) => {
-          const Icon = option.icon;
-          const isSubmenuOpen = activeSubmenu === option.id;
-
-          return (
-            <div
-              key={option.id}
-              className="relative"
-              onMouseEnter={() => handleOptionEnter(option)}
-              // onMouseLeave={() => setActiveSubmenu(null)}
-            >
-              {option.separatorAbove && (
-                <div className="border-t border-white/10 my-1.5" />
-              )}
-
-              <button
-                onClick={
-                  option.submenu && variant === "sheet"
-                    ? () => setSheetView(option.id as SheetView)
-                    : option.submenu
-                      ? undefined
-                      : option.action
-                }
-                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-white/10 transition-colors duration-150 text-white hover:text-purple-600
-              }`}
-              >
-                <span className="flex items-center gap-3">
-                  {Icon && (
-                    <Icon
-                      className={`w-4 h-4 transition-colors  hover:text-purple-600
-                    }`}
-                    />
-                  )}
-                  <span>{option.label}</span>
-                </span>
-
-                {option.submenu && (
-                  <ChevronRight className="w-4 h-4  hover:text-purple-600" />
-                )}
-              </button>
-
-              {/* Submenu — rendered only when active */}
-              {option.submenu && (
-                <div
-                  className={`transition-opacity duration-150 ${
-                    isSubmenuOpen
-                      ? "opacity-100 pointer-events-auto"
-                      : "opacity-0 pointer-events-none"
-                  }`}
-                >
-                  <Submenu
-                    maxHeight={220}
-                    options={option.submenu}
-                    position="right"
-                    searchPlaceholder={
-                      option.id === "move-folder"
-                        ? "Find a folder"
-                        : "Find a playlist"
-                    }
-                  />
-                </div>
-              )}
-            </div>
-          );
-        })}
-      {variant === "sheet" && sheetView !== "main" && (
-        <>
-          <button
-            onClick={() => setSheetView("main")}
-            className="flex items-center gap-2 px-4 py-3 text-sm text-white/60 hover:text-white transition-colors w-full"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Back
-          </button>
-          <div className="border-t border-white/10" />
-          <Submenu
-            inline
-            position="right"
-            maxHeight="100%"
-            options={options.find((o) => o.id === sheetView)!.submenu!}
-            searchPlaceholder={
-              sheetView === "move-folder" ? "Find a folder" : "Find a playlist"
+    <>
+      <MoreOptions
+        options={options}
+        variant={variant}
+        onClose={onClose}
+        confirmDialog={
+          <ConfirmDialog
+            open={confirmOpen}
+            title="Delete from Your Library?"
+            description={
+              <>
+                This will delete{" "}
+                <span className="font-semibold text-white">
+                  {sourcePlaylist?.title}
+                </span>{" "}
+                from{" "}
+                <span className="font-semibold text-white">Your Library</span>.
+              </>
             }
+            confirmLabel="Delete"
+            cancelLabel="Cancel"
+            onConfirm={() => {
+              dispatch(removePlaylist(playlistId));
+              handleRemoveFromFolder();
+              setConfirmOpen(false);
+              router.push("/");
+            }}
+            onCancel={() => setConfirmOpen(false)}
           />
-        </>
-      )}
-      <ConfirmDialog
-        open={confirmOpen}
-        title="Delete from Your Library?"
-        description={
-          <>
-            This will delete{" "}
-            <span className="font-semibold text-white">
-              {sourcePlaylist?.title}
-            </span>{" "}
-            from <span className="font-semibold text-white">Your Library</span>.
-          </>
         }
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
-        danger
-        onConfirm={confirmDelete}
-        onCancel={() => setConfirmOpen(false)}
       />
-    </div>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 export type RepeatMode = "off" | "all" | "one";
 
-export type sourceType = "playlist" | "search" | "queue~" | null;
+export type sourceType = "playlist" | "search" | "queue" | "liked" | null;
 
 export interface PlayerState {
   currentSongId: string | null;

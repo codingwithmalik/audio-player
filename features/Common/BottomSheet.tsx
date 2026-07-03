@@ -32,6 +32,7 @@ export default function BottomSheet({
 
   // ── Mount ─────────────────────────────────────────────────────────────────
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isOpen) setVisible(true);
   }, [isOpen]);
 
@@ -42,6 +43,7 @@ export default function BottomSheet({
     if (!sheet || !backdrop) return;
 
     if (isOpen && visible) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExpanded(false);
       gsap.set(sheet, { y: "100%" });
       gsap.set(backdrop, { opacity: 0, pointerEvents: "auto" });
@@ -169,7 +171,7 @@ export default function BottomSheet({
       <div
         ref={backdropRef}
         onClick={onClose}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-9998"
         style={{ opacity: 0, pointerEvents: "none" }}
       />
 
@@ -177,7 +179,7 @@ export default function BottomSheet({
       <div
         ref={sheetRef}
         onClick={(e) => e.stopPropagation()}
-        className="fixed inset-x-0 bottom-0 z-[9999] flex flex-col rounded-t-2xl border-t border-white/10 shadow-2xl"
+        className="fixed inset-x-0 bottom-0 z-9999 flex flex-col rounded-t-2xl border-t border-white/10 shadow-2xl"
         style={{
           height: "100dvh",
           background: "linear-gradient(180deg, #1a0a2e 0%, #120822 100%)",

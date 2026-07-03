@@ -3,7 +3,7 @@ export interface QueueState {
 
   songIds: string[];
 
-  sourceType: "playlist" | "folder" | "search" | "liked" | null;
+  sourceType: "playlist" | "search" | "liked" | null;
 
   sourceId: string | null;
 }

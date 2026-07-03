@@ -5,7 +5,8 @@ import playerSlice from "@/store/playerSlice";
 import playlistSlice from "@/features/Playlist/playlistSlice"
 import foldersSlice from "@/features/Folder/folderSlice"
 import songsSlice from "@/features/Songs/songsSlice"
-
+import LikedSongsSlice from "@/features/LikedSongs/likedSongsSlice";
+import queueSlice from "@/features/RightSidebar/Queue/queueSlice";
 // ...
 
 export const store = configureStore({
@@ -16,6 +17,8 @@ export const store = configureStore({
     playlists: playlistSlice,
     folders:foldersSlice,
     songs: songsSlice,
+    likedSongs: LikedSongsSlice,
+    queue: queueSlice,
   },
 });
 

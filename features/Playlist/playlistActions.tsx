@@ -209,28 +209,28 @@ export default function PlaylistActions({
             >
               <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
-            <div className="hidden md:block">
-              {isMobile ? (
-                <div className="md:hidden">
-                  <BottomSheet
-                    isOpen={MorePlaylistOptionsOpen}
-                    onClose={() => setMorePlaylistOptionsOpen(false)}
-                    title={playlist.title}
-                  >
-                    <PlaylistMoreOptions
-                      onClose={() => {
-                        setMorePlaylistOptionsOpen(false);
-                      }}
-                      onEditDetails={onEditDetails}
-                      onDownload={handleDownload}
-                      currentFolderId={playlist.folderId}
-                      playlistId={playlist.id}
-                      variant="sheet"
-                    />
-                  </BottomSheet>
-                </div>
-              ) : (
-                MorePlaylistOptionsOpen && (
+            {isMobile ? (
+              <div className="md:hidden">
+                <BottomSheet
+                  isOpen={MorePlaylistOptionsOpen}
+                  onClose={() => setMorePlaylistOptionsOpen(false)}
+                  title={playlist.title}
+                >
+                  <PlaylistMoreOptions
+                    onClose={() => {
+                      setMorePlaylistOptionsOpen(false);
+                    }}
+                    onEditDetails={onEditDetails}
+                    onDownload={handleDownload}
+                    currentFolderId={playlist.folderId}
+                    playlistId={playlist.id}
+                    variant="sheet"
+                  />
+                </BottomSheet>
+              </div>
+            ) : (
+              MorePlaylistOptionsOpen && (
+                <div className="hidden md:block">
                   <div
                     className="absolute left-0 top-5 mt-2 w-60 z-9999
                            bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
@@ -247,9 +247,9 @@ export default function PlaylistActions({
                       variant="dropdown"
                     />
                   </div>
-                )
-              )}
-            </div>
+                </div>
+              )
+            )}
           </div>
         </div>
 

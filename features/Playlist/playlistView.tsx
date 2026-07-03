@@ -84,7 +84,7 @@ export default function PlaylistView({
         .timeline({
           defaults: { ease: "power2.out" },
           onComplete: () => {
-            gsap.set([hero, actions], { clearProps: "transform" });
+            gsap.set([hero, actions,rows], { clearProps: "transform" });
           },
         })
         .to(hero, { opacity: 1, y: 0, duration: 0.45 })

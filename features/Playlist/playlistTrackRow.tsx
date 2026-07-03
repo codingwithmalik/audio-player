@@ -16,6 +16,10 @@ import { Music2, Play, Heart, MoreHorizontal } from "lucide-react";
 import { Song } from "@/types/song";
 import Image from "next/image";
 import EqBars from "../Common/EQBars";
+import SongMoreOptions from "./songMoreOptions";
+import { useParams } from "next/navigation";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import BottomSheet from "../Common/BottomSheet";
 
 interface PlaylistTrackRowProps {
   song: Song;
@@ -55,6 +59,10 @@ export default function PlaylistTrackRow({
   const [hovered, setHovered] = useState(false);
   const [imgReady, setImgReady] = useState(false);
   const [imgFailed, setImgFailed] = useState(false);
+  const [SongMoreOptionsOpen, setSongMoreOptionsOpen] = useState(false);
+  const params = useParams();
+  const IsMobile = useIsMobile();
+  const playlistId: string = params.ID as string;
 
   const handleLoad = () => setImgReady(true);
   const handleError = () => setImgFailed(true);
@@ -162,13 +170,46 @@ export default function PlaylistTrackRow({
       </span>
 
       {/* ── 6: more (hover only) ── */}
-      <button
-        onClick={(e) => e.stopPropagation()}
-        aria-label="More options"
-        className={`text-white/50 hover:text-white transition-all duration-100 max-md:opacity-100 ${hovered ? "md:opacity-100" : "opacity-0"}`}
-      >
-        <MoreHorizontal className="w-4 h-4" />
-      </button>
+      <div className="relative z-9999">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setSongMoreOptionsOpen((v) => !v);
+          }}
+          aria-label="More options"
+          className={`text-white/50 hover:text-white transition-all duration-100 max-md:opacity-100 ${hovered ? "md:opacity-100" : "opacity-0"}`}
+        >
+          <MoreHorizontal className="w-4 h-4" />
+        </button>
+
+        {IsMobile ? (
+          <BottomSheet
+            isOpen={SongMoreOptionsOpen}
+            onClose={() => setSongMoreOptionsOpen(false)}
+          >
+            <SongMoreOptions
+              songId={song.id}
+              playlistId={playlistId}
+              onClose={() => setSongMoreOptionsOpen(false)}
+              variant="sheet"
+            />
+          </BottomSheet>
+        ) : (
+          SongMoreOptionsOpen && (
+            <div
+              className="absolute right-0 bottom-full mt-2 w-65
+                   bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2"
+            >
+              <SongMoreOptions
+                songId={song.id}
+                playlistId={playlistId}
+                onClose={() => setSongMoreOptionsOpen(false)}
+                variant="dropdown"
+              />
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 }

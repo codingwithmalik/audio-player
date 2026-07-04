@@ -4,7 +4,7 @@ import { Pencil, Trash2, ListMusic, Plus } from "lucide-react";
 import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import { useRouter } from "next/navigation";
-import { removeFolder } from "@/features/Folder/folderSlice";
+import { removeFolder, removePlaylistFromFolder } from "@/features/Folder/folderSlice";
 import {
   selectPlaylists,
   addPlaylist,
@@ -32,7 +32,10 @@ export default function FolderMoreOptions({
   const now = new Date().toISOString();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const handleAddToFolder = (playlistId: string) => {
+  const handleAddToFolder = (playlistId: string, currentFolderId: string | null) => {
+    if(currentFolderId){
+            dispatch(removePlaylistFromFolder({ folderId: currentFolderId, playlistId }));
+    }
     dispatch(addPlaylistToFolder({ folderId, playlistId }));
     dispatch(setPlaylistFolder({ playlistId, folderId }));
     onClose();
@@ -86,7 +89,7 @@ export default function FolderMoreOptions({
         ...playlists.map((p) => ({
           id: p.id,
           label: p.title,
-          action: () => handleAddToFolder(p.id),
+          action: () => handleAddToFolder(p.id , p.folderId),
         })),
       ],
     },
@@ -123,6 +126,7 @@ export default function FolderMoreOptions({
             dispatch(removeFolder(folderId));
             setConfirmOpen(false);
             router.push("/");
+            console.log("Folder deleted, navigate to home");
           }}
           onCancel={() => setConfirmOpen(false)}
         />

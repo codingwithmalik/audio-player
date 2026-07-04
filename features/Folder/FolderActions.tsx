@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Play, Shuffle, MoreHorizontal } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/globalHooks";
-import { setQueue } from "@/features/RightSidebar/Queue/queueSlice";
+import { MoreHorizontal, Pencil, Plus } from "lucide-react";
+import { useAppSelector } from "@/globalHooks";
 import { selectFolderById } from "@/features/Folder/folderSlice";
-import { selectPlaylistById } from "@/features/Playlist/playlistSlice";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import FolderMoreOptions from "./FolderMoreOptions";
 import BottomSheet from "@/features/Common/BottomSheet";
@@ -14,64 +12,38 @@ import type { RootState } from "@/store/store";
 export default function FolderActions({
   folderId,
   onRename,
-  playlistCount,
 }: {
   folderId: string;
   onRename: () => void;
-  playlistCount: number;
 }) {
-  const dispatch = useAppDispatch();
   const isMobile = useIsMobile();
   const [moreOpen, setMoreOpen] = useState(false);
-
   const folder = useAppSelector((state: RootState) =>
-    selectFolderById(state, folderId)
+    selectFolderById(state, folderId),
   );
-
-  // Collect all song IDs across all playlists in folder
-  const allSongIds = useAppSelector((state: RootState) =>
-    (folder?.playlistIds ?? []).flatMap((pid) => {
-      const playlist = selectPlaylistById(state, pid);
-      return playlist?.songs.map((s) => s.songId) ?? [];
-    })
-  );
-
-  const handlePlay = () => {
-    if (!allSongIds.length) return;
-    dispatch(setQueue({ songIds: allSongIds, sourceType: "playlist", sourceId: folderId }));
-  };
-
-  const handleShuffle = () => {
-    if (!allSongIds.length) return;
-    const shuffled = [...allSongIds].sort(() => Math.random() - 0.5);
-    dispatch(setQueue({ songIds: shuffled, sourceType: "playlist", sourceId: folderId }));
-  };
 
   return (
-    <div className="flex items-center gap-3 px-6 py-4">
-      {/* Play */}
+    <div className="flex items-center gap-3 px-4 sm:px-8 py-4">
+      {/* Rename */}
       <button
-        onClick={handlePlay}
-        disabled={!playlistCount}
-        className="flex items-center justify-center w-14 h-14 rounded-full bg-purple-600 hover:bg-purple-500 hover:scale-105 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg"
+        onClick={onRename}
+        className="flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors"
       >
-        <Play className="w-6 h-6 text-white fill-white translate-x-0.5" />
+        <Pencil className="w-4 h-4" />
+        Rename
       </button>
 
-      {/* Shuffle */}
-      <button
-        onClick={handleShuffle}
-        disabled={!playlistCount}
-        className="flex items-center justify-center w-11 h-11 rounded-full text-white/60 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        <Shuffle className="w-5 h-5" />
+      {/* Add playlist — wired later */}
+      <button className="flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors">
+        <Plus className="w-4 h-4" />
+        Add playlist
       </button>
 
       {/* More options */}
-      <div className="relative ml-1">
+      <div className="relative">
         <button
           onClick={() => setMoreOpen((v) => !v)}
-          className="flex items-center justify-center w-11 h-11 rounded-full text-white/60 hover:text-white transition-colors"
+          className="flex items-center justify-center w-9 h-9 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors"
         >
           <MoreHorizontal className="w-5 h-5" />
         </button>

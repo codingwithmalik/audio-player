@@ -37,12 +37,14 @@ export default function MoreOptions({
 
   // ── Outside click ─────────────────────────────────────────────────────────
   useEffect(() => {
+    
     const handler = (e: MouseEvent) => {
+      if(confirmDialog) return; // don't close if confirm dialog is open
       if (!wrapperRef.current?.contains(e.target as Node)) onClose();
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [onClose]);
+  }, [onClose, confirmDialog]);
 
   // ── Hover logic — desktop only ────────────────────────────────────────────
   const handleOptionEnter = (option: MoreOption) => {
@@ -86,9 +88,9 @@ export default function MoreOptions({
                 <span className="flex items-center gap-3">
                   {Icon && (
                     <Icon
-                      className={`w-4 h-4 transition-colors ${
+                      className={`w-4 h-4 ${
                         option.iconFilled
-                          ? "text-purple-600 fill-purple-4600"
+                          ? "text-purple-600 fill-purple-600"
                           : "text-white/60 group-hover:text-purple-600"
                       }`}
                     />

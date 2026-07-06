@@ -36,17 +36,14 @@ export default function FolderHero({
     if (e.key === "Enter") onRenameConfirm(draft);
     if (e.key === "Escape") onRenameCancel();
   };
-  const accentColor = "#1a0a2e"
+  const accentColor = "#1a0a2e";
 
   return (
-    <div className="relative">
-      <div
-        className="relative w-full"
-        style={{
-          background: `linear-gradient(180deg, ${accentColor}CC 0%, ${accentColor}44 60%, transparent 100%)`,
-        }}
-      />
-
+    <div
+      style={{
+        background: `linear-gradient(180deg, ${accentColor}CC 0%, ${accentColor}44 60%, transparent 100%)`,
+      }}
+    >
       <div className="relative flex flex-col sm:flex-row items-center sm:items-end gap-6 px-4 sm:px-8 pt-10 pb-8 rounded-t-md">
         {/* Folder icon box */}
         <div className="shrink-0 w-40 h-40 sm:w-48 sm:h-48 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.5)]">

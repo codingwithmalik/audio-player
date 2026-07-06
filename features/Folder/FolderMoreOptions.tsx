@@ -96,11 +96,13 @@ export default function FolderMoreOptions({
           action: handleCreatePlaylist,
           separatorAbove: true,
         },
-        ...playlists.map((p) => ({
-          id: p.id,
-          label: p.title,
-          action: () => handleAddToFolder(p.id, p.folderId),
-        })),
+        ...playlists
+          .filter((p) => p.folderId !== folderId)
+          .map((p) => ({
+            id: p.id,
+            label: p.title,
+            action: () => handleAddToFolder(p.id, p.folderId),
+          })),
       ],
     },
     {

@@ -86,7 +86,7 @@ export default function Player({
         </div>
       )}
       {/* ── DESKTOP ── */}
-      <div className="mx-auto hidden h-20.5 max-w-400 items-center justify-between gap-2 px-4 md:flex lg:h-22.5 lg:px-5 shrink-0">
+      <div className="mx-auto hidden h-18 max-w-400 items-center justify-between gap-2 px-4 md:flex lg:h-20 lg:px-5 shrink-0">
         {isActive ? (
           <SongInfo />
         ) : (

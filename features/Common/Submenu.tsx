@@ -47,8 +47,8 @@ export default function Submenu({
         inline
           ? "w-full md:py-1"
           : position === "right"
-            ? "absolute left-full top-0 ml-1 w-64 bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2 z-600"
-            : "absolute right-full -top-2 w-64 bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2 z-600"
+            ? "absolute left-full top-0 ml-1 w-54 bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2 z-600"
+            : "absolute right-full -top-2 w-54 bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2 z-600"
       }
     >
       {/* Search input — hidden on mobile since sheet handles it inline */}

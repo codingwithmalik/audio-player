@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MoreHorizontal, Pencil, Plus } from "lucide-react";
 import { useAppSelector } from "@/globalHooks";
 import { selectFolderById } from "@/features/Folder/folderSlice";
@@ -21,6 +21,7 @@ export default function FolderActions({
   const folder = useAppSelector((state: RootState) =>
     selectFolderById(state, folderId),
   );
+  const anchorRef = useRef<HTMLButtonElement | null>(null);
 
   return (
     <div className="flex items-center gap-3 px-4 sm:px-8 py-4">
@@ -43,6 +44,7 @@ export default function FolderActions({
       <div className="relative">
         <button
           onClick={() => setMoreOpen((v) => !v)}
+          ref={anchorRef}
           className="flex items-center justify-center w-9 h-9 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors"
         >
           <MoreHorizontal className="w-5 h-5" />
@@ -59,18 +61,18 @@ export default function FolderActions({
               onClose={() => setMoreOpen(false)}
               onRename={onRename}
               variant="sheet"
+              anchorRef={anchorRef}
             />
           </BottomSheet>
         ) : (
           moreOpen && (
-            <div className="absolute left-0 top-full mt-2 w-60 bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2 z-50">
-              <FolderMoreOptions
-                folderId={folderId}
-                onClose={() => setMoreOpen(false)}
-                onRename={onRename}
-                variant="dropdown"
-              />
-            </div>
+            <FolderMoreOptions
+              folderId={folderId}
+              onClose={() => setMoreOpen(false)}
+              onRename={onRename}
+              variant="dropdown"
+              anchorRef={anchorRef}
+            />
           )
         )}
       </div>

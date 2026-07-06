@@ -4,7 +4,10 @@ import { Pencil, Trash2, ListMusic, Plus } from "lucide-react";
 import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import { useRouter } from "next/navigation";
-import { removeFolder, removePlaylistFromFolder } from "@/features/Folder/folderSlice";
+import {
+  removeFolder,
+  removePlaylistFromFolder,
+} from "@/features/Folder/folderSlice";
 import {
   selectPlaylists,
   addPlaylist,
@@ -19,11 +22,13 @@ export default function FolderMoreOptions({
   onClose,
   onRename,
   variant = "dropdown",
+  anchorRef,
 }: {
   folderId: string;
   onClose: () => void;
   onRename: () => void;
   variant?: "dropdown" | "sheet";
+  anchorRef: React.RefObject<HTMLButtonElement | null>;
 }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -32,9 +37,14 @@ export default function FolderMoreOptions({
   const now = new Date().toISOString();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const handleAddToFolder = (playlistId: string, currentFolderId: string | null) => {
-    if(currentFolderId){
-            dispatch(removePlaylistFromFolder({ folderId: currentFolderId, playlistId }));
+  const handleAddToFolder = (
+    playlistId: string,
+    currentFolderId: string | null,
+  ) => {
+    if (currentFolderId) {
+      dispatch(
+        removePlaylistFromFolder({ folderId: currentFolderId, playlistId }),
+      );
     }
     dispatch(addPlaylistToFolder({ folderId, playlistId }));
     dispatch(setPlaylistFolder({ playlistId, folderId }));
@@ -89,7 +99,7 @@ export default function FolderMoreOptions({
         ...playlists.map((p) => ({
           id: p.id,
           label: p.title,
-          action: () => handleAddToFolder(p.id , p.folderId),
+          action: () => handleAddToFolder(p.id, p.folderId),
         })),
       ],
     },
@@ -104,32 +114,35 @@ export default function FolderMoreOptions({
 
   return (
     <MoreOptions
+      placement="right-start"
+      anchorRef={anchorRef}
       options={options}
       variant={variant}
       onClose={onClose}
       confirmDialog={
-        <ConfirmDialog
-          open={confirmOpen}
-          title="Delete Folder?"
-          description={
-            <span>
-              This will delete the folder.{" "}
-              <span className="font-semibold text-white">
-                Playlists inside will not be deleted.
+        confirmOpen && (
+          <ConfirmDialog
+            open={confirmOpen}
+            title="Delete Folder?"
+            description={
+              <span>
+                This will delete the folder.{" "}
+                <span className="font-semibold text-white">
+                  Playlists inside will not be deleted.
+                </span>
               </span>
-            </span>
-          }
-          confirmLabel="Delete"
-          cancelLabel="Cancel"
-          danger
-          onConfirm={() => {
-            dispatch(removeFolder(folderId));
-            setConfirmOpen(false);
-            router.push("/");
-            console.log("Folder deleted, navigate to home");
-          }}
-          onCancel={() => setConfirmOpen(false)}
-        />
+            }
+            confirmLabel="Delete"
+            cancelLabel="Cancel"
+            onConfirm={() => {
+              dispatch(removeFolder(folderId));
+              setConfirmOpen(false);
+              router.push("/");
+              console.log("Folder deleted, navigate to home");
+            }}
+            onCancel={() => setConfirmOpen(false)}
+          />
+        )
       }
     />
   );

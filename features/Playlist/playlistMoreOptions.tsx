@@ -30,6 +30,7 @@ import {
 import ConfirmDialog from "@/features/Common/ConfirmDialog";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
 import { setQueue } from "../RightSidebar/Queue/queueSlice";
+import { RefObject } from "react";
 
 export default function PlaylistMoreOptions({
   onEditDetails,
@@ -38,6 +39,7 @@ export default function PlaylistMoreOptions({
   onDownload,
   onClose,
   variant = "dropdown",
+  anchorRef,
 }: {
   playlistId: string;
   currentFolderId: string | null;
@@ -45,6 +47,7 @@ export default function PlaylistMoreOptions({
   onDownload: () => void;
   onClose: () => void;
   variant?: "dropdown" | "sheet";
+  anchorRef?: RefObject<HTMLButtonElement | null>;
 }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -223,33 +226,38 @@ export default function PlaylistMoreOptions({
   return (
     <>
       <MoreOptions
+        anchorRef={anchorRef}
+        placement="top-start"
         options={options}
         variant={variant}
         onClose={onClose}
         confirmDialog={
-          <ConfirmDialog
-            open={confirmOpen}
-            title="Delete from Your Library?"
-            description={
-              <>
-                This will delete{" "}
-                <span className="font-semibold text-white">
-                  {sourcePlaylist?.title}
-                </span>{" "}
-                from{" "}
-                <span className="font-semibold text-white">Your Library</span>.
-              </>
-            }
-            confirmLabel="Delete"
-            cancelLabel="Cancel"
-            onConfirm={() => {
-              dispatch(removePlaylist(playlistId));
-              handleRemoveFromFolder();
-              setConfirmOpen(false);
-              router.push("/");
-            }}
-            onCancel={() => setConfirmOpen(false)}
-          />
+          confirmOpen && (
+            <ConfirmDialog
+              open={confirmOpen}
+              title="Delete from Your Library?"
+              description={
+                <>
+                  This will delete{" "}
+                  <span className="font-semibold text-white">
+                    {sourcePlaylist?.title}
+                  </span>{" "}
+                  from{" "}
+                  <span className="font-semibold text-white">Your Library</span>
+                  .
+                </>
+              }
+              confirmLabel="Delete"
+              cancelLabel="Cancel"
+              onConfirm={() => {
+                dispatch(removePlaylist(playlistId));
+                handleRemoveFromFolder();
+                setConfirmOpen(false);
+                router.push("/");
+              }}
+              onCancel={() => setConfirmOpen(false)}
+            />
+          )
         }
       />
     </>

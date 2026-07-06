@@ -10,7 +10,7 @@ import { MoreHorizontal } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import BottomSheet from "../Common/BottomSheet";
 import FolderPlaylistMoreOptions from "./FolderPlaylistMoreOptions";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function FolderPlaylistRow({
   playlist,
@@ -20,7 +20,7 @@ export default function FolderPlaylistRow({
   const router = useRouter();
   const isMobile = useIsMobile();
   const [moreOpen, setMoreOpen] = useState(false);
-
+  const anchorRef = useRef<HTMLButtonElement | null>(null);
   const songCovers = useAppSelector((state: RootState) =>
     playlist.songs
       .slice(0, 4)
@@ -67,6 +67,7 @@ export default function FolderPlaylistRow({
       >
         <button
           onClick={() => setMoreOpen((v) => !v)}
+          ref={anchorRef}
           aria-label="More options"
           className={`transition-colors duration-150 max-md:opacity-100${
             hovered ? "text-white/60 hover:text-white opacity-100" : "opacity-0"
@@ -88,18 +89,18 @@ export default function FolderPlaylistRow({
               currentFolderId={playlist.folderId}
               onClose={() => setMoreOpen(false)}
               variant="sheet"
+              anchorRef={anchorRef}
             />
           </BottomSheet>
         ) : (
           moreOpen && (
-            <div className="absolute right-0 top-full mt-2 w-60 bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2 z-50">
-              <FolderPlaylistMoreOptions
-                playlistId={playlist.id}
-                currentFolderId={playlist.folderId}
-                onClose={() => setMoreOpen(false)}
-                variant="dropdown"
-              />
-            </div>
+            <FolderPlaylistMoreOptions
+              playlistId={playlist.id}
+              currentFolderId={playlist.folderId}
+              onClose={() => setMoreOpen(false)}
+              variant="dropdown"
+              anchorRef={anchorRef}
+            />
           )
         )}
       </div>

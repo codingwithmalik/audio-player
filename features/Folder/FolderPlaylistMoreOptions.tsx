@@ -21,11 +21,13 @@ export default function FolderPlaylistMoreOptions({
   currentFolderId,
   onClose,
   variant = "dropdown",
+  anchorRef ,
 }: {
   playlistId: string;
   currentFolderId?: string | null;
   onClose: () => void;
   variant?: "dropdown" | "sheet";
+  anchorRef: React.RefObject<HTMLButtonElement | null>;
 }) {
   const dispatch = useAppDispatch();
   // const router = useRouter();
@@ -117,14 +119,16 @@ export default function FolderPlaylistMoreOptions({
       options={options}
       variant={variant}
       onClose={onClose}
+      anchorRef={anchorRef}
+      placement="top-start"
       confirmDialog={
+        confirmOpen && (
         <ConfirmDialog
           open={confirmOpen}
           title="Delete Playlist?"
           description="This playlist will be permanently deleted."
           confirmLabel="Delete"
           cancelLabel="Cancel"
-          danger
           onConfirm={() => {
             // Remove from folder first, then delete, stay on folder page
             if (currentFolderId) {
@@ -137,6 +141,7 @@ export default function FolderPlaylistMoreOptions({
           }}
           onCancel={() => setConfirmOpen(false)}
         />
+        )
       }
     />
   );

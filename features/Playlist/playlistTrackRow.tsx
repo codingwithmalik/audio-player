@@ -11,7 +11,7 @@
  * addedAt comes separately (it lives on the playlist join record, not on Song).
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Music2, Play, Heart, MoreHorizontal } from "lucide-react";
 import { Song } from "@/types/song";
 import Image from "next/image";
@@ -66,7 +66,7 @@ export default function PlaylistTrackRow({
 
   const handleLoad = () => setImgReady(true);
   const handleError = () => setImgFailed(true);
-
+  const anchorRef = useRef<HTMLButtonElement>(null);
   const artistLabel = song.artists.join(", ");
 
   return (
@@ -176,6 +176,7 @@ export default function PlaylistTrackRow({
             e.stopPropagation();
             setSongMoreOptionsOpen((v) => !v);
           }}
+          ref={anchorRef}
           aria-label="More options"
           className={`text-white/50 hover:text-white transition-all duration-100 max-md:opacity-100 ${hovered ? "md:opacity-100" : "opacity-0"}`}
         >
@@ -192,21 +193,23 @@ export default function PlaylistTrackRow({
               playlistId={playlistId}
               onClose={() => setSongMoreOptionsOpen(false)}
               variant="sheet"
+              anchorRef={anchorRef}
             />
           </BottomSheet>
         ) : (
           SongMoreOptionsOpen && (
-            <div
-              className="absolute right-0 bottom-full mt-2 w-65
-                   bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2"
-            >
-              <SongMoreOptions
-                songId={song.id}
-                playlistId={playlistId}
-                onClose={() => setSongMoreOptionsOpen(false)}
-                variant="dropdown"
-              />
-            </div>
+            // <div
+            //   className="absolute right-0 bottom-full mt-2 w-65
+            //        bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2"
+            // >
+            <SongMoreOptions
+              anchorRef={anchorRef}
+              songId={song.id}
+              playlistId={playlistId}
+              onClose={() => setSongMoreOptionsOpen(false)}
+              variant="dropdown"
+            />
+            // </div>
           )
         )}
       </div>

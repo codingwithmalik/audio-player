@@ -15,17 +15,21 @@ import {
 import { addToQueue } from "@/features/RightSidebar/Queue/queueSlice";
 import type { RootState } from "@/store/store";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
+import { RefObject } from "react";
 
 export default function SongMoreOptions({
   songId,
   playlistId,
   onClose,
   variant = "dropdown",
+    anchorRef,
+  
 }: {
   songId: string;
   playlistId: string;
   onClose: () => void;
   variant?: "dropdown" | "sheet";
+  anchorRef: RefObject<HTMLButtonElement | null>;
 }) {
   const dispatch = useAppDispatch();
   const playlists = useAppSelector(selectPlaylists);
@@ -139,5 +143,5 @@ export default function SongMoreOptions({
     },
   ];
 
-  return <MoreOptions options={options} variant={variant} onClose={onClose} />;
+  return <MoreOptions options={options} variant={variant} onClose={onClose} anchorRef={anchorRef} placement="top-end" />;
 }

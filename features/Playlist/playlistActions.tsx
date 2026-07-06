@@ -96,6 +96,7 @@ export default function PlaylistActions({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLButtonElement>(null);
 
   // Focus search input when it opens
   useEffect(() => {
@@ -203,6 +204,7 @@ export default function PlaylistActions({
           </button>
           <div className="relative">
             <button
+              ref={anchorRef}
               onClick={() => setMorePlaylistOptionsOpen((v) => !v)}
               aria-label="More options"
               className="text-white/60 hover:text-white transition-colors duration-150"
@@ -225,27 +227,29 @@ export default function PlaylistActions({
                     currentFolderId={playlist.folderId}
                     playlistId={playlist.id}
                     variant="sheet"
+                    anchorRef={anchorRef}
                   />
                 </BottomSheet>
               </div>
             ) : (
               MorePlaylistOptionsOpen && (
-                  <div
-                    className="absolute left-0 top-5 mt-2 w-60 z-9999
-                           bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
-                           py-2 "
-                  >
-                    <PlaylistMoreOptions
-                      onClose={() => {
-                        setMorePlaylistOptionsOpen(false);
-                      }}
-                      onEditDetails={onEditDetails}
-                      onDownload={handleDownload}
-                      currentFolderId={playlist.folderId}
-                      playlistId={playlist.id}
-                      variant="dropdown"
-                    />
-                  </div>
+                // <div
+                //   className="absolute left-0 top-5 mt-2 w-60 z-9999
+                //            bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
+                //            py-2 "
+                // >
+                  <PlaylistMoreOptions
+                    onClose={() => {
+                      setMorePlaylistOptionsOpen(false);
+                    }}
+                    anchorRef={anchorRef}
+                    onEditDetails={onEditDetails}
+                    onDownload={handleDownload}
+                    currentFolderId={playlist.folderId}
+                    playlistId={playlist.id}
+                    variant="dropdown"
+                  />
+                // </div>
               )
             )}
           </div>

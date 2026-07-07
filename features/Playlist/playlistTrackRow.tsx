@@ -12,7 +12,7 @@
  */
 
 import { useRef, useState } from "react";
-import { Music2, Play, Heart, MoreHorizontal } from "lucide-react";
+import { Music2, Play, MoreHorizontal } from "lucide-react";
 import { Song } from "@/types/song";
 import Image from "next/image";
 import EqBars from "../Common/EQBars";
@@ -20,15 +20,14 @@ import SongMoreOptions from "./songMoreOptions";
 import { useParams } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import BottomSheet from "../Common/BottomSheet";
+import AddToPlaylistMenu from "../Common/AddSongToPlaylists";
 
 interface PlaylistTrackRowProps {
   song: Song;
   index: number; // 1-based
   addedAt: string; // ISO — from playlist join data
   isPlaying: boolean;
-  isLiked: boolean;
   onPlay: () => void;
-  onLike: () => void;
 }
 
 /** seconds → M:SS */
@@ -52,9 +51,7 @@ export default function PlaylistTrackRow({
   index,
   addedAt,
   isPlaying,
-  isLiked,
   onPlay,
-  onLike,
 }: PlaylistTrackRowProps) {
   const [hovered, setHovered] = useState(false);
   const [imgReady, setImgReady] = useState(false);
@@ -82,7 +79,7 @@ export default function PlaylistTrackRow({
       }}
       className={`
         grid items-center gap-4 px-4 py-2 rounded-md cursor-default select-none
-        transition-colors duration-100 sm:grid-cols-[32px_1.5fr_1fr_48px_32px] grid-cols-[1.5fr_32px]
+        transition-colors duration-100 sm:grid-cols-[32px_1.5fr_20px_1fr_48px_32px] grid-cols-[1.5fr_32px]
         ${hovered ? "md:bg-white/10" : "bg-transparent"}
       `}
     >
@@ -143,22 +140,18 @@ export default function PlaylistTrackRow({
             {artistLabel}
           </span>
         </div>
-
-        {/* Like */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onLike();
-          }}
-          aria-label={isLiked ? "Remove from liked" : "Save to liked"}
-          className={`ml-2 shrink-0 transition-opacity duration-150 ${hovered || isLiked ? "opacity-100" : "opacity-0"}`}
-        >
-          <Heart
-            className={`w-4 h-4 transition-colors ${isLiked ? "text-purple-600 fill-purple-600" : "text-white/60 hover:text-white"}`}
-          />
-        </button>
       </div>
-
+      <div className="hidden md:flex">
+        {/* Add */}
+        <div
+          onClick={(e) =>{ e.stopPropagation()
+          }}
+          onDoubleClick={(e) => e.stopPropagation()}
+          className={`text-white/50 hover:text-white transition-all duration-100 max-md:opacity-100 ${hovered ? "md:opacity-100" : "opacity-0"}`}
+        >
+          <AddToPlaylistMenu songId={song.id} setHoveredFalse={()=> setHovered(false)} />
+        </div>
+      </div>
       {/* ── 4: date added ── */}
       <span className="hidden sm:block text-sm text-white/50 truncate">
         {formatDate(addedAt)}

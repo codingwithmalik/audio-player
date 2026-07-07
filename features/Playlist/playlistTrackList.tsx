@@ -23,12 +23,9 @@ import { PlaylistSong } from "@/types/playlist";
 interface PlaylistTrackListProps {
   songs: Song[];
   playlistSongs: PlaylistSong[]; // parallel array — carries addedAt per song
-  likedSongIds: Set<string>;
   currentSongId: string | null;
   onPlaySong: (songId: string, index: number) => void;
-  onLikeSong: (songId: string) => void;
-  isPlaylistPlaying:boolean
-
+  isPlaylistPlaying: boolean;
 }
 
 export default function PlaylistTrackList({
@@ -36,9 +33,7 @@ export default function PlaylistTrackList({
   playlistSongs,
   currentSongId,
   isPlaylistPlaying,
-  likedSongIds,
   onPlaySong,
-  onLikeSong,
 }: PlaylistTrackListProps) {
   if (songs.length === 0) {
     return (
@@ -52,7 +47,7 @@ export default function PlaylistTrackList({
       {/* Column header */}
       <div
         role="row"
-        className="hidden sm:grid items-center gap-4 px-4 pb-2 mb-1 border-b border-white/10 sm:grid-cols-[32px_1.5fr_1fr_48px_32px]  "
+        className="hidden sm:grid items-center gap-4 px-4 pb-2 mb-1 border-b border-white/10 sm:grid-cols-[32px_1.5fr_20px_1fr_48px_32px]  "
       >
         <span className="text-xs text-white/40 text-center font-semibold">
           #
@@ -60,6 +55,7 @@ export default function PlaylistTrackList({
         <span className="text-xs text-white/40 font-semibold uppercase tracking-wider">
           Title
         </span>
+        <span></span>
         <span className="text-xs text-white/40 font-semibold uppercase tracking-wider">
           Date added
         </span>
@@ -77,9 +73,7 @@ export default function PlaylistTrackList({
               index={i + 1}
               addedAt={playlistSongs[i]?.addedAt ?? song.createdAt}
               isPlaying={isPlaylistPlaying && song.id === currentSongId}
-              isLiked={likedSongIds.has(song.id)}
               onPlay={() => onPlaySong(song.id, i)}
-              onLike={() => onLikeSong(song.id)}
             />
           </div>
         ))}

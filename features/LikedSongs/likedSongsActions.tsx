@@ -20,11 +20,8 @@ import {
   Pause,
   Shuffle,
   Download,
-  MoreHorizontal,
   Search,
   X,
-  Plus,
-  Pencil,
   ChevronUp,
   ChevronDown,
   LayoutList,
@@ -52,9 +49,6 @@ import {
 } from "@/store/playerSlice";
 import { Song } from "@/types/song";
 import BottomSheet from "../Common/BottomSheet";
-import PlaylistMoreOptions from "./playlistMoreOptions";
-import { Playlist } from "@/types/playlist";
-import { useIsMobile } from "@/hooks/useIsMobile";
 
 // ─── Sort option config ───────────────────────────────────────────────────────
 
@@ -67,20 +61,16 @@ const SORT_OPTIONS: { value: SortBy; label: string }[] = [
 ];
 
 // ─── Props ────────────────────────────────────────────────────────────────────
-interface PlaylistActionsProps {
+interface LikedSongsActionsProps {
   isPlaying: boolean;
-  onEditDetails: () => void;
   songs: Song[];
-  playlist: Playlist;
 }
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function PlaylistActions({
+export default function LikedSongsActions({
   isPlaying,
-  onEditDetails,
   songs,
-  playlist,
-}: PlaylistActionsProps) {
+}: LikedSongsActionsProps) {
   const dispatch = useAppDispatch();
 
   // ── Read UI state from store ────────────────────────────────────────────────
@@ -89,14 +79,10 @@ export default function PlaylistActions({
   const viewMode = useAppSelector(selectViewMode);
   const sourceId = useAppSelector(selectSourceId);
   const isShuffle = useAppSelector(selectIsShuffle);
-  const isMobile = useIsMobile();
   const [searchOpen, setSearchOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [MorePlaylistOptionsOpen, setMorePlaylistOptionsOpen] = useState(false);
-
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const anchorRef = useRef<HTMLButtonElement>(null);
 
   // Focus search input when it opens
   useEffect(() => {
@@ -120,9 +106,9 @@ export default function PlaylistActions({
     // console.log("play playlist" + " first song is " + songs.at(0)?.id);
     const firstSongId = songs.at(0)?.id;
     if (!firstSongId) return;
-    if (sourceId !== playlist.id) {
-      dispatch(setSourceId(playlist.id));
-      dispatch(setSourceType("playlist"));
+    if (sourceId !== "liked") {
+      dispatch(setSourceId("liked"));
+      dispatch(setSourceType("liked"));
       dispatch(setSong(firstSongId));
     } else {
       dispatch(togglePlay());
@@ -155,10 +141,6 @@ export default function PlaylistActions({
     dispatch(setSearchQuery(e.target.value));
   };
 
-  const handleAddSong = () => {
-    // TODO: open add song modal
-    console.log("add song to playlist");
-  };
   const handleDownload = () => {
     console.log("download");
   };
@@ -278,57 +260,6 @@ export default function PlaylistActions({
           >
             <Download className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
-          <div className="relative">
-            <button
-              ref={anchorRef}
-              onClick={() => setMorePlaylistOptionsOpen((v) => !v)}
-              aria-label="More options"
-              className="text-white/60 hover:text-white transition-colors duration-150"
-            >
-              <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
-            {isMobile ? (
-              <div className="md:hidden">
-                <BottomSheet
-                  isOpen={MorePlaylistOptionsOpen}
-                  onClose={() => setMorePlaylistOptionsOpen(false)}
-                  title={playlist.title}
-                >
-                  <PlaylistMoreOptions
-                    onClose={() => {
-                      setMorePlaylistOptionsOpen(false);
-                    }}
-                    onEditDetails={onEditDetails}
-                    onDownload={handleDownload}
-                    currentFolderId={playlist.folderId}
-                    playlistId={playlist.id}
-                    variant="sheet"
-                    anchorRef={anchorRef}
-                  />
-                </BottomSheet>
-              </div>
-            ) : (
-              MorePlaylistOptionsOpen && (
-                // <div
-                //   className="absolute left-0 top-5 mt-2 w-60 z-9999
-                //            bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
-                //            py-2 "
-                // >
-                <PlaylistMoreOptions
-                  onClose={() => {
-                    setMorePlaylistOptionsOpen(false);
-                  }}
-                  anchorRef={anchorRef}
-                  onEditDetails={onEditDetails}
-                  onDownload={handleDownload}
-                  currentFolderId={playlist.folderId}
-                  playlistId={playlist.id}
-                  variant="dropdown"
-                />
-                // </div>
-              )
-            )}
-          </div>
         </div>
 
         {/* Right: search + sort — always on same line as controls */}
@@ -382,8 +313,8 @@ export default function PlaylistActions({
             {dropdownOpen && (
               <div
                 className="hidden md:block absolute right-0 top-82 mt-2 w-52 z-500
-                                     bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
-                                     py-2 overflow-hidden"
+                           bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
+                           py-2 overflow-hidden"
               >
                 <p className="text-[11px] text-white/40 font-semibold uppercase tracking-wider px-4 py-1.5">
                   Sort by
@@ -400,31 +331,6 @@ export default function PlaylistActions({
             </BottomSheet>
           </div>
         </div>
-      </div>
-
-      {/* ── Row 2: edit controls ── */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={handleAddSong}
-          aria-label="Add songs"
-          className="flex items-center gap-2 text-sm text-white/70 font-medium
-                     border border-white/20 rounded-full px-4 py-1.5
-                     hover:border-white/50 hover:text-white transition-colors duration-150"
-        >
-          <Plus className="w-4 h-4" />
-          Add
-        </button>
-
-        <button
-          onClick={onEditDetails}
-          aria-label="Edit playlist details"
-          className="flex items-center gap-2 text-sm text-white/70 font-medium
-                     border border-white/20 rounded-full px-4 py-1.5
-                     hover:border-white/50 hover:text-white transition-colors duration-150"
-        >
-          <Pencil className="w-4 h-4" />
-          Edit Details
-        </button>
       </div>
     </div>
   );

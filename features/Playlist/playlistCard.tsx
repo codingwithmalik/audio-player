@@ -8,15 +8,16 @@
  * selectFilteredSongs selector handles all filtering + sorting.
  */
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import "overlayscrollbars/overlayscrollbars.css";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
   selectPlaylistById,
   selectFilteredSongs,
+  resetPlaylistUI,
 } from "@/features/Playlist/playlistSlice";
-import {  selectSongsByIds } from "@/features/Songs/songsSlice";
+import { selectSongsByIds } from "@/features/Songs/songsSlice";
 import PlaylistView from "./playlistView";
 import {
   setSong,
@@ -27,18 +28,18 @@ import {
   selectSourceId,
 } from "@/store/playerSlice";
 
-export default function PlaylistPage({id}:{id:string}) {
+export default function PlaylistPage({ id }: { id: string }) {
   // console.log("Playlist found : "+id)
   const dispatch = useAppDispatch();
 
   // ── Load mock data on mount ─────────────────────────────────────────────────
-  // useEffect(() => {
-  //   if (!id) return;
-  //   // Reset search/sort/view when navigating to a new playlist
-  //   return () => {
-  //     dispatch(resetPlaylistUI());
-  //   };
-  // }, [id, dispatch]);
+  useEffect(() => {
+    if (!id) return;
+    // Reset search/sort/view when navigating to a new playlist
+    return () => {
+      dispatch(resetPlaylistUI());
+    };
+  }, [id, dispatch]);
 
   // ── Read entities from store ────────────────────────────────────────────────
   const playlist = useAppSelector((s) => selectPlaylistById(s, id));
@@ -62,8 +63,6 @@ export default function PlaylistPage({id}:{id:string}) {
   const isPlaylistPlaying =
     isplaying && sourceType === "playlist" && sourceId === id;
   // console.log(sourceId, sourceType, isplaying, isPlaylistPlaying);
-  // Hardcoded until auth + liked-songs slices are built
-  const likedSongIds = new Set<string>(["s2", "s5"]);
   // const isPlaylistPlaying = false;
   // ── Playback handlers ───────────────────────────────────────────────────────
   const handlePlaySong = useCallback(
@@ -75,10 +74,6 @@ export default function PlaylistPage({id}:{id:string}) {
     },
     [dispatch, id],
   );
-
-  const handleLikeSong = useCallback((songId: string) => {
-    console.log("like song", songId);
-  }, []);
 
   // ── Loading state ───────────────────────────────────────────────────────────
   if (!playlist) {
@@ -102,11 +97,9 @@ export default function PlaylistPage({id}:{id:string}) {
         playlist={playlist}
         songs={songs}
         filteredSongs={filteredSongs}
-        likedSongIds={likedSongIds}
         totalDurationLabel={durationLabel}
         isPlaylistPlaying={isPlaylistPlaying}
         onPlaySong={handlePlaySong}
-        onLikeSong={handleLikeSong}
       />
     </OverlayScrollbarsComponent>
   );

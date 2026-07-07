@@ -11,6 +11,7 @@ import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { Playlist } from "@/types/playlist";
 import PlaylistMosaicCover from "./playlistMosaicCover";
+import { createPortal } from "react-dom";
 
 interface PlaylistEditModalProps {
   playlist: Playlist;
@@ -62,10 +63,10 @@ export default function PlaylistEditModal({
     onClose();
   };
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/60  z-50" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/80  z-50" onClick={onClose} />
 
       {/* Modal */}
       <div
@@ -188,6 +189,7 @@ export default function PlaylistEditModal({
           </button>
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }

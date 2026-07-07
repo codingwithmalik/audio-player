@@ -116,7 +116,7 @@ export default function SongMoreOptions({
       iconFilled: isLiked,
       separatorAbove: true,
       action: () => {
-        dispatch(toggleLike(songId));
+        dispatch(toggleLike({songId,addedAt: now}));
         onClose();
       },
     },

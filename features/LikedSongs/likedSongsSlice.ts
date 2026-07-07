@@ -1,41 +1,69 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/store/store";
+import { PlaylistSong } from "@/types/playlist";
 
 interface LikedSongsState {
-  songIds: string[];
+  songs: PlaylistSong[];
 }
 
 const initialState: LikedSongsState = {
-  songIds: [],
+  songs: [
+    {songId: "s1", addedAt: new Date().toISOString()},
+    {songId: "s3", addedAt: new Date().toISOString()},
+    {songId: "s2", addedAt: new Date().toISOString()},
+    {songId: "s4", addedAt: new Date().toISOString()},
+  ],
 };
-
 const likedSongsSlice = createSlice({
   name: "likedSongs",
   initialState,
   reducers: {
-    likeSong(state, action: PayloadAction<string>) {
-      if (!state.songIds.includes(action.payload))
-        state.songIds.push(action.payload);
+    likeSong(state, action: PayloadAction<PlaylistSong>) {
+      if (!state.songs.some((song) => song.songId === action.payload.songId)) {
+        state.songs.push(action.payload );
+      }
     },
+
     unlikeSong(state, action: PayloadAction<string>) {
-      state.songIds = state.songIds.filter((id) => id !== action.payload);
+      state.songs = state.songs.filter(
+        (song) => song.songId !== action.payload,
+      );
     },
-    toggleLike(state, action: PayloadAction<string>) {
-      const index = state.songIds.indexOf(action.payload);
-      if (index === -1) state.songIds.push(action.payload);
-      else state.songIds.splice(index, 1);
+
+    toggleLike(state, action: PayloadAction<PlaylistSong>) {
+      const index = state.songs.findIndex(
+        (song) => song.songId === action.payload.songId,
+      );
+
+      if (index === -1) {
+        state.songs.push(action.payload);
+      } else {
+        state.songs.splice(index, 1);
+      }
     },
   },
 });
 
-export const { likeSong, unlikeSong, toggleLike } = likedSongsSlice.actions;
+export const { likeSong, unlikeSong, toggleLike } =
+  likedSongsSlice.actions;
+
 export default likedSongsSlice.reducer;
 
-export const selectLikedSongIds = (state: RootState) =>
-  state.likedSongs.songIds;
+/* ────────────────────────────────────────────────────────── */
+/* Selectors                                                 */
+/* ────────────────────────────────────────────────────────── */
 
-export const selectIsLiked = (state: RootState, songId: string) =>
-  state.likedSongs.songIds.includes(songId);
+export const selectLikedSongs = (state: RootState) =>
+  state.likedSongs.songs;
+
+export const selectLikedSongIds = (state: RootState) =>
+  state.likedSongs.songs.map((song) => song.songId);
+
+export const selectIsLiked = (
+  state: RootState,
+  songId: string,
+) =>
+  state.likedSongs.songs.some((song) => song.songId === songId);
 
 export const selectLikedCount = (state: RootState) =>
-  state.likedSongs.songIds.length;
+  state.likedSongs.songs.length;

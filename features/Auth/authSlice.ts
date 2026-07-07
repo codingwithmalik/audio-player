@@ -32,10 +32,7 @@ const authSlice = createSlice({
 });
 
 export const { setUser, logout, setLoading } = authSlice.actions;
-export const selectUsernameById = (
-  state: RootState,
-  userId: string
-) => {
+export const selectUsernameById = (state: RootState, userId: string) => {
   const user = state.auth.user;
 
   if (user && user.id === userId) {
@@ -43,5 +40,9 @@ export const selectUsernameById = (
   }
 
   return "Unknown User";
+};
+export const selectCurrentUsername = (state: RootState) => {
+  const user = state.auth.user;
+  return user ? user.username : "Unknown User";
 };
 export default authSlice.reducer;

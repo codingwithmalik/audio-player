@@ -32,28 +32,18 @@ interface PlaylistViewProps {
   playlist: Playlist;
   songs: Song[];
   filteredSongs: Song[];
-  likedSongIds: Set<string>;
   totalDurationLabel: string;
   isPlaylistPlaying: boolean;
   onPlaySong: (songId: string, index: number) => void;
-  onLikeSong: (songId: string) => void;
 }
-// interface theme {
-//   primary:string;
-//   secondary:string;
-// }
-// ── Grid card ─────────────────────────────────────────────────────────────────
-// ── Root ──────────────────────────────────────────────────────────────────────
 
 export default function PlaylistView({
   playlist,
   songs,
   filteredSongs,
-  likedSongIds,
   totalDurationLabel,
   isPlaylistPlaying,
   onPlaySong,
-  onLikeSong,
 }: PlaylistViewProps) {
   const dispatch = useAppDispatch();
   const viewMode = useAppSelector(selectViewMode);
@@ -151,11 +141,9 @@ export default function PlaylistView({
           <PlaylistTrackList
             songs={filteredSongs}
             playlistSongs={playlist.songs}
-            likedSongIds={likedSongIds}
             currentSongId={currentSongId}
             onPlaySong={onPlaySong}
             isPlaylistPlaying={isPlaylistPlaying}
-            onLikeSong={onLikeSong}
           />
         ) : (
           /* Grid view */
@@ -168,7 +156,7 @@ export default function PlaylistView({
         )}
 
         {/* Empty search result */}
-        {filteredSongs.length === 0 && (
+        {filteredSongs.length === 0 && songs.length > 0 &&(
           <div className="px-6 py-16 text-center text-white/40 text-sm">
             No songs match your search.
           </div>

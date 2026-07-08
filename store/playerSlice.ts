@@ -135,6 +135,7 @@ export const selectCurrentSongId = (s: RootState) => s.player.currentSongId;
 export const selectIsPlaying = (s: RootState) => s.player.isPlaying;
 export const selectCurrentTime = (s: RootState) => s.player.currentTime;
 export const selectIsShuffle = (s: RootState) => s.player.isShuffle;
+export const selectIsMuted = (s: RootState) => s.player.isMuted;
 export const selectRepeatMode = (s: RootState) => s.player.repeatMode;
 export const selectVolume = (s: { player: PlayerState }) => s.player.volume;
 export const selectPrevVolume = (s: RootState) => s.player.prevVolume;

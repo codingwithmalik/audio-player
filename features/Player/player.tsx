@@ -14,7 +14,8 @@ import {
   selectProgress,
   selectIsDraggingProgress,
 } from "@/store/playerSlice";
-import usePlaybackTicker from "./UseplaybackTicker";
+import AudioEngine from "./AudioEngine";
+// import usePlaybackTicker from "./UseplaybackTicker";
 
 type PlayerShellProps = {
   onQueueOpen?: () => void;
@@ -39,7 +40,7 @@ export default function Player({
   const mobileTrackRef = useRef<HTMLDivElement>(null!);
 
   // ── Ticker: single interval, lives here at the root, never duplicated ─────
-  usePlaybackTicker();
+  // usePlaybackTicker();
 
   // ── Mount animation ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -64,6 +65,7 @@ export default function Player({
       className="relative z-50 border-t border-white/[0.07] bg-black/50 backdrop-blur-3xl"
       style={{ WebkitBackdropFilter: "blur(48px)" }}
     >
+      <AudioEngine/>
       {/* Top glow line */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent" />
       {/* ── MOBILE ── */}

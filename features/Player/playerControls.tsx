@@ -24,7 +24,14 @@ import {
   selectRepeatMode,
   selectProgress,
   selectIsDraggingProgress,
+  setSong,
+  setCurrentTime,
 } from "@/store/playerSlice";
+import {
+  selectQueueIds,
+  selectCurrentIndex,
+  setCurrentIndex,
+} from "@/features/RightSidebar/Queue/queueSlice";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -36,7 +43,7 @@ const fmt = (s: number) => {
 
 // ─── PlayerControls ───────────────────────────────────────────────────────────
 
-export default function PlayerControls({isActive}:{isActive:boolean}) {
+export default function PlayerControls({ isActive }: { isActive: boolean }) {
   const dispatch = useAppDispatch();
   const isPlaying = useAppSelector(selectIsPlaying);
   const isShuffle = useAppSelector(selectIsShuffle);
@@ -44,7 +51,8 @@ export default function PlayerControls({isActive}:{isActive:boolean}) {
   const song = useAppSelector(selectCurrentSong);
   const currentTime = useAppSelector(selectCurrentTime);
   const isDragging = useAppSelector(selectIsDraggingProgress);
-
+  const queueIds = useAppSelector(selectQueueIds);
+  const currentIndex = useAppSelector(selectCurrentIndex);
   // Duration resolved from the song — 0 when nothing is loaded
   const duration = song?.duration ?? 0;
   const progress = useAppSelector(selectProgress(duration));
@@ -71,13 +79,32 @@ export default function PlayerControls({isActive}:{isActive:boolean}) {
     dispatch(togglePlay());
   };
 
+  const handleSkipNext = () => {
+    if (!queueIds.length) return;
+    const nextIndex =
+      currentIndex + 1 >= queueIds.length ? 0 : currentIndex + 1;
+    dispatch(setCurrentIndex(nextIndex));
+    dispatch(setSong(queueIds[nextIndex]));
+  };
+
+  const handleSkipPrev = () => {
+    if (!queueIds.length) return;
+    // if more than 3 seconds in — restart current song
+    if (currentTime > 3) {
+      dispatch(setCurrentTime(0));
+      return;
+    }
+    const prevIndex =
+      currentIndex - 1 < 0 ? queueIds.length - 1 : currentIndex - 1;
+    dispatch(setCurrentIndex(prevIndex));
+    dispatch(setSong(queueIds[prevIndex]));
+  };
   // ── Progress drag — one hook call replaces ~25 lines ──────────────────────
   const progressHandlers = useProgressDrag(
     progressTrackRef,
     duration,
     isDragging,
   );
-
 
   return (
     <>
@@ -113,7 +140,7 @@ export default function PlayerControls({isActive}:{isActive:boolean}) {
 
       {/* DESKTOP: full controls + timeline */}
       <div
-        className={`hidden flex-1 flex-col items-center gap-1.5 md:flex lg:gap-2 ${isActive ?"":"pointer-events-none opacity-40"}`}
+        className={`hidden flex-1 flex-col items-center gap-1.5 md:flex lg:gap-2 ${isActive ? "" : "pointer-events-none opacity-40"}`}
         style={{ maxWidth: 560 }}
       >
         {/* Transport row */}
@@ -131,6 +158,7 @@ export default function PlayerControls({isActive}:{isActive:boolean}) {
 
           <button
             aria-label="Previous"
+            onClick={handleSkipPrev}
             className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-300 transition hover:scale-110 hover:text-white active:scale-95"
           >
             <SkipBack className="h-4 w-4 fill-current lg:h-4.5 lg:w-4.5" />
@@ -151,6 +179,7 @@ export default function PlayerControls({isActive}:{isActive:boolean}) {
 
           <button
             aria-label="Next"
+            onClick={handleSkipNext}
             className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-300 transition hover:scale-110 hover:text-white active:scale-95"
           >
             <SkipForward className="h-4 w-4 fill-current lg:h-4.5 lg:w-4.5" />

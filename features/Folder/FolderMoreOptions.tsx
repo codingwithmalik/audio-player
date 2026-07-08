@@ -97,7 +97,7 @@ export default function FolderMoreOptions({
           separatorAbove: true,
         },
         ...playlists
-          .filter((p) => p.folderId !== folderId)
+          .filter((p) => p.folderId !== folderId && !p.id.startsWith("liked-"))
           .map((p) => ({
             id: p.id,
             label: p.title,

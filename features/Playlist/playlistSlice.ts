@@ -75,6 +75,33 @@ const playlistsSlice = createSlice({
       state.error = action.payload;
     },
 
+    // in reducers:
+    ensureLikedPlaylist(
+      state,
+      action: PayloadAction<{ userId: string; username: string }>,
+    ) {
+      const { userId} = action.payload;
+      const likedId = `liked-${userId}`;
+
+      // Already exists — do nothing
+      if (state.entities[likedId]) return;
+
+      const now = new Date().toISOString();
+      state.entities[likedId] = {
+        id: likedId,
+        type: "playlist",
+        title: "Liked Songs",
+        description: "",
+        coverImage: "",
+        songs: [],
+        folderId: null,
+        ownerId: userId,
+        createdAt: now,
+        updatedAt: now,
+      };
+      state.fetchStatus[likedId] = "done";
+    },
+
     // in playlistsSlice.ts — add to reducers
 
     addSongsToPlaylist(
@@ -225,6 +252,7 @@ export const {
   upsertPlaylists,
   setFetchStatus,
   setError,
+  ensureLikedPlaylist,
   addSongToPlaylist,
   addSongsToPlaylist,
   removeSongFromPlaylist,
@@ -245,8 +273,20 @@ export const selectPlaylists = createSelector(
   [(state: RootState) => state.playlists.entities],
   (entities) => Object.values(entities),
 );
+
 export const selectPlaylistById = (state: RootState, id: string) =>
   state.playlists.entities[id] ?? null;
+
+export const selectPlaylistSongCovers = createSelector(
+  [
+    (_: RootState, playlist?: Playlist) => playlist,
+    (state: RootState) => state.songs.entities,
+  ],
+  (playlist, songs) =>
+    (playlist?.songs.slice(0, 4) ?? []).map(
+      (s) => songs[s.songId]?.coverImage,
+    ),
+);
 
 export const selectPlaylistFetchStatus = (
   state: RootState,
@@ -266,6 +306,18 @@ export const selectViewMode = (state: RootState) => state.playlists.viewMode;
 export const selectPlaylistCount = (state: RootState) =>
   Object.values(state.playlists.entities).length;
 
+export const selectIsLiked = (state: RootState, songId: string): boolean => {
+  const userId = state.auth.user?.id;
+  if (!userId) return false;
+  const likedPlaylist = state.playlists.entities[`liked-${userId}`];
+  if (!likedPlaylist) return false;
+  return likedPlaylist.songs.some((s) => s.songId === songId);
+};
+
+export const selectLikedPlaylistId = (state: RootState): string | null => {
+  const userId = state.auth.user?.id;
+  return userId ? `liked-${userId}` : null;
+};
 // ─── selectFilteredSongs ──────────────────────────────────────────────────────
 /**
  * The primary derived selector for the playlist page.

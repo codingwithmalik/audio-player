@@ -18,7 +18,10 @@ import {
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import { logout, setUser } from "../Auth/authSlice";
 import { folders, playlists, songs } from "@/lib/mockData";
-import { upsertPlaylists } from "../Playlist/playlistSlice";
+import {
+  ensureLikedPlaylist,
+  upsertPlaylists,
+} from "../Playlist/playlistSlice";
 import { upsertSongs } from "../Songs/songsSlice";
 import { upsertFolders } from "../Folder/folderSlice";
 
@@ -50,28 +53,29 @@ export default function HeaderAuth() {
     return () => document.removeEventListener("mousedown", handler);
   }, [profileMenu]);
 
+    useEffect(() => {
+    // console.log("User signed in now setting the playlists");
+    dispatch(upsertFolders(folders));
+    dispatch(upsertPlaylists(playlists));
+    dispatch(upsertSongs(songs));
+  }, [dispatch]);
+  
   const handleLogout = () => {
     dispatch(logout());
     setProfileMenu(false);
   };
   const handleLogin = () => {
-    dispatch(
-      setUser({
-        id: "user-1",
-        username: "codingwmalik",
-        email: "codingwithmalik@gmail.com",
-        createdAt: new Date().toISOString(),
-      }),
-    );
+    const user = {
+      id: "user-1",
+      username: "codingwmalik",
+      email: "codingwithmalik@gmail.com",
+      createdAt: new Date().toISOString(),
+    };
+    dispatch(setUser(user));
+    dispatch(ensureLikedPlaylist({ userId: user.id, username: user.username }));
   };
   // console.log(user);
-  useEffect(() => {
-    // console.log("User signed in now setting the playlists");
-    dispatch(upsertFolders(folders));
-    dispatch(upsertPlaylists(playlists));
-    dispatch(upsertSongs(songs));
 
-  }, [dispatch]);
 
   return (
     <div className="flex items-center gap-3">

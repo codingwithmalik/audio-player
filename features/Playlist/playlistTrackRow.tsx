@@ -79,7 +79,7 @@ export default function PlaylistTrackRow({
       }}
       className={`
         grid items-center gap-4 px-4 py-2 rounded-md cursor-default select-none
-        transition-colors duration-100 sm:grid-cols-[32px_1.5fr_20px_1fr_48px_32px] grid-cols-[1.5fr_32px]
+        transition-colors duration-100 sm:grid-cols-[32px_1.5fr_20px_1fr_48px_32px] grid-cols-[1.5fr_20px_32px]
         ${hovered ? "md:bg-white/10" : "bg-transparent"}
       `}
     >
@@ -141,13 +141,13 @@ export default function PlaylistTrackRow({
           </span>
         </div>
       </div>
-      <div className="hidden md:flex">
+      <div className="">
         {/* Add */}
         <div
           onClick={(e) =>{ e.stopPropagation()
           }}
           onDoubleClick={(e) => e.stopPropagation()}
-          className={`text-white/50 hover:text-white transition-all duration-100 max-md:opacity-100 ${hovered ? "md:opacity-100" : "opacity-0"}`}
+          className={`text-white/50  hover:text-white transition-all duration-100 max-md:opacity-100 ${hovered ? "md:opacity-100" : "opacity-0"}`}
         >
           <AddToPlaylistMenu songId={song.id} setHoveredFalse={()=> setHovered(false)} />
         </div>

@@ -49,11 +49,11 @@ export default function PlaylistView({
   const viewMode = useAppSelector(selectViewMode);
   const containerRef = useRef<HTMLDivElement>(null);
   const currentSongId = useAppSelector(selectCurrentSongId) ?? "";
-
   const songCovers = songs.slice(0, 4).map((s) => s.coverImage);
   const songCoversStrings = songCovers.filter((c): c is string => Boolean(c));
+  const isLikedPlaylist = playlist.id.startsWith("liked-");
   // const accentColor = useAccentColor(playlist?.coverImage, songCovers);
-  const accentColor = "#1a0a2e"
+  const accentColor = "#1a0a2e";
 
   // ── Local UI state ──────────────────────────────────────────────────────────
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -74,7 +74,7 @@ export default function PlaylistView({
         .timeline({
           defaults: { ease: "power2.out" },
           onComplete: () => {
-            gsap.set([hero, actions,rows], { clearProps: "transform" });
+            gsap.set([hero, actions, rows], { clearProps: "transform" });
           },
         })
         .to(hero, { opacity: 1, y: 0, duration: 0.45 })
@@ -124,18 +124,18 @@ export default function PlaylistView({
           accentColor={accentColor}
           onEditDetails={handleEditDetails}
           onEditCover={handleEditCover}
+          isLikedPlaylist={isLikedPlaylist}
         />
       </div>
-
       <div data-gsap="actions">
         <PlaylistActions
           songs={filteredSongs}
           isPlaying={isPlaylistPlaying}
           onEditDetails={handleEditDetails}
           playlist={playlist}
+          isLikedPlaylist={isLikedPlaylist}
         />
       </div>
-
       <div className="pb-8">
         {viewMode === "list" ? (
           <PlaylistTrackList
@@ -156,21 +156,22 @@ export default function PlaylistView({
         )}
 
         {/* Empty search result */}
-        {filteredSongs.length === 0 && songs.length > 0 &&(
+        {filteredSongs.length === 0 && songs.length > 0 && (
           <div className="px-6 py-16 text-center text-white/40 text-sm">
             No songs match your search.
           </div>
         )}
       </div>
-
-      <PlaylistEditModal
-        playlist={playlist}
-        isOpen={isEditModalOpen}
-        songCovers={songCoversStrings}
-        onClose={handleCloseEditModal}
-        onSave={handleSaveDetails}
-        onEditCover={handleEditCover}
-      />
+      {!isLikedPlaylist && isEditModalOpen && (
+        <PlaylistEditModal
+          playlist={playlist}
+          isOpen={isEditModalOpen}
+          songCovers={songCoversStrings}
+          onClose={handleCloseEditModal}
+          onSave={handleSaveDetails}
+          onEditCover={handleEditCover}
+        />
+      )}
     </div>
   );
 }

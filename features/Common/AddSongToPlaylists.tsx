@@ -16,12 +16,9 @@ import {
   addSongToPlaylist,
   removeSongFromPlaylist,
   addPlaylist,
+  selectPlaylistSongCovers,
+  selectPlaylistById,
 } from "@/features/Playlist/playlistSlice";
-import {
-  selectIsLiked,
-  toggleLike,
-} from "@/features/LikedSongs/likedSongsSlice";
-import { selectSongById } from "@/features/Songs/songsSlice";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { createPortal } from "react-dom";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -42,24 +39,18 @@ function MenuContent({
 }) {
   const dispatch = useAppDispatch();
   const playlists = useAppSelector(selectPlaylists);
-  const isLiked = useAppSelector((state: RootState) =>
-    selectIsLiked(state, songId),
-  );
   const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
   const [query, setQuery] = useState("");
 
   // ── Pending changes — deferred until Done ────────────────────────────────
-  // Map of playlistId → "add" | "remove", plus liked state
+  // Map of playlistId → "add" | "remove" state
   const [pendingPlaylists, setPendingPlaylists] = useState<
     Record<string, "add" | "remove">
   >({});
-  const [pendingLiked, setPendingLiked] = useState<boolean | null>(null);
 
-  const hasChanges =
-    Object.keys(pendingPlaylists).length > 0 || pendingLiked !== null;
+  const hasChanges = Object.keys(pendingPlaylists).length > 0;
 
   // Effective state — pending overrides current
-  const effectiveIsLiked = pendingLiked !== null ? pendingLiked : isLiked;
 
   const effectiveInPlaylist = (playlistId: string) => {
     if (pendingPlaylists[playlistId] === "add") return true;
@@ -76,9 +67,6 @@ function MenuContent({
   );
 
   // ── Toggle handlers — only update pending state ───────────────────────────
-  const handleToggleLiked = () => {
-    setPendingLiked(effectiveIsLiked ? false : true);
-  };
 
   const handleTogglePlaylist = (playlistId: string) => {
     const current = effectiveInPlaylist(playlistId);
@@ -122,12 +110,6 @@ function MenuContent({
 
   // ── Commit all pending changes on Done ────────────────────────────────────
   const handleDone = () => {
-    const now = new Date().toISOString();
-
-    if (pendingLiked !== null) {
-      dispatch(toggleLike({ songId, addedAt: now }));
-    }
-
     Object.entries(pendingPlaylists).forEach(([playlistId, action]) => {
       if (action === "add") {
         dispatch(addSongToPlaylist({ playlistId, songId }));
@@ -164,7 +146,7 @@ function MenuContent({
 
       <OverlayScrollbarsComponent
         options={{ scrollbars: { autoHide: "scroll" } }}
-        style={{ maxHeight: 300 }}
+        className="md:max-h-75"
       >
         {/* New playlist */}
         {!query && (
@@ -183,22 +165,10 @@ function MenuContent({
 
         {!query && <div className="border-t border-white/10 my-1" />}
 
-        {/* Liked Songs */}
-        {!query && (
-          <PlaylistRow
-            songId={songId}
-            label="Liked Songs"
-            isChecked={effectiveIsLiked}
-            onToggle={handleToggleLiked}
-            isLikedSongs
-          />
-        )}
-
         {/* Playlists */}
         {filtered.map((p) => (
           <PlaylistRow
             key={p.id}
-            songId={songId}
             label={p.title}
             isChecked={effectiveInPlaylist(p.id)}
             onToggle={() => handleTogglePlaylist(p.id)}
@@ -214,10 +184,10 @@ function MenuContent({
       {/* Footer — Cancel always, Done only when changes exist */}
       <div className="border-t border-white/10 mt-1 px-3 py-2 flex items-center justify-end gap-2">
         <button
-          onClick={()=>{
+          onClick={() => {
             // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            setHoveredFalse && setHoveredFalse()
-            onClose()
+            setHoveredFalse && setHoveredFalse();
+            onClose();
           }}
           className="px-4 py-1.5 text-sm text-white/60 hover:text-white transition-colors rounded-full hover:bg-white/10"
         >
@@ -239,29 +209,21 @@ function MenuContent({
 // ─── Playlist row ─────────────────────────────────────────────────────────────
 
 function PlaylistRow({
-  songId,
   label,
   isChecked,
   onToggle,
   playlistId,
-  isLikedSongs = false,
 }: {
-  songId: string;
   label: string;
   isChecked: boolean;
   onToggle: () => void;
-  playlistId?: string;
-  isLikedSongs?: boolean;
+  playlistId: string;
 }) {
+  const isLikedRow = playlistId?.startsWith("liked-");
   const playlist = useAppSelector((state: RootState) =>
-    playlistId ? (state.playlists.entities[playlistId] ?? null) : null,
+    selectPlaylistById(state, playlistId),
   );
-
-  const songCovers = useAppSelector((state: RootState) =>
-    (playlist?.songs.slice(0, 4) ?? []).map(
-      (s) => selectSongById(state, s.songId)?.coverImage,
-    ),
-  );
+const songCovers = useAppSelector((state) => selectPlaylistSongCovers(state,playlist));
 
   return (
     <button
@@ -270,7 +232,7 @@ function PlaylistRow({
     >
       {/* Cover */}
       <div className="w-9 h-9 rounded-md overflow-hidden shrink-0">
-        {isLikedSongs ? (
+        {isLikedRow ? (
           <div className="w-full h-full bg-linear-to-br from-purple-700 to-indigo-900 flex items-center justify-center">
             <Heart
               className={`w-4 h-4 text-white ${isChecked ? "fill-white" : ""}`}
@@ -314,14 +276,11 @@ export default function AddToPlaylistMenu({
   const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
-
   const playlists = useAppSelector(selectPlaylists);
-  const isLiked = useAppSelector((state: RootState) =>
-    selectIsLiked(state, songId),
-  );
 
-  const isInAnything =
-    isLiked || playlists.some((p) => p.songs.some((s) => s.songId === songId));
+  const isInAnything = playlists.some((p) =>
+    p.songs.some((s) => s.songId === songId),
+  );
 
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) return;
@@ -365,7 +324,11 @@ export default function AddToPlaylistMenu({
           onClose={handleClose}
           title="Add to playlist"
         >
-          <MenuContent songId={songId} onClose={handleClose} setHoveredFalse={setHoveredFalse} />
+          <MenuContent
+            songId={songId}
+            onClose={handleClose}
+            setHoveredFalse={setHoveredFalse}
+          />
         </BottomSheet>
       ) : (
         open &&

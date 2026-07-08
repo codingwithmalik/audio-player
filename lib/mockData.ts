@@ -114,7 +114,7 @@ export const playlists: Playlist[] = [
     title: "Chill Vibes",
     description: "Late night music",
     // coverImage: "https://picsum.photos/seed/darkside/600/600",
-    coverImage: "https://picsum.photos/seed/glory/600/600", 
+    coverImage: "https://picsum.photos/seed/glory/600/600",
     // coverImage: "https://picsum.photos/seed/highest/600/600",
 
     songs: [
@@ -194,6 +194,25 @@ export const playlists: Playlist[] = [
     ownerId: "user-2",
     createdAt: "2025-01-10",
     updatedAt: "2025-01-10",
+  },
+  {
+    id: "liked-user-1",
+    type: "playlist",
+    title: "Liked Songs",
+    description: "",
+    coverImage: "",
+    songs: [
+      { songId: "s1", addedAt: "2025-09-24T00:00:00Z" },
+      { songId: "s2", addedAt: "2025-10-11T00:00:00Z" },
+      { songId: "s3", addedAt: "2025-10-11T00:00:00Z" },
+      { songId: "s4", addedAt: "2025-08-01T00:00:00Z" },
+      { songId: "s5", addedAt: "2025-07-15T00:00:00Z" },
+      { songId: "s6", addedAt: "2025-06-30T00:00:00Z" },
+    ],
+    folderId: null,
+    ownerId: "user-1",
+    createdAt: "2026-01-10",
+    updatedAt: "2026-01-10",
   },
 ];
 

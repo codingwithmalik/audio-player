@@ -213,7 +213,7 @@ export default function PlaylistMoreOptions({
           separatorAbove: true,
         },
         ...playlists
-          .filter((p) => p.id !== playlistId)
+          .filter((p) => p.id !== playlistId && !p.id.startsWith("liked-"))
           .map((p) => ({
             id: p.id,
             label: p.title,

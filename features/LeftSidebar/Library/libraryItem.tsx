@@ -45,6 +45,7 @@ export default function LibraryItem({ item }: Props) {
                 songCovers={songCoversStrings}
                 title={isPlaylist ? item.title : ""}
                 coverImage={item.coverImage}
+                isLikedPlaylist={playlist.id.startsWith("liked-")}
               />
               </div>
             )}

@@ -7,11 +7,9 @@ import {
   addSongToPlaylist,
   removeSongFromPlaylist,
   addPlaylist,
-} from "@/features/Playlist/playlistSlice";
-import {
-  toggleLike,
+  selectLikedPlaylistId,
   selectIsLiked,
-} from "@/features/LikedSongs/likedSongsSlice";
+} from "@/features/Playlist/playlistSlice";
 import { addToQueue } from "@/features/RightSidebar/Queue/queueSlice";
 import type { RootState } from "@/store/store";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
@@ -22,8 +20,7 @@ export default function SongMoreOptions({
   playlistId,
   onClose,
   variant = "dropdown",
-    anchorRef,
-  
+  anchorRef,
 }: {
   songId: string;
   playlistId: string;
@@ -33,6 +30,7 @@ export default function SongMoreOptions({
 }) {
   const dispatch = useAppDispatch();
   const playlists = useAppSelector(selectPlaylists);
+  const likedPlaylistId = useAppSelector(selectLikedPlaylistId);
   const isLiked = useAppSelector((state: RootState) =>
     selectIsLiked(state, songId),
   );
@@ -88,7 +86,7 @@ export default function SongMoreOptions({
           separatorAbove: true,
         },
         ...playlists
-          .filter((p) => p.id !== playlistId)
+          .filter((p) => p.id !== playlistId && !p.id.startsWith("liked-"))
           .map((p) => ({
             id: p.id,
             label: p.title,
@@ -116,7 +114,14 @@ export default function SongMoreOptions({
       iconFilled: isLiked,
       separatorAbove: true,
       action: () => {
-        dispatch(toggleLike({songId,addedAt: now}));
+        if (!likedPlaylistId) return;
+        if (isLiked) {
+          dispatch(
+            removeSongFromPlaylist({ playlistId: likedPlaylistId, songId }),
+          );
+        } else {
+          dispatch(addSongToPlaylist({ playlistId: likedPlaylistId, songId }));
+        }
         onClose();
       },
     },
@@ -143,5 +148,13 @@ export default function SongMoreOptions({
     },
   ];
 
-  return <MoreOptions options={options} variant={variant} onClose={onClose} anchorRef={anchorRef} placement="top-end" />;
+  return (
+    <MoreOptions
+      options={options}
+      variant={variant}
+      onClose={onClose}
+      anchorRef={anchorRef}
+      placement="top-end"
+    />
+  );
 }

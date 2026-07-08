@@ -72,6 +72,7 @@ interface PlaylistActionsProps {
   onEditDetails: () => void;
   songs: Song[];
   playlist: Playlist;
+  isLikedPlaylist?: boolean;
 }
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -80,6 +81,7 @@ export default function PlaylistActions({
   onEditDetails,
   songs,
   playlist,
+  isLikedPlaylist = false,
 }: PlaylistActionsProps) {
   const dispatch = useAppDispatch();
 
@@ -278,57 +280,59 @@ export default function PlaylistActions({
           >
             <Download className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
-          <div className="relative">
-            <button
-              ref={anchorRef}
-              onClick={() => setMorePlaylistOptionsOpen((v) => !v)}
-              aria-label="More options"
-              className="text-white/60 hover:text-white transition-colors duration-150"
-            >
-              <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
-            {isMobile ? (
-              <div className="md:hidden">
-                <BottomSheet
-                  isOpen={MorePlaylistOptionsOpen}
-                  onClose={() => setMorePlaylistOptionsOpen(false)}
-                  title={playlist.title}
-                >
+          {!isLikedPlaylist && (
+            <div className="relative">
+              <button
+                ref={anchorRef}
+                onClick={() => setMorePlaylistOptionsOpen((v) => !v)}
+                aria-label="More options"
+                className="text-white/60 hover:text-white transition-colors duration-150"
+              >
+                <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+              {isMobile ? (
+                <div className="md:hidden">
+                  <BottomSheet
+                    isOpen={MorePlaylistOptionsOpen}
+                    onClose={() => setMorePlaylistOptionsOpen(false)}
+                    title={playlist.title}
+                  >
+                    <PlaylistMoreOptions
+                      onClose={() => {
+                        setMorePlaylistOptionsOpen(false);
+                      }}
+                      onEditDetails={onEditDetails}
+                      onDownload={handleDownload}
+                      currentFolderId={playlist.folderId}
+                      playlistId={playlist.id}
+                      variant="sheet"
+                      anchorRef={anchorRef}
+                    />
+                  </BottomSheet>
+                </div>
+              ) : (
+                MorePlaylistOptionsOpen && (
+                  // <div
+                  //   className="absolute left-0 top-5 mt-2 w-60 z-9999
+                  //            bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
+                  //            py-2 "
+                  // >
                   <PlaylistMoreOptions
                     onClose={() => {
                       setMorePlaylistOptionsOpen(false);
                     }}
+                    anchorRef={anchorRef}
                     onEditDetails={onEditDetails}
                     onDownload={handleDownload}
                     currentFolderId={playlist.folderId}
                     playlistId={playlist.id}
-                    variant="sheet"
-                    anchorRef={anchorRef}
+                    variant="dropdown"
                   />
-                </BottomSheet>
-              </div>
-            ) : (
-              MorePlaylistOptionsOpen && (
-                // <div
-                //   className="absolute left-0 top-5 mt-2 w-60 z-9999
-                //            bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl
-                //            py-2 "
-                // >
-                <PlaylistMoreOptions
-                  onClose={() => {
-                    setMorePlaylistOptionsOpen(false);
-                  }}
-                  anchorRef={anchorRef}
-                  onEditDetails={onEditDetails}
-                  onDownload={handleDownload}
-                  currentFolderId={playlist.folderId}
-                  playlistId={playlist.id}
-                  variant="dropdown"
-                />
-                // </div>
-              )
-            )}
-          </div>
+                  // </div>
+                )
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right: search + sort — always on same line as controls */}
@@ -414,17 +418,18 @@ export default function PlaylistActions({
           <Plus className="w-4 h-4" />
           Add
         </button>
-
-        <button
-          onClick={onEditDetails}
-          aria-label="Edit playlist details"
-          className="flex items-center gap-2 text-sm text-white/70 font-medium
+        {!isLikedPlaylist && (
+          <button
+            onClick={onEditDetails}
+            aria-label="Edit playlist details"
+            className="flex items-center gap-2 text-sm text-white/70 font-medium
                      border border-white/20 rounded-full px-4 py-1.5
                      hover:border-white/50 hover:text-white transition-colors duration-150"
-        >
-          <Pencil className="w-4 h-4" />
-          Edit Details
-        </button>
+          >
+            <Pencil className="w-4 h-4" />
+            Edit Details
+          </button>
+        )}
       </div>
     </div>
   );

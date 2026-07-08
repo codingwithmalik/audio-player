@@ -1,19 +1,21 @@
 "use client";
 
 import Image from "next/image";
-import { ListMusic } from "lucide-react";
+import { Heart, ListMusic } from "lucide-react";
 import { useState } from "react";
 
 interface PlaylistMosaicCoverProps {
   coverImage?: string;
   songCovers: (string | undefined)[];
   title: string;
+  isLikedPlaylist?:boolean;
 }
 
 export default function PlaylistMosaicCover({
   coverImage,
   songCovers,
   title,
+  isLikedPlaylist=false,
 }: PlaylistMosaicCoverProps) {
   const [playlistReady, setPlaylistReady] = useState(false);
   const [playlistFailed, setPlaylistFailed] = useState(false);
@@ -21,6 +23,18 @@ export default function PlaylistMosaicCover({
   const [mosaicFailed, setMosaicFailed] = useState(false);
 
   const slots = Array.from({ length: 4 }, (_, i) => songCovers[i]);
+  // Liked Songs — always show heart, skip cover/mosaic logic entirely
+if (isLikedPlaylist) {
+  return (
+    <div
+      className="relative w-full h-full rounded-md overflow-hidden bg-linear-to-br from-purple-900 to-indigo-900 flex items-center justify-center"
+      role="img"
+      aria-label="Liked Songs"
+    >
+      <Heart className="w-1/2 h-1/2 text-white fill-white" />
+    </div>
+  );
+}
 
   return (
     <div

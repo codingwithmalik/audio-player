@@ -48,12 +48,8 @@ const librarySlice = createSlice({
   },
 });
 
-export const {
-  setSearch,
-  setSort,
-  toggleFilter,
-  clearFilters,
-} = librarySlice.actions;
+export const { setSearch, setSort, toggleFilter, clearFilters } =
+  librarySlice.actions;
 
 export default librarySlice.reducer;
 
@@ -121,17 +117,26 @@ export const selectFilteredItems = createSelector(
     if (search.trim()) {
       const searchLower = search.toLowerCase();
       result = result.filter((item) =>
-        item.title.toLowerCase().includes(searchLower)
+        item.title.toLowerCase().includes(searchLower),
       );
     }
 
     result = [...result].sort((a, b) => {
-      if (sort === "alphabetical") return a.title.localeCompare(b.title);
-      if (sort === "recently-added" || sort === "recents")
-        return b.createdAt.localeCompare(a.createdAt);
-      return 0;
+      switch (sort) {
+        case "alphabetical":
+          return a.title.localeCompare(b.title);
+
+        case "recently-added":
+          return b.createdAt.localeCompare(a.createdAt);
+
+        case "recents":
+          return b.updatedAt.localeCompare(a.updatedAt);
+
+        default:
+          return 0;
+      }
     });
 
     return result;
-  }
+  },
 );

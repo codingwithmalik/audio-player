@@ -43,10 +43,7 @@ import {
 } from "@/features/Playlist/playlistSlice";
 import {
   selectIsShuffle,
-  selectSourceId,
   setSong,
-  setSourceId,
-  setSourceType,
   togglePlay,
   toggleShuffle,
 } from "@/store/playerSlice";
@@ -55,6 +52,7 @@ import BottomSheet from "../Common/BottomSheet";
 import PlaylistMoreOptions from "./playlistMoreOptions";
 import { Playlist } from "@/types/playlist";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { setCurrentIndex, setQueue ,selectQueueSourceId} from "../RightSidebar/Queue/queueSlice";
 
 // ─── Sort option config ───────────────────────────────────────────────────────
 
@@ -89,7 +87,7 @@ export default function PlaylistActions({
   const sortBy = useAppSelector(selectSortBy);
   const sortDir = useAppSelector(selectSortDir);
   const viewMode = useAppSelector(selectViewMode);
-  const sourceId = useAppSelector(selectSourceId);
+  const sourceId = useAppSelector(selectQueueSourceId)
   const isShuffle = useAppSelector(selectIsShuffle);
   const isMobile = useIsMobile();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -119,14 +117,21 @@ export default function PlaylistActions({
 
   // ── Search / sort / view handlers — dispatch to Redux ──────────────────────
   const handlePlay = () => {
-    // console.log("play playlist" + " first song is " + songs.at(0)?.id);
-    const firstSongId = songs.at(0)?.id;
-    if (!firstSongId) return;
+    if (!songs.length) return;
+
     if (sourceId !== playlist.id) {
-      dispatch(setSourceId(playlist.id));
-      dispatch(setSourceType("playlist"));
-      dispatch(setSong(firstSongId));
+      // New playlist — load queue and start from first song
+      dispatch(
+        setQueue({
+          songIds: songs.map((s) => s.id),
+          sourceType: "playlist",
+          sourceId: playlist.id,
+        }),
+      );
+      dispatch(setCurrentIndex(0));
+      dispatch(setSong(songs[0].id));
     } else {
+      // Same playlist — just toggle play/pause
       dispatch(togglePlay());
     }
   };

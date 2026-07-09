@@ -8,6 +8,9 @@ import { useAppSelector } from "@/globalHooks";
 import { selectPlaylistById } from "@/features/Playlist/playlistSlice";
 import { selectSongsByIds } from "@/features/Songs/songsSlice";
 import PlaylistMosaicCover from "@/features/Playlist/playlistMosaicCover";
+import { selectQueueSourceId } from "@/features/RightSidebar/Queue/queueSlice";
+import { selectIsPlaying } from "@/store/playerSlice";
+import EqBars from "@/features/Common/EQBars";
 
 type Props = {
   item: Folder | Playlist;
@@ -30,6 +33,10 @@ export default function LibraryItem({ item }: Props) {
   // console.log(songCovers);
   const songCoversStrings = songCovers.filter((c): c is string => Boolean(c));
   // console.log(songCoversStrings);
+  const queueSourceId = useAppSelector(selectQueueSourceId);
+  const isPlaying = useAppSelector(selectIsPlaying);
+  const isCurrent = queueSourceId === item.id;
+  const isCurrentlyPlaying = isPlaying && isCurrent;
 
   return (
     <Link href={`${isFolder ? `/folder/${item.id}` : `/playlist/${item.id}`}`}>
@@ -41,25 +48,36 @@ export default function LibraryItem({ item }: Props) {
               <FolderClosed className="w-12 h-12" />
             ) : (
               <div className=" w-14 h-14 aspect-square">
-              <PlaylistMosaicCover
-                songCovers={songCoversStrings}
-                title={isPlaylist ? item.title : ""}
-                coverImage={item.coverImage}
-                isLikedPlaylist={playlist.id.startsWith("liked-")}
-              />
+                <PlaylistMosaicCover
+                  songCovers={songCoversStrings}
+                  title={isPlaylist ? item.title : ""}
+                  coverImage={item.coverImage}
+                  isLikedPlaylist={playlist.id.startsWith("liked-")}
+                />
               </div>
             )}
           </div>
         </div>
 
         <div className="md:hidden lg:block">
-          <h3 className="text-white font-medium">{item.title}</h3>
+          <h3
+            className={`${isCurrent ? "text-purple-600 font-bold" : "text-white font-medium"} `}
+          >
+            {item.title}
+          </h3>
           <p className="text-sm text-zinc-400">
             {isFolder
               ? `Folder • ${item.playlistIds.length} playlists`
               : `Playlist • ${item.songs.length} songs`}
           </p>
         </div>
+        
+          {isCurrentlyPlaying && (
+            <span className="ml-3 md:hidden lg:block">
+              {" "}
+              <EqBars />
+            </span>
+          )}
       </div>
     </Link>
   );

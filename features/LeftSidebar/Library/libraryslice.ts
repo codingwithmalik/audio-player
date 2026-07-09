@@ -95,16 +95,25 @@ export default librarySlice.reducer;
 
 export const selectFilteredItems = createSelector(
   [
-    (state: RootState) => Object.values(state.playlists.entities),
-    (state: RootState) => Object.values(state.folders.entities),
+    (state: RootState) => state.playlists.entities,
+    (state: RootState) => state.folders.entities,
     (state: RootState) => state.library.search,
     (state: RootState) => state.library.sort,
     (state: RootState) => state.library.filters,
     (state: RootState) => state.auth.user?.id,
   ],
 
-  (playlists, folders, search, sort, filters, userId): LibraryItem[] => {
+  (
+    playlistsEntities,
+    foldersEntities,
+    search,
+    sort,
+    filters,
+    userId,
+  ): LibraryItem[] => {
     if (!userId) return []; // not logged in — nothing to show
+    const playlists = Object.values(playlistsEntities);
+    const folders = Object.values(foldersEntities);
 
     const showPlaylists = filters.length === 0 || filters.includes("playlists");
     const showFolders = filters.length === 0 || filters.includes("folders");

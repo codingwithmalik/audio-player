@@ -26,6 +26,7 @@ interface PlaylistTrackListProps {
   currentSongId: string | null;
   onPlaySong: (songId: string, index: number) => void;
   isPlaylistPlaying: boolean;
+  isCurrentPlaylist: boolean;
 }
 
 export default function PlaylistTrackList({
@@ -34,6 +35,7 @@ export default function PlaylistTrackList({
   currentSongId,
   isPlaylistPlaying,
   onPlaySong,
+  isCurrentPlaylist,
 }: PlaylistTrackListProps) {
   if (songs.length === 0) {
     return (
@@ -73,6 +75,7 @@ export default function PlaylistTrackList({
               index={i + 1}
               addedAt={playlistSongs[i]?.addedAt ?? song.createdAt}
               isPlaying={isPlaylistPlaying && song.id === currentSongId}
+              isCurrent={isCurrentPlaylist && song.id === currentSongId}
               onPlay={() => onPlaySong(song.id, i)}
             />
           </div>

@@ -80,7 +80,7 @@ const playlistsSlice = createSlice({
       state,
       action: PayloadAction<{ userId: string; username: string }>,
     ) {
-      const { userId} = action.payload;
+      const { userId } = action.payload;
       const likedId = `liked-${userId}`;
 
       // Already exists — do nothing
@@ -283,9 +283,7 @@ export const selectPlaylistSongCovers = createSelector(
     (state: RootState) => state.songs.entities,
   ],
   (playlist, songs) =>
-    (playlist?.songs.slice(0, 4) ?? []).map(
-      (s) => songs[s.songId]?.coverImage,
-    ),
+    (playlist?.songs.slice(0, 4) ?? []).map((s) => songs[s.songId]?.coverImage),
 );
 
 export const selectPlaylistFetchStatus = (
@@ -313,11 +311,11 @@ export const selectIsLiked = (state: RootState, songId: string): boolean => {
   if (!likedPlaylist) return false;
   return likedPlaylist.songs.some((s) => s.songId === songId);
 };
-
 export const selectLikedPlaylistId = (state: RootState): string | null => {
   const userId = state.auth.user?.id;
   return userId ? `liked-${userId}` : null;
 };
+
 // ─── selectFilteredSongs ──────────────────────────────────────────────────────
 /**
  * The primary derived selector for the playlist page.

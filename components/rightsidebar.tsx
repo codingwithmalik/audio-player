@@ -3,18 +3,11 @@ import SongCard from "../features/RightSidebar/Song/songCard";
 import "../styles/backgrounds.css";
 import "overlayscrollbars/overlayscrollbars.css";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import { useAppSelector } from "@/globalHooks";
+import { selectCurrentSong} from "@/store/playerSlice";
 
 const Rightsidebar = () => {
-  const song = {
-    title: "Blinding Lights",
-    artists: ["The Weeknd", "Dua Lipa"],
-    coverImage: "/logo.png",
-    dateAdded: "2025-05-14",
-    duration: 200,
-    songUrl: "https://example.com/blinding-lights",
-    isSaved: true,
-  };
-
+  const song = useAppSelector(selectCurrentSong);
   return (
     <div
       className={
@@ -23,12 +16,20 @@ const Rightsidebar = () => {
     >
       <OverlayScrollbarsComponent
         defer
-        options={{ scrollbars: { theme: "os-theme-light", autoHide: "leave" , autoHideDelay:0} }}
+        options={{
+          scrollbars: {
+            theme: "os-theme-light",
+            autoHide: "leave",
+            autoHideDelay: 0,
+          },
+        }}
         className="h-full w-full "
       >
-        <div className="overflow-y-auto w-full scrollbar-none ">
-          <SongCard song={song} onSaveToggle={(s) => console.log(s)} />
-        </div>
+        {song && (
+          <div className="overflow-y-auto w-full scrollbar-none ">
+            <SongCard />
+          </div>
+        )}
       </OverlayScrollbarsComponent>
     </div>
   );

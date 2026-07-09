@@ -1,15 +1,17 @@
 import Image from "next/image";
 import { Song } from "@/types/song";
-import { Music2, Play } from "lucide-react";
+import { Music2, Pause, Play } from "lucide-react";
 import { useState } from "react";
 export default function PlaylistSongGridCard({
   song,
   isPlaying,
   onPlaySong,
+  isCurrent,
 }: {
   song: Song;
   isPlaying: boolean;
   onPlaySong: () => void;
+  isCurrent: boolean;
 }) {
   const [imgReady, setImgReady] = useState(false);
   const [imgFailed, setImgFailed] = useState(false);
@@ -24,8 +26,8 @@ export default function PlaylistSongGridCard({
       onDoubleClick={() => {
         if (window.innerWidth >= 640) onPlaySong();
       }}
-      className={`flex flex-col gap-2 p-3 rounded-xl md:hover:bg-black/50
-                 transition-colors duration-150 cursor-default group ${isPlaying ? "bg-[#141424]" : "bg-white/5"}`}
+      className={`flex flex-col gap-2 p-3 rounded-xl md:hover:bg-white/10
+                 transition-colors duration-150 cursor-default group bg-white/5`}
     >
       <div className="relative aspect-square rounded-lg overflow-hidden z-10">
         {/* Fallback icon */}
@@ -56,7 +58,7 @@ export default function PlaylistSongGridCard({
         </div>
         {/* Play overlay */}
         <div
-          className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100
+          className="absolute inset-0 bg-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100
                     transition-opacity duration-150"
         >
           <button
@@ -67,14 +69,18 @@ export default function PlaylistSongGridCard({
           transition-opacity duration-150"
           >
             <div className="w-11 h-11 rounded-full bg-white/80 flex items-center justify-center">
-              <Play className="text-black fill-black " />
+              {isPlaying ? (
+                <Pause className="text-black fill-black" />
+              ) : (
+                <Play className="text-black fill-black " />
+              )}
             </div>
           </button>
         </div>
       </div>
       <div className="min-w-0">
         <p
-          className={`text-sm font-medium truncate ${isPlaying ? "text-purple-600" : "text-white"}`}
+          className={`text-sm font-medium truncate ${isCurrent ? "text-purple-600" : "text-white"}`}
         >
           {song.title}
         </p>

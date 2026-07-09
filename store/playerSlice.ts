@@ -3,7 +3,6 @@ import { RootState } from "@/store/store";
 import {
   RepeatMode,
   PlayerState,
-  sourceType,
 } from "@/features/Player/playerTypes";
 import { selectSongById } from "@/features/Songs/songsSlice";
 
@@ -11,8 +10,6 @@ import { selectSongById } from "@/features/Songs/songsSlice";
 
 const initialState: PlayerState = {
   currentSongId: null,
-  sourceType: null,
-  sourceId: null,
   isPlaying: false,
   currentTime: 0,
   isShuffle: false,
@@ -92,12 +89,6 @@ const playerSlice = createSlice({
         state.isMuted = true;
       }
     },
-    setSourceType(state, action: PayloadAction<sourceType>) {
-      state.sourceType = action.payload;
-    },
-    setSourceId(state, action: PayloadAction<string>) {
-      state.sourceId = action.payload;
-    },
     // ── Drag flags (used to coordinate CSS changes across components) ──────
     setDraggingProgress(state, action: PayloadAction<boolean>) {
       state.isDraggingProgress = action.payload;
@@ -120,8 +111,6 @@ export const {
   setRepeatMode,
   setVolume,
   toggleMute,
-  setSourceType,
-  setSourceId,
   setDraggingProgress,
   setDraggingVolume,
 } = playerSlice.actions;
@@ -143,8 +132,6 @@ export const selectIsDraggingProgress = (s: RootState) =>
   s.player.isDraggingProgress;
 export const selectIsDraggingVolume = (s: RootState) =>
   s.player.isDraggingVolume;
-export const selectSourceId = (s: RootState) => s.player.sourceId;
-export const selectSourceType = (s: RootState) => s.player.sourceType;
 
 export const selectEffectiveVol = (s: RootState) =>
   s.player.isMuted ? 0 : s.player.volume;

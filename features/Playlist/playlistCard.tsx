@@ -21,12 +21,16 @@ import { selectSongsByIds } from "@/features/Songs/songsSlice";
 import PlaylistView from "./playlistView";
 import {
   setSong,
-  setSourceId,
-  setSourceType,
   selectIsPlaying,
-  selectSourceType,
-  selectSourceId,
+  togglePlay,
+  selectCurrentSongId,
 } from "@/store/playerSlice";
+import {
+  setCurrentIndex,
+  setQueue,
+  selectQueueSourceId,
+  selectQueueSourceType,
+} from "../RightSidebar/Queue/queueSlice";
 
 export default function PlaylistPage({ id }: { id: string }) {
   // console.log("Playlist found : "+id)
@@ -45,8 +49,9 @@ export default function PlaylistPage({ id }: { id: string }) {
   const playlist = useAppSelector((s) => selectPlaylistById(s, id));
   const songIds = playlist?.songs.map((s) => s.songId) ?? [];
   const songs = useAppSelector((s) => selectSongsByIds(s, songIds));
-  const sourceType = useAppSelector(selectSourceType);
-  const sourceId = useAppSelector(selectSourceId);
+  const currentSongId = useAppSelector(selectCurrentSongId);
+  const sourceId = useAppSelector(selectQueueSourceId);
+  const sourceType = useAppSelector(selectQueueSourceType);
   // ── Filtered + sorted songs via selector ───────────────────────────────────
   const filteredSongs = useAppSelector((s) => selectFilteredSongs(s, songs));
 
@@ -62,17 +67,27 @@ export default function PlaylistPage({ id }: { id: string }) {
   const isplaying = useAppSelector(selectIsPlaying);
   const isPlaylistPlaying =
     isplaying && sourceType === "playlist" && sourceId === id;
+  const isCurrentPlaylist = sourceType === "playlist" && sourceId === id;
   // console.log(sourceId, sourceType, isplaying, isPlaylistPlaying);
   // const isPlaylistPlaying = false;
   // ── Playback handlers ───────────────────────────────────────────────────────
   const handlePlaySong = useCallback(
-    (songId: string) => {
+    (songId: string, index: number) => {
+      if (songId === currentSongId) {
+        dispatch(togglePlay());
+        return;
+      }
+      dispatch(
+        setQueue({
+          songIds: songs.map((s) => s.id),
+          sourceType: "playlist",
+          sourceId: id,
+        }),
+      );
+      dispatch(setCurrentIndex(index));
       dispatch(setSong(songId));
-      dispatch(setSourceId(id));
-      dispatch(setSourceType("playlist"));
-      // console.log("play song", songId, "at index", index);
     },
-    [dispatch, id],
+    [dispatch, songs, id, currentSongId],
   );
 
   // ── Loading state ───────────────────────────────────────────────────────────
@@ -99,6 +114,7 @@ export default function PlaylistPage({ id }: { id: string }) {
         filteredSongs={filteredSongs}
         totalDurationLabel={durationLabel}
         isPlaylistPlaying={isPlaylistPlaying}
+        isCurrentPlaylist={isCurrentPlaylist}
         onPlaySong={handlePlaySong}
       />
     </OverlayScrollbarsComponent>

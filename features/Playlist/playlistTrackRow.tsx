@@ -12,7 +12,7 @@
  */
 
 import { useRef, useState } from "react";
-import { Music2, Play, MoreHorizontal } from "lucide-react";
+import { Music2, Play, Pause, MoreHorizontal } from "lucide-react";
 import { Song } from "@/types/song";
 import Image from "next/image";
 import EqBars from "../Common/EQBars";
@@ -28,6 +28,7 @@ interface PlaylistTrackRowProps {
   addedAt: string; // ISO — from playlist join data
   isPlaying: boolean;
   onPlay: () => void;
+    isCurrent:boolean;
 }
 
 /** seconds → M:SS */
@@ -52,6 +53,7 @@ export default function PlaylistTrackRow({
   addedAt,
   isPlaying,
   onPlay,
+  isCurrent
 }: PlaylistTrackRowProps) {
   const [hovered, setHovered] = useState(false);
   const [imgReady, setImgReady] = useState(false);
@@ -89,11 +91,15 @@ export default function PlaylistTrackRow({
           <EqBars />
         ) : hovered ? (
           <button onClick={onPlay} aria-label={isPlaying ? "Pause" : "Play"}>
-            <Play className="w-4 h-4 fill-white text-white hover:scale-110 transition-transform" />
+            {isPlaying ? (
+              <Pause className="w-4 h-4 fill-white text-white hover:scale-110 transition-transform" />
+            ) : (
+              <Play className="w-4 h-4 fill-white text-white hover:scale-110 transition-transform" />
+            )}
           </button>
         ) : (
           <span
-            className={`text-sm ${isPlaying ? "text-purple-600" : "text-white/50"}`}
+            className={`text-sm ${isCurrent ? "text-purple-600" : "text-white/50"}`}
           >
             {index}
           </span>
@@ -132,7 +138,7 @@ export default function PlaylistTrackRow({
         {/* Text */}
         <div className="flex flex-col min-w-0">
           <span
-            className={`text-sm font-medium truncate ${isPlaying ? "text-purple-600" : "text-white"}`}
+            className={`text-sm font-medium truncate ${isCurrent ? "text-purple-600" : "text-white"}`}
           >
             {song.title}
           </span>
@@ -144,12 +150,16 @@ export default function PlaylistTrackRow({
       <div className="">
         {/* Add */}
         <div
-          onClick={(e) =>{ e.stopPropagation()
+          onClick={(e) => {
+            e.stopPropagation();
           }}
           onDoubleClick={(e) => e.stopPropagation()}
           className={`text-white/50  hover:text-white transition-all duration-100 max-md:opacity-100 ${hovered ? "md:opacity-100" : "opacity-0"}`}
         >
-          <AddToPlaylistMenu songId={song.id} setHoveredFalse={()=> setHovered(false)} />
+          <AddToPlaylistMenu
+            songId={song.id}
+            setHoveredFalse={() => setHovered(false)}
+          />
         </div>
       </div>
       {/* ── 4: date added ── */}

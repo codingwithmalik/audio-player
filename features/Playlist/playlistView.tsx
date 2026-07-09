@@ -34,6 +34,7 @@ interface PlaylistViewProps {
   filteredSongs: Song[];
   totalDurationLabel: string;
   isPlaylistPlaying: boolean;
+  isCurrentPlaylist:boolean;
   onPlaySong: (songId: string, index: number) => void;
 }
 
@@ -43,6 +44,7 @@ export default function PlaylistView({
   filteredSongs,
   totalDurationLabel,
   isPlaylistPlaying,
+  isCurrentPlaylist,
   onPlaySong,
 }: PlaylistViewProps) {
   const dispatch = useAppDispatch();
@@ -144,6 +146,7 @@ export default function PlaylistView({
             currentSongId={currentSongId}
             onPlaySong={onPlaySong}
             isPlaylistPlaying={isPlaylistPlaying}
+            isCurrentPlaylist={isCurrentPlaylist}
           />
         ) : (
           /* Grid view */
@@ -152,6 +155,7 @@ export default function PlaylistView({
             currentSongId={currentSongId}
             onPlaySong={onPlaySong}
             isPlaylistPlaying={isPlaylistPlaying}
+            isCurrentPlaylist={isCurrentPlaylist}
           />
         )}
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // features/Player/AudioEngine.tsx
 "use client";
 
@@ -14,6 +15,8 @@ import {
   setCurrentTime,
   setPlaying,
   setSong,
+  setVolume,
+  toggleMute,
 } from "@/store/playerSlice";
 import {
   selectQueueIds,
@@ -52,7 +55,6 @@ export default function AudioEngine() {
     const audio = audioRef.current;
     if (!audio) return;
     if (!song?.audioUrl) {
-        console.log("Song url"+typeof song?.audioUrl)
       audio.pause();
       audio.src = "";
       return;
@@ -150,7 +152,7 @@ export default function AudioEngine() {
     if (!audio) return;
 
     const handleError = () => {
-      console.error("Failed to load audio:", audio.error);
+      console.log("Failed to load audio:", audio.error);
 
       dispatch(setPlaying(false));
       dispatch(setCurrentTime(0));
@@ -159,13 +161,115 @@ export default function AudioEngine() {
       // show a toast
       // skip to next song
     };
-
-    audio.addEventListener("error", handleError);
+    if (isPlaying) audio.addEventListener("error", handleError);
 
     return () => {
       audio.removeEventListener("error", handleError);
     };
   }, [dispatch]);
+
+  // Keyboard Shortcuts for app
+useEffect(() => {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    // Only respond when this tab is active
+    if (document.visibilityState !== "visible") return;
+
+    // Ignore typing in inputs/textareas/contenteditable
+    const target = e.target as HTMLElement | null;
+    if (
+      target &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable)
+    ) {
+      return;
+    }
+
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    switch (e.code) {
+      case "Space": {
+        e.preventDefault();
+        dispatch(setPlaying(!isPlaying));
+        break;
+      }
+
+      case "ArrowLeft": {
+        // Ctrl/Cmd + ← = Previous track
+        if (e.shiftKey || e.metaKey) {
+          e.preventDefault();
+
+          if (currentIndex > 0) {
+            const previousIndex = currentIndex - 1;
+            dispatch(setCurrentIndex(previousIndex));
+            dispatch(setSong(queueIds[previousIndex]));
+          }
+
+          return;
+        }
+
+        // ← = Seek back 10 seconds
+        e.preventDefault();
+        audio.currentTime = Math.max(0, audio.currentTime - 5);
+        dispatch(setCurrentTime(audio.currentTime));
+        break;
+      }
+
+      case "ArrowRight": {
+        // Ctrl/Cmd + → = Next track
+        if (e.shiftKey || e.metaKey) {
+          e.preventDefault();
+
+          if (currentIndex < queueIds.length - 1) {
+            const nextIndex = currentIndex + 1;
+            dispatch(setCurrentIndex(nextIndex));
+            dispatch(setSong(queueIds[nextIndex]));
+          }
+
+          return;
+        }
+
+        // → = Seek forward 10 seconds
+        e.preventDefault();
+        audio.currentTime = Math.min(
+          audio.duration || Infinity,
+          audio.currentTime + 5,
+        );
+        dispatch(setCurrentTime(audio.currentTime));
+        break;
+      }
+
+      case "KeyM": {
+        e.preventDefault();
+        dispatch(toggleMute());
+        break;
+      }
+
+      case "ArrowUp": {
+        e.preventDefault();
+        dispatch(setVolume(Math.min(100, effectiveVolume + 5)));
+        break;
+      }
+
+      case "ArrowDown": {
+        e.preventDefault();
+        dispatch(setVolume(Math.max(0, effectiveVolume - 5)));
+        break;
+      }
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => window.removeEventListener("keydown", handleKeyDown);
+}, [
+  dispatch,
+  isPlaying,
+  effectiveVolume,
+  currentIndex,
+  queueIds,
+]);
 
   // ── Render nothing ────────────────────────────────────────────────────────
   return null;

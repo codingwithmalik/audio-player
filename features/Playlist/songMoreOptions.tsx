@@ -23,7 +23,7 @@ export default function SongMoreOptions({
   anchorRef,
 }: {
   songId: string;
-  playlistId: string;
+  playlistId: string | null;
   onClose: () => void;
   variant?: "dropdown" | "sheet";
   anchorRef: RefObject<HTMLButtonElement | null>;
@@ -37,11 +37,12 @@ export default function SongMoreOptions({
   const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
   const now = new Date().toISOString();
 
-  const currentPlaylist = useAppSelector(
-    (state: RootState) => state.playlists.entities[playlistId] ?? null,
+  const currentPlaylist = useAppSelector((state: RootState) =>
+    playlistId ? state.playlists.entities[playlistId] : null,
   );
-  const isInPlaylist =
-    currentPlaylist?.songs.some((s) => s.songId === songId) ?? false;
+  const isInPlaylist = playlistId
+    ? currentPlaylist?.songs.some((s) => s.songId === songId)
+    : false;
 
   // ── Actions ───────────────────────────────────────────────────────────────
   const handleAddToPlaylist = (targetPlaylistId: string) => {
@@ -101,6 +102,7 @@ export default function SongMoreOptions({
             label: "Remove from this playlist",
             icon: Trash2,
             action: () => {
+              if (!playlistId) return;
               dispatch(removeSongFromPlaylist({ playlistId, songId }));
               onClose();
             },

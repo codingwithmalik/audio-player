@@ -25,6 +25,13 @@ import { selectQueueSourceId } from "@/features/RightSidebar/Queue/queueSlice";
 import { selectPlaylistById } from "@/features/Playlist/playlistSlice";
 import AddToPlaylistMenu from "@/features/Common/AddSongToPlaylists";
 import type { RootState } from "@/store/store";
+import BottomSheet from "@/features/Common/BottomSheet";
+import SongMoreOptions from "@/features/Playlist/songMoreOptions";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useOverlayScrollbars } from "overlayscrollbars-react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 function formatDuration(seconds: number) {
   const m = Math.floor(seconds / 60);
@@ -43,13 +50,11 @@ export default function SongCard({ onOpenQueue, onClose }: SongCardProps) {
   const currentIndex = useAppSelector(selectCurrentIndex);
   const sourceId = useAppSelector(selectQueueSourceId);
 
-  // Resolve next song
   const nextSongId = queueIds[currentIndex + 1] ?? null;
   const nextSong = useAppSelector((state: RootState) =>
     nextSongId ? selectSongById(state, nextSongId) : null,
   );
 
-  // Resolve playlist name
   const playlist = useAppSelector((state: RootState) =>
     sourceId ? selectPlaylistById(state, sourceId) : null,
   );
@@ -58,22 +63,73 @@ export default function SongCard({ onOpenQueue, onClose }: SongCardProps) {
   const [copied, setCopied] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [nextImgError, setNextImgError] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [songMoreOptionsOpen, setSongMoreOptionsOpen] = useState(false);
 
+  const isMobile = useIsMobile();
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLButtonElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const artRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLButtonElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Reset image error when song changes
+  // Initialize OverlayScrollbars on the scroll container
+  const [initOS, osInstance] = useOverlayScrollbars({
+    options: {
+      scrollbars: {
+        theme: "os-theme-light",
+        autoHide: "leave",
+        autoHideDelay: 0,
+      },
+    },
+    defer: false,
+  });
 
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      initOS(scrollContainerRef.current);
+    }
+  }, [initOS]);
+
+  // Reset image errors when song changes
   useEffect(() => {
     setImgError(false);
   }, [song?.id]);
   useEffect(() => {
     setNextImgError(false);
   }, [nextSongId]);
+
+  // ── Header scroll animation ───────────────────────────────────────────────
+  useEffect(() => {
+    const os = osInstance();
+    if (!os) return;
+
+    const scroller = os.elements().viewport;
+    if (!scroller || !headerRef.current) return;
+
+    const trigger = ScrollTrigger.create({
+      trigger: scroller,
+      scroller: scroller,
+      start: "top+=10 top",
+      onEnter: () =>
+        gsap.set(headerRef.current, {
+          background: "#1a0a2e",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.8)",
+
+          // borderBottomColor: "rgba(255,255,255,0.1)",
+        }),
+      onLeaveBack: () =>
+        gsap.set(headerRef.current, {
+          background: "transparent",
+          boxShadow: "none",
+          borderBottomColor: "transparent",
+        }),
+    });
+
+    return () => trigger.kill();
+  }, [osInstance]);
 
   // ── GSAP entrance ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -126,23 +182,20 @@ export default function SongCard({ onOpenQueue, onClose }: SongCardProps) {
   return (
     <div
       ref={cardRef}
-      className="relative h-full w-full flex flex-col overflow-hidden rounded-xl bg-[#1a0a2e]/80 border border-white/[0.07]"
+      className="relative h-full w-full flex flex-col rounded-md bg-[#1a0a2e]/80 border border-white/[0.07]"
     >
       {/* Background glow */}
       <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-64 w-64 rounded-full opacity-40 [background:radial-gradient(circle,rgba(139,92,246,.35)_0%,transparent_70%)]" />
 
-      {/* ── Header ── */}
+      {/* ── Header (outside the scroll area) ── */}
       <div
-        className={`sticky top-0 z-40 flex items-center justify-between h-14 px-4 shrink-0 border-b transition-all duration-300 ${
-          scrolled
-            ? "bg-[#1a0a2e]/95 border-white/10 backdrop-blur-xl"
-            : "bg-transparent border-transparent"
-        }`}
+        ref={headerRef}
+        className="shrink-0 z-40 flex items-center justify-between h-14 px-4 border-b border-transparent transition-all duration-300 rounded-t-md"
       >
         <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors shrink-0"
+            className="hidden max-lg:flex h-8 w-8 items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors shrink-0 "
           >
             <ChevronDown size={18} />
           </button>
@@ -165,178 +218,209 @@ export default function SongCard({ onOpenQueue, onClose }: SongCardProps) {
               <ListMusic size={16} />
             </button>
           )}
-          <button className="flex h-8 w-8 items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors">
-            <MoreHorizontal size={18} />
-          </button>
-        </div>
-      </div>
+          <div className="relative">
+            <button
+              onClick={() => setSongMoreOptionsOpen((v) => !v)}
+              ref={anchorRef}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <MoreHorizontal size={18} />
+            </button>
 
-      {/* ── Scrollable content ── */}
-      <div
-        // ref={scrollRef}
-        onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 5)}
-        className="flex-1 overflow-y-auto overscroll-contain"
-        style={{ scrollbarWidth: "none" }}
-      >
-        {/* Cover art */}
-        <div ref={artRef} className="px-5 pt-5">
-          <div className="relative aspect-square w-full overflow-hidden rounded-2xl shadow-[0_16px_48px_rgba(0,0,0,0.6)]">
-            {imgError || !song.coverImage ? (
-              <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-purple-900/60 to-indigo-900/60">
-                <Music2 className="h-20 w-20 text-white/30" />
-              </div>
+            {isMobile ? (
+              <BottomSheet
+                isOpen={songMoreOptionsOpen}
+                onClose={() => setSongMoreOptionsOpen(false)}
+              >
+                <SongMoreOptions
+                  songId={song.id}
+                  playlistId={sourceId}
+                  onClose={() => setSongMoreOptionsOpen(false)}
+                  variant="sheet"
+                  anchorRef={anchorRef}
+                />
+              </BottomSheet>
             ) : (
-              <Image
-                src={song.coverImage}
-                alt={song.title}
-                fill
-                priority
-                sizes="300px"
-                className="object-cover"
-                onError={() => setImgError(true)}
-              />
+              songMoreOptionsOpen && (
+                <SongMoreOptions
+                  anchorRef={anchorRef}
+                  songId={song.id}
+                  playlistId={sourceId}
+                  onClose={() => setSongMoreOptionsOpen(false)}
+                  variant="dropdown"
+                />
+              )
             )}
           </div>
         </div>
+      </div>
 
-        {/* Info */}
-        <div ref={infoRef} className="space-y-4 p-5">
-          {/* Title + add to playlist */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="truncate text-xl font-bold tracking-tight text-white">
-                {song.title}
-              </h1>
-              <p className="mt-1 truncate text-sm text-white/50">
-                {song.artists.join(", ")}
-              </p>
-            </div>
-            <div className="shrink-0 mt-1">
-              <AddToPlaylistMenu songId={song.id} />
+      {/* ── Scrollable content (OS initialized here) ── */}
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 min-h-0"
+        data-overlayscrollbars-initialize
+      >
+        <div className="w-full">
+          {/* Cover art */}
+          <div ref={artRef} className="px-5 pt-5">
+            <div className="relative aspect-square w-full overflow-hidden rounded-2xl shadow-[0_16px_48px_rgba(0,0,0,0.6)]">
+              {imgError || !song.coverImage ? (
+                <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-purple-900/60 to-indigo-900/60">
+                  <Music2 className="h-20 w-20 text-white/30" />
+                </div>
+              ) : (
+                <Image
+                  src={song.coverImage}
+                  alt={song.title}
+                  fill
+                  priority
+                  sizes="300px"
+                  className="object-cover"
+                  onError={() => setImgError(true)}
+                />
+              )}
             </div>
           </div>
 
-          {/* Duration */}
-          <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/4 px-4 py-3">
-            <div className="flex items-center gap-2 text-white/40">
-              <Clock size={14} />
-              <span className="text-[11px] font-semibold uppercase tracking-widest">
-                Duration
-              </span>
+          {/* Info */}
+          <div ref={infoRef} className="space-y-4 p-5">
+            {/* Title + add to playlist */}
+            <div className="flex items-start justify-between gap-3 min-w-0 overflow-hidden">
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <h1 className="truncate text-xl font-bold tracking-tight text-white">
+                  {song.title}
+                </h1>
+                <p className="mt-1 truncate text-sm text-white/50">
+                  {song.artists.join(", ")}
+                </p>
+              </div>
+              <div className="shrink-0 mt-1">
+                <AddToPlaylistMenu songId={song.id} />
+              </div>
             </div>
-            <span className="text-sm text-white/70">
-              {formatDuration(song.duration)}
-            </span>
-          </div>
 
-          {/* Credits */}
-          <div className="overflow-hidden rounded-xl border border-white/8 bg-white/4">
-            <div className="flex items-center gap-2 border-b border-white/[0.07] px-4 py-3">
-              <Mic2 size={14} className="text-white/40" />
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-white/40">
-                Credits
+            {/* Duration */}
+            <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/4 px-4 py-3">
+              <div className="flex items-center gap-2 text-white/40">
+                <Clock size={14} />
+                <span className="text-[11px] font-semibold uppercase tracking-widest">
+                  Duration
+                </span>
+              </div>
+              <span className="text-sm text-white/70">
+                {formatDuration(song.duration)}
               </span>
             </div>
-            {song.artists.map((artist, i) => (
-              <div
-                key={artist}
-                className={`flex items-center justify-between px-4 py-3 ${
-                  i !== song.artists.length - 1
-                    ? "border-b border-white/[0.07]"
-                    : ""
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 border border-white/10 shrink-0">
-                    <span className="text-xs font-bold text-white/60">
-                      {artist.charAt(0).toUpperCase()}
+
+            {/* Credits */}
+            <div className="overflow-hidden rounded-xl border border-white/8 bg-white/4">
+              <div className="flex items-center gap-2 border-b border-white/[0.07] px-4 py-3">
+                <Mic2 size={14} className="text-white/40" />
+                <span className="text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                  Credits
+                </span>
+              </div>
+              {song.artists.map((artist, i) => (
+                <div
+                  key={artist}
+                  className={`flex items-center justify-between px-4 py-3 ${
+                    i !== song.artists.length - 1
+                      ? "border-b border-white/[0.07]"
+                      : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 border border-white/10 shrink-0">
+                      <span className="text-xs font-bold text-white/60">
+                        {artist.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="text-sm text-white/80 truncate">
+                      {artist}
                     </span>
                   </div>
-                  <span className="text-sm text-white/80">{artist}</span>
+                  <span className="text-xs text-white/30 shrink-0">Artist</span>
                 </div>
-                <span className="text-xs text-white/30">Artist</span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          {/* Copy link */}
-          <button
-            ref={copyRef}
-            onClick={handleCopy}
-            className={`flex w-full items-center justify-center gap-2 rounded-xl border py-3 text-sm font-medium transition-all duration-300 ${
-              copied
-                ? "border-purple-500/40 bg-purple-500/10 text-purple-300"
-                : "border-white/10 bg-white/5 text-white/60 hover:bg-white/8 hover:text-white"
-            }`}
-          >
-            {copied ? <Check size={15} /> : <Link2 size={15} />}
-            {copied ? "Link copied!" : "Copy song link"}
-          </button>
+            {/* Copy link */}
+            <button
+              ref={copyRef}
+              onClick={handleCopy}
+              className={`flex w-full items-center justify-center gap-2 rounded-xl border py-3 text-sm font-medium transition-all duration-300 ${
+                copied
+                  ? "border-purple-500/40 bg-purple-500/10 text-purple-300"
+                  : "border-white/10 bg-white/5 text-white/60 hover:bg-white/8 hover:text-white"
+              }`}
+            >
+              {copied ? <Check size={15} /> : <Link2 size={15} />}
+              {copied ? "Link copied!" : "Copy song link"}
+            </button>
 
-          {/* ── Next in queue ── */}
-          {nextSong && (
-            <section>
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
-                    Up Next
-                  </p>
-                  <h3 className="text-base font-semibold text-white mt-0.5">
-                    Next in queue
-                  </h3>
-                </div>
-                {onOpenQueue && (
-                  <button
-                    onClick={onOpenQueue}
-                    className="rounded-full px-3 py-1.5 text-xs font-medium text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-                  >
-                    Open queue
-                  </button>
-                )}
-              </div>
-
-              <button
-                onClick={onOpenQueue}
-                className="group flex w-full items-center gap-3 rounded-xl border border-white/8 bg-white/4 p-3 text-left transition-all duration-200 hover:border-purple-500/30 hover:bg-purple-500/5"
-              >
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg">
-                  {nextImgError || !nextSong.coverImage ? (
-                    <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-purple-900/60 to-indigo-900/60">
-                      <Music2 className="h-6 w-6 text-white/30" />
-                    </div>
-                  ) : (
-                    <Image
-                      src={nextSong.coverImage}
-                      alt={nextSong.title}
-                      fill
-                      sizes="56px"
-                      className="object-cover"
-                      onError={() => setNextImgError(true)}
-                    />
+            {/* ── Next in queue ── */}
+            {nextSong && (
+              <section>
+                <div className="mb-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
+                      Up Next
+                    </p>
+                    <h3 className="text-base font-semibold text-white mt-0.5">
+                      Next in queue
+                    </h3>
+                  </div>
+                  {onOpenQueue && (
+                    <button
+                      onClick={onOpenQueue}
+                      className="rounded-full px-3 py-1.5 text-xs font-medium text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                      Open queue
+                    </button>
                   )}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="truncate text-sm font-semibold text-white group-hover:text-purple-300 transition-colors">
-                    {nextSong.title}
-                  </h4>
-                  <p className="mt-0.5 truncate text-xs text-white/50">
-                    {nextSong.artists.join(", ")}
-                  </p>
-                  <div className="mt-1.5 flex items-center gap-1.5 text-xs text-white/30">
-                    <Clock size={11} />
-                    {formatDuration(nextSong.duration)}
-                  </div>
-                </div>
-                <ListMusic
-                  size={16}
-                  className="shrink-0 text-white/20 group-hover:text-purple-400 transition-colors"
-                />
-              </button>
-            </section>
-          )}
 
-          {/* Bottom padding */}
-          <div className="h-2" />
+                <button
+                  onClick={onOpenQueue}
+                  className="group flex w-full items-center gap-3 rounded-xl border border-white/8 bg-white/4 p-3 text-left transition-all duration-200 hover:border-purple-500/30 hover:bg-purple-500/5"
+                >
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg">
+                    {nextImgError || !nextSong.coverImage ? (
+                      <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-purple-900/60 to-indigo-900/60">
+                        <Music2 className="h-6 w-6 text-white/30" />
+                      </div>
+                    ) : (
+                      <Image
+                        src={nextSong.coverImage}
+                        alt={nextSong.title}
+                        fill
+                        sizes="56px"
+                        className="object-cover"
+                        onError={() => setNextImgError(true)}
+                      />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="truncate text-sm font-semibold text-white group-hover:text-purple-300 transition-colors">
+                      {nextSong.title}
+                    </h4>
+                    <p className="mt-0.5 truncate text-xs text-white/50">
+                      {nextSong.artists.join(", ")}
+                    </p>
+                    <div className="mt-1.5 flex items-center gap-1.5 text-xs text-white/30">
+                      <Clock size={11} />
+                      {formatDuration(nextSong.duration)}
+                    </div>
+                  </div>
+                  <ListMusic
+                    size={16}
+                    className="shrink-0 text-white/20 group-hover:text-purple-400 transition-colors"
+                  />
+                </button>
+              </section>
+            )}
+          </div>
         </div>
       </div>
     </div>

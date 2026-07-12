@@ -71,7 +71,7 @@ export default function PanelSheet({
   return (
     <div
       ref={panelRef}
-      className={`w-full h-full md:rounded-md shadow-2xl overflow-hidden z-50 transition-transform duration-400 ease-out ${
+      className={`w-full h-full md:rounded-md shadow-2xl backdrop-blur-2xl overflow-hidden z-50 transition-transform duration-400 ease-out ${
         mounted ? "translate-y-0" : "translate-y-full"
       } ${className}`}
     >
@@ -81,7 +81,7 @@ export default function PanelSheet({
           onPointerMove={dragHandlers.onPointerMove}
           onPointerUp={dragHandlers.onPointerUp}
           onPointerCancel={dragHandlers.onPointerCancel}
-          className="flex justify-center py-2 cursor-grab touch-none active:cursor-grabbing glass"
+          className="flex justify-center py-2 cursor-grab touch-none active:cursor-grabbing "
         >
           <div className="h-1 w-10 rounded-full bg-white/20" />
         </div>

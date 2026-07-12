@@ -2,12 +2,18 @@
 
 import { useRef, useState } from "react";
 import { MoreHorizontal, Pencil, Plus } from "lucide-react";
-import { useAppSelector } from "@/globalHooks";
+import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import { selectFolderById } from "@/features/Folder/folderSlice";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import FolderMoreOptions from "./FolderMoreOptions";
 import BottomSheet from "@/features/Common/BottomSheet";
 import type { RootState } from "@/store/store";
+import {
+  closeRightSidebarPanel,
+  openAddToFolder,
+  selectIsAddToFolderOpen,
+} from "@/slices/rightSidebarSlice";
+import { closeNowPlaying } from "@/store/playerSlice";
 
 export default function FolderActions({
   folderId,
@@ -16,12 +22,22 @@ export default function FolderActions({
   folderId: string;
   onRename: () => void;
 }) {
+  const dispatch = useAppDispatch();
   const isMobile = useIsMobile();
+  const isAddToFolderOpen = useAppSelector(selectIsAddToFolderOpen);
   const [moreOpen, setMoreOpen] = useState(false);
   const folder = useAppSelector((state: RootState) =>
     selectFolderById(state, folderId),
   );
   const anchorRef = useRef<HTMLButtonElement | null>(null);
+  const handleAddPlaylist = () => {
+    if (isAddToFolderOpen) {
+      dispatch(closeRightSidebarPanel());
+    } else {
+      dispatch(openAddToFolder({ folderId }));
+      dispatch(closeNowPlaying());
+    }
+  };
 
   return (
     <div className="flex items-center gap-3 px-4 sm:px-8 py-4">
@@ -35,7 +51,10 @@ export default function FolderActions({
       </button>
 
       {/* Add playlist — wired later */}
-      <button className="flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors">
+      <button
+        onClick={handleAddPlaylist}
+        className={`flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-medium  transition-colors ${isAddToFolderOpen ? " bg-white/50 text-black/80" : "text-white hover:bg-white/10"}`}
+      >
         <Plus className="w-4 h-4" />
         Add playlist
       </button>

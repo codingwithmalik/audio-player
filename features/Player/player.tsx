@@ -13,20 +13,12 @@ import {
   selectCurrentTime,
   selectProgress,
   selectIsDraggingProgress,
-  toggleNowPlaying,
-  selectIsNowPlayingOpen,
+  closeNowPlaying,
+  openNowPlaying,
 } from "@/store/playerSlice";
 import AudioEngine from "./AudioEngine";
 
-type PlayerShellProps = {
-  onQueueOpen?: () => void;
-  onMiniPlayer?: () => void;
-};
-
-export default function Player({
-  onQueueOpen,
-  onMiniPlayer,
-}: PlayerShellProps) {
+export default function Player() {
   const dispatch = useAppDispatch();
   const song = useAppSelector(selectCurrentSong);
   const currentTime = useAppSelector(selectCurrentTime);
@@ -57,13 +49,12 @@ export default function Player({
   );
 
   const handleFullScreen = () => {
-    dispatch(toggleNowPlaying());
-    console.log("dispatching toggle now playing.");
+    dispatch(openNowPlaying());
   };
-  const isOpen = useAppSelector(selectIsNowPlayingOpen);
-  useEffect(() => {
-    console.log(isOpen);
-  }, [isOpen]);
+  const handleMinimize = () => {
+    dispatch(closeNowPlaying());
+  };
+
 
   const isActive = !!song;
   return (
@@ -107,8 +98,7 @@ export default function Player({
         {/* Right — same treatment */}
         <PlayerExtras
           isActive={isActive}
-          onQueueOpen={onQueueOpen}
-          onMiniPlayer={onMiniPlayer}
+          onMinimize={handleMinimize}
           onFullscreen={handleFullScreen}
         />
       </div>

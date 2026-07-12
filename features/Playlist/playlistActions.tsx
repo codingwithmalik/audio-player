@@ -42,6 +42,7 @@ import {
   selectViewMode,
 } from "@/features/Playlist/playlistSlice";
 import {
+  closeNowPlaying,
   selectIsShuffle,
   setSong,
   togglePlay,
@@ -52,7 +53,16 @@ import BottomSheet from "../Common/BottomSheet";
 import PlaylistMoreOptions from "./playlistMoreOptions";
 import { Playlist } from "@/types/playlist";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { setCurrentIndex, setQueue ,selectQueueSourceId} from "../RightSidebar/Queue/queueSlice";
+import {
+  setCurrentIndex,
+  setQueue,
+  selectQueueSourceId,
+} from "../RightSidebar/Queue/queueSlice";
+import {
+  closeRightSidebarPanel,
+  openAddToPlaylist,
+  selectIsAddToPlaylistOpen,
+} from "@/slices/rightSidebarSlice";
 
 // ─── Sort option config ───────────────────────────────────────────────────────
 
@@ -87,8 +97,9 @@ export default function PlaylistActions({
   const sortBy = useAppSelector(selectSortBy);
   const sortDir = useAppSelector(selectSortDir);
   const viewMode = useAppSelector(selectViewMode);
-  const sourceId = useAppSelector(selectQueueSourceId)
+  const sourceId = useAppSelector(selectQueueSourceId);
   const isShuffle = useAppSelector(selectIsShuffle);
+  const isAddToPlaylistOpen = useAppSelector(selectIsAddToPlaylistOpen);
   const isMobile = useIsMobile();
   const [searchOpen, setSearchOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -163,8 +174,12 @@ export default function PlaylistActions({
   };
 
   const handleAddSong = () => {
-    // TODO: open add song modal
-    console.log("add song to playlist");
+    if (isAddToPlaylistOpen) {
+      dispatch(closeRightSidebarPanel());
+    } else {
+      dispatch(openAddToPlaylist({ playlistId: playlist.id }));
+      dispatch(closeNowPlaying());
+    }
   };
   const handleDownload = () => {
     console.log("download");
@@ -416,9 +431,9 @@ export default function PlaylistActions({
         <button
           onClick={handleAddSong}
           aria-label="Add songs"
-          className="flex items-center gap-2 text-sm text-white/70 font-medium
+          className={`flex items-center gap-2 text-sm  font-medium
                      border border-white/20 rounded-full px-4 py-1.5
-                     hover:border-white/50 hover:text-white transition-colors duration-150"
+                      transition-colors duration-150 ${isAddToPlaylistOpen ? " bg-white/50 text-black/80" : "hover:border-white/50 hover:text-white text-white/70"}`}
         >
           <Plus className="w-4 h-4" />
           Add

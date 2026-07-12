@@ -2,7 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/store/store";
 
 type RightSidebarPanel =
-  | { tab: "nowPlaying" }
+  | { tab: "default" }
   | { tab: "queue" }
   | { tab: "addToPlaylist"; playlistId: string }
   | { tab: "addToFolder"; folderId: string };
@@ -12,7 +12,7 @@ interface RightSidebarState {
 }
 
 const initialState: RightSidebarState = {
-  panel: { tab: "nowPlaying" },
+  panel: { tab: "default" },
 };
 
 const rightSidebarSlice = createSlice({
@@ -35,7 +35,7 @@ const rightSidebarSlice = createSlice({
       state.panel = { tab: "addToFolder", folderId: action.payload.folderId };
     },
     closeRightSidebarPanel: (state) => {
-      state.panel = { tab: "nowPlaying" };
+      state.panel = { tab: "default" };
     },
   },
 });
@@ -49,5 +49,11 @@ export const {
 
 export const selectRightSidebarPanel = (state: RootState) =>
   state.rightSidebar.panel;
+export const selectIsQueueOpen = (state: RootState) =>
+  state.rightSidebar.panel.tab === "queue";
+export const selectIsAddToFolderOpen = (state: RootState) =>
+  state.rightSidebar.panel.tab === "addToFolder";
+export const selectIsAddToPlaylistOpen = (state: RootState) =>
+  state.rightSidebar.panel.tab === "addToPlaylist";
 
 export default rightSidebarSlice.reducer;

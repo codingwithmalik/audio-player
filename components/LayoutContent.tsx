@@ -9,6 +9,7 @@ import NowPlayingView from "@/features/Player/NowPlayingView";
 import { selectIsNowPlayingOpen } from "@/store/playerSlice";
 import { useAppSelector } from "@/globalHooks";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import RightSidebarPanelOverlay from "@/features/RightSidebar/RightSidebarPanelOverlay";
 
 const LayoutContent = ({
   children,
@@ -30,7 +31,41 @@ const LayoutContent = ({
 
   if (isMobileLayout) {
     return (
-      <div className="flex flex-col h-screen">
+      <>
+        <div className="flex flex-col h-screen">
+          <div
+            className={`w-full h-full my-1 overflow-hidden ${
+              showNowPlayingSlot ? "" : "hidden"
+            }`}
+          >
+            <NowPlayingView
+              isOpen={isNowPlayingOpen}
+              onClosed={handleNowPlayingClosed}
+            />
+          </div>
+          <main
+            className={`flex-1 overflow-y-auto pb-37 ${
+              showNowPlayingSlot ? "hidden" : ""
+            }`}
+          >
+            {children}
+          </main>
+          <div className={`${showNowPlayingSlot ? "hidden" : ""}`}>
+            <div className="fixed bottom-16 left-0 right-0 z-40">
+              <Player />
+            </div>
+            <BottomNav />
+          </div>
+        </div>
+        <RightSidebarPanelOverlay />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="grid h-screen grid-rows-[auto_1fr_auto] max-w-screen">
+        <Header />
         <div
           className={`w-full h-full my-1 overflow-hidden ${
             showNowPlayingSlot ? "" : "hidden"
@@ -41,50 +76,22 @@ const LayoutContent = ({
             onClosed={handleNowPlayingClosed}
           />
         </div>
-        <main
-          className={`flex-1 overflow-y-auto pb-37 ${
+
+        <div
+          className={`grid gap-1 m-1 my-2 overflow-hidden grid-cols-[80px_6fr] lg:grid-cols-[clamp(260px,20vw,320px)_3fr_clamp(260px,20vw,320px)] layout-grid ${
             showNowPlayingSlot ? "hidden" : ""
           }`}
         >
-          {children}
-        </main>
-        <div className={`${showNowPlayingSlot ? "hidden" : ""}`}>
-          <div className="fixed bottom-16 left-0 right-0 z-40">
-            <Player />
+          <LeftSidebar />
+          <div className="overflow-hidden min-w-0">{children}</div>
+          <div className="hidden lg:block overflow-hidden min-w-0">
+            <Rightsidebar />
           </div>
-          <BottomNav />
         </div>
+        <Player />
       </div>
-    );
-  }
-
-  return (
-    <div className="grid h-screen grid-rows-[auto_1fr_auto] max-w-screen">
-      <Header />
-      <div
-        className={`w-full h-full my-1 overflow-hidden ${
-          showNowPlayingSlot ? "" : "hidden"
-        }`}
-      >
-        <NowPlayingView
-          isOpen={isNowPlayingOpen}
-          onClosed={handleNowPlayingClosed}
-        />
-      </div>
-
-      <div
-        className={`grid gap-1 m-1 my-2 overflow-hidden grid-cols-[80px_6fr] lg:grid-cols-[clamp(260px,20vw,320px)_3fr_clamp(260px,20vw,320px)] layout-grid ${
-          showNowPlayingSlot ? "hidden" : ""
-        }`}
-      >
-        <LeftSidebar />
-        <div className="overflow-hidden min-w-0">{children}</div>
-        <div className="hidden lg:block overflow-hidden min-w-0">
-          <Rightsidebar />
-        </div>
-      </div>
-      <Player />
-    </div>
+      <RightSidebarPanelOverlay />
+    </>
   );
 };
 

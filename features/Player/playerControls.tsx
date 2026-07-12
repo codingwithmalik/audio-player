@@ -43,7 +43,13 @@ const fmt = (s: number) => {
 
 // ─── PlayerControls ───────────────────────────────────────────────────────────
 
-export default function PlayerControls({ isActive }: { isActive: boolean }) {
+export default function PlayerControls({
+  isActive,
+  fullLayout = false,
+}: {
+  isActive: boolean;
+  fullLayout?: boolean;
+}) {
   const dispatch = useAppDispatch();
   const isPlaying = useAppSelector(selectIsPlaying);
   const isShuffle = useAppSelector(selectIsShuffle);
@@ -109,38 +115,42 @@ export default function PlayerControls({ isActive }: { isActive: boolean }) {
   return (
     <>
       {/* MOBILE: transport only (timeline lives in Player.tsx) */}
-      <div className="flex items-center justify-center gap-6 md:hidden">
-        <button
-          aria-label="Previous"
-          className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-300 transition hover:scale-110 hover:text-white active:scale-95"
-        >
-          <SkipBack className="h-4.5 w-4.5 fill-current" />
-        </button>
+      {!fullLayout && (
+        <div className="flex items-center justify-center gap-6 md:hidden">
+          <button
+            aria-label="Previous"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-300 transition hover:scale-110 hover:text-white active:scale-95"
+          >
+            <SkipBack className="h-4.5 w-4.5 fill-current" />
+          </button>
 
-        <button
-          ref={playBtnRef}
-          onClick={handlePlayPause}
-          aria-label={isPlaying ? "Pause" : "Play"}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-[0_0_16px_rgba(255,255,255,0.2)] transition hover:bg-neutral-100 active:scale-95"
-        >
-          {isPlaying ? (
-            <Pause className="h-4 w-4 fill-current" />
-          ) : (
-            <Play className="h-4 w-4 translate-x-0.5 fill-current" />
-          )}
-        </button>
+          <button
+            ref={playBtnRef}
+            onClick={handlePlayPause}
+            aria-label={isPlaying ? "Pause" : "Play"}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-[0_0_16px_rgba(255,255,255,0.2)] transition hover:bg-neutral-100 active:scale-95"
+          >
+            {isPlaying ? (
+              <Pause className="h-4 w-4 fill-current" />
+            ) : (
+              <Play className="h-4 w-4 translate-x-0.5 fill-current" />
+            )}
+          </button>
 
-        <button
-          aria-label="Next"
-          className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-300 transition hover:scale-110 hover:text-white active:scale-95"
-        >
-          <SkipForward className="h-4.5 w-4.5ll-current" />
-        </button>
-      </div>
+          <button
+            aria-label="Next"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-300 transition hover:scale-110 hover:text-white active:scale-95"
+          >
+            <SkipForward className="h-4.5 w-4.5 fill-current" />
+          </button>
+        </div>
+      )}
 
       {/* DESKTOP: full controls + timeline */}
       <div
-        className={`hidden flex-1 flex-col items-center gap-1.5 md:flex lg:gap-2 ${isActive ? "" : "pointer-events-none opacity-40"}`}
+        className={`flex-1 flex-col items-center gap-1.5 lg:gap-2 ${
+          fullLayout ? "flex" : "hidden md:flex"
+        } ${isActive ? "" : "pointer-events-none opacity-40"}`}
         style={{ maxWidth: 560 }}
       >
         {/* Transport row */}

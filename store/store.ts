@@ -2,21 +2,23 @@ import { configureStore } from "@reduxjs/toolkit";
 import authslice from "@/features/Auth/authSlice";
 import librarySlice from "@/features/LeftSidebar/Library/libraryslice";
 import playerSlice from "@/store/playerSlice";
-import playlistSlice from "@/features/Playlist/playlistSlice"
-import foldersSlice from "@/features/Folder/folderSlice"
-import songsSlice from "@/features/Songs/songsSlice"
+import playlistSlice from "@/features/Playlist/playlistSlice";
+import foldersSlice from "@/features/Folder/folderSlice";
+import songsSlice from "@/features/Songs/songsSlice";
 import queueSlice from "@/features/RightSidebar/Queue/queueSlice";
+import rightSidebarSlice from "@/slices/rightSidebarSlice";
 // ...
 
 export const store = configureStore({
   reducer: {
     auth: authslice,
-    player:playerSlice,
+    player: playerSlice,
     library: librarySlice,
     playlists: playlistSlice,
-    folders:foldersSlice,
+    folders: foldersSlice,
     songs: songsSlice,
     queue: queueSlice,
+    rightSidebar: rightSidebarSlice,
   },
 });
 

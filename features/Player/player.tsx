@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { useAppSelector } from "@/globalHooks";
+import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import { gsap } from "gsap";
 
 import SongInfo from "./songInfo";
@@ -13,21 +13,21 @@ import {
   selectCurrentTime,
   selectProgress,
   selectIsDraggingProgress,
+  toggleNowPlaying,
+  selectIsNowPlayingOpen,
 } from "@/store/playerSlice";
 import AudioEngine from "./AudioEngine";
-// import usePlaybackTicker from "./UseplaybackTicker";
 
 type PlayerShellProps = {
   onQueueOpen?: () => void;
   onMiniPlayer?: () => void;
-  onFullscreen?: () => void;
 };
 
 export default function Player({
   onQueueOpen,
   onMiniPlayer,
-  onFullscreen,
 }: PlayerShellProps) {
+  const dispatch = useAppDispatch();
   const song = useAppSelector(selectCurrentSong);
   const currentTime = useAppSelector(selectCurrentTime);
   const isDragging = useAppSelector(selectIsDraggingProgress);
@@ -38,9 +38,6 @@ export default function Player({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const mobileTrackRef = useRef<HTMLDivElement>(null!);
-
-  // ── Ticker: single interval, lives here at the root, never duplicated ─────
-  // usePlaybackTicker();
 
   // ── Mount animation ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -58,6 +55,16 @@ export default function Player({
     duration,
     isDragging,
   );
+
+  const handleFullScreen = () => {
+    dispatch(toggleNowPlaying());
+    console.log("dispatching toggle now playing.");
+  };
+  const isOpen = useAppSelector(selectIsNowPlayingOpen);
+  useEffect(() => {
+    console.log(isOpen);
+  }, [isOpen]);
+
   const isActive = !!song;
   return (
     <div
@@ -65,7 +72,8 @@ export default function Player({
       className="relative z-50 border-t border-white/[0.07] bg-black/50 backdrop-blur-3xl"
       style={{ WebkitBackdropFilter: "blur(48px)" }}
     >
-      <AudioEngine/>
+      {/* <NowPlayingView /> */}
+      <AudioEngine />
       {/* Top glow line */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent" />
       {/* ── MOBILE ── */}
@@ -73,7 +81,7 @@ export default function Player({
         <div className="flex flex-col gap-2 px-3 py-2.5 md:hidden">
           <div className="flex items-center justify-around gap-2.5">
             <SongInfo />
-            <PlayerControls isActive={isActive}/>
+            <PlayerControls isActive={isActive} />
           </div>
 
           <ProgressBar
@@ -101,7 +109,7 @@ export default function Player({
           isActive={isActive}
           onQueueOpen={onQueueOpen}
           onMiniPlayer={onMiniPlayer}
-          onFullscreen={onFullscreen}
+          onFullscreen={handleFullScreen}
         />
       </div>
     </div>

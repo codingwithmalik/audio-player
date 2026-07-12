@@ -3,8 +3,12 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Music2 } from "lucide-react";
-import { useAppSelector } from "@/globalHooks";
-import { selectCurrentSong, selectIsPlaying } from "@/store/playerSlice";
+import { useAppDispatch, useAppSelector } from "@/globalHooks";
+import {
+  openNowPlaying,
+  selectCurrentSong,
+  selectIsPlaying,
+} from "@/store/playerSlice";
 import { Song } from "@/types/song";
 import EqBars from "../Common/EQBars";
 
@@ -50,9 +54,9 @@ const CoverArt = ({
       )}
 
       {/* EQ bars overlay while playing */}
-      {isPlaying &&(
+      {isPlaying && (
         <div className="absolute inset-0 flex items-end justify-center gap-0.5 bg-black/70 ">
-          <EqBars/>
+          <EqBars />
         </div>
       )}
     </div>
@@ -64,13 +68,16 @@ const CoverArt = ({
 export default function SongInfo() {
   const song = useAppSelector(selectCurrentSong);
   const isPlaying = useAppSelector(selectIsPlaying);
-
+  const dispatch = useAppDispatch();
   if (!song) return null;
 
   return (
     <>
       {/* ── MOBILE ── */}
-      <div className="flex items-center gap-2.5 md:hidden">
+      <div
+        className="flex items-center gap-2.5 md:hidden"
+        onClick={() => dispatch(openNowPlaying())}
+      >
         <CoverArt song={song} isPlaying={isPlaying} size="sm" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-white">

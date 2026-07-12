@@ -1,9 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "@/store/store";
-import {
-  RepeatMode,
-  PlayerState,
-} from "@/features/Player/playerTypes";
+import { RepeatMode, PlayerState } from "@/features/Player/playerTypes";
 import { selectSongById } from "@/features/Songs/songsSlice";
 
 // ─── Initial state ─────────────────────────────────────────────────────────────
@@ -19,6 +16,7 @@ const initialState: PlayerState = {
   isMuted: false,
   isDraggingProgress: false,
   isDraggingVolume: false,
+  isNowPlayingOpen: false,
 };
 
 // ─── Slice ─────────────────────────────────────────────────────────────────────
@@ -96,6 +94,16 @@ const playerSlice = createSlice({
     setDraggingVolume(state, action: PayloadAction<boolean>) {
       state.isDraggingVolume = action.payload;
     },
+    // Reducers
+    toggleNowPlaying: (state) => {
+      state.isNowPlayingOpen = !state.isNowPlayingOpen;
+    },
+    openNowPlaying: (state) => {
+      state.isNowPlayingOpen = true;
+    },
+    closeNowPlaying: (state) => {
+      state.isNowPlayingOpen = false;
+    },
   },
 });
 
@@ -113,6 +121,9 @@ export const {
   toggleMute,
   setDraggingProgress,
   setDraggingVolume,
+  toggleNowPlaying,
+  openNowPlaying,
+  closeNowPlaying,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;
@@ -145,3 +156,5 @@ export const selectCurrentSong = (state: RootState) => {
   if (!id) return null;
   return selectSongById(state, id);
 };
+export const selectIsNowPlayingOpen = (state: RootState) =>
+  state.player.isNowPlayingOpen;

@@ -19,4 +19,7 @@ export interface PlayerState {
   isDraggingProgress: boolean;
 
   isDraggingVolume: boolean;
+
+    isNowPlayingOpen: boolean;
+
 }

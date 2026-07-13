@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { historyListenerMiddleware } from "@/store/historyMiddleware";
+import { historyListenerMiddleware } from "@/middlewares/historyMiddleware";
+import { folderSyncMiddleware } from "@/middlewares/folderSyncMiddleware";
 import authslice from "@/features/Auth/authSlice";
 import librarySlice from "@/features/LeftSidebar/Library/libraryslice";
 import playerSlice from "@/store/playerSlice";
@@ -24,7 +25,9 @@ export const store = configureStore({
     history: historySlice,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().prepend(historyListenerMiddleware.middleware),
+    getDefaultMiddleware()
+      .prepend(historyListenerMiddleware.middleware)
+      .prepend(folderSyncMiddleware.middleware),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

@@ -31,6 +31,7 @@ import {
   selectQueueSourceId,
   selectQueueSourceType,
 } from "../RightSidebar/Queue/queueSlice";
+import { closeRightSidebarPanel } from "@/slices/rightSidebarSlice";
 
 export default function PlaylistPage({ id }: { id: string }) {
   // console.log("Playlist found : "+id)
@@ -42,6 +43,7 @@ export default function PlaylistPage({ id }: { id: string }) {
     // Reset search/sort/view when navigating to a new playlist
     return () => {
       dispatch(resetPlaylistUI());
+      dispatch(closeRightSidebarPanel())
     };
   }, [id, dispatch]);
 

@@ -82,7 +82,12 @@ export const { upsertSongs, setSongFetchStatus, setError, removeSong } =
 /** Single song by id. */
 export const selectSongById = (state: RootState, id: string): Song | null =>
   state.songs.entities[id] ?? null;
-
+export const selectSongs = createSelector(
+  [(state: RootState) => state.songs.entities],
+  (entities) => {
+    return Object.values(entities);
+  },
+);
 /** Fetch status for a song. */
 export const selectSongFetchStatus = (
   state: RootState,

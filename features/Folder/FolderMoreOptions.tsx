@@ -6,14 +6,12 @@ import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import { useRouter } from "next/navigation";
 import {
   removeFolder,
-  removePlaylistFromFolder,
 } from "@/features/Folder/folderSlice";
 import {
   selectPlaylists,
   addPlaylist,
   setPlaylistFolder,
 } from "@/features/Playlist/playlistSlice";
-import { addPlaylistToFolder } from "@/features/Folder/folderSlice";
 import ConfirmDialog from "@/features/Common/ConfirmDialog";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
 
@@ -39,14 +37,7 @@ export default function FolderMoreOptions({
 
   const handleAddToFolder = (
     playlistId: string,
-    currentFolderId: string | null,
   ) => {
-    if (currentFolderId) {
-      dispatch(
-        removePlaylistFromFolder({ folderId: currentFolderId, playlistId }),
-      );
-    }
-    dispatch(addPlaylistToFolder({ folderId, playlistId }));
     dispatch(setPlaylistFolder({ playlistId, folderId }));
     onClose();
   };
@@ -67,7 +58,6 @@ export default function FolderMoreOptions({
         updatedAt: now,
       }),
     );
-    dispatch(addPlaylistToFolder({ folderId, playlistId: newPlaylistId }));
     onClose();
   };
 
@@ -101,7 +91,7 @@ export default function FolderMoreOptions({
           .map((p) => ({
             id: p.id,
             label: p.title,
-            action: () => handleAddToFolder(p.id, p.folderId),
+            action: () => handleAddToFolder(p.id),
           })),
       ],
     },

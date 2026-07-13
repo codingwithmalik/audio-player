@@ -13,6 +13,7 @@ import FolderActions from "./FolderActions";
 import FolderPlaylistList from "./FolderPlaylistList";
 import type { RootState } from "@/store/store";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import { closeRightSidebarPanel } from "@/slices/rightSidebarSlice";
 
 export default function FolderView({ folderId }: { folderId: string }) {
   const dispatch = useAppDispatch();
@@ -52,6 +53,12 @@ export default function FolderView({ folderId }: { folderId: string }) {
         gsap.set([hero, actions, rows], { clearProps: "transform" });
       });
   }, [folderId]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(closeRightSidebarPanel());
+    };
+  }, [folderId, dispatch]);
 
   const handleRename = (newTitle: string) => {
     if (!newTitle.trim()) return;

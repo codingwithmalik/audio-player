@@ -23,8 +23,6 @@ import {
 import { useRouter } from "next/navigation";
 import {
   addFolder,
-  addPlaylistToFolder,
-  removePlaylistFromFolder,
   selectFolders,
 } from "@/features/Folder/folderSlice";
 import ConfirmDialog from "@/features/Common/ConfirmDialog";
@@ -64,16 +62,10 @@ export default function PlaylistMoreOptions({
 
   // ── Actions ───────────────────────────────────────────────────────────────
   const handleRemoveFromFolder = () => {
-    if (!currentFolderId) return;
-    dispatch(
-      removePlaylistFromFolder({ folderId: currentFolderId, playlistId }),
-    );
     dispatch(setPlaylistFolder({ playlistId, folderId: null }));
   };
 
   const handleAddToFolder = (folderId: string) => {
-    if (currentFolderId) handleRemoveFromFolder();
-    dispatch(addPlaylistToFolder({ folderId, playlistId }));
     dispatch(setPlaylistFolder({ playlistId, folderId }));
     onClose();
   };

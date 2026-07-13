@@ -1,13 +1,11 @@
 "use client";
 
 import {
-  CirclePlus,
-  CircleCheck,
   Heart,
   Plus,
-  Circle,
   Search,
   X,
+  Check,
 } from "lucide-react";
 import { useRef, useState, useLayoutEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
@@ -223,7 +221,9 @@ function PlaylistRow({
   const playlist = useAppSelector((state: RootState) =>
     selectPlaylistById(state, playlistId),
   );
-const songCovers = useAppSelector((state) => selectPlaylistSongCovers(state,playlist));
+  const songCovers = useAppSelector((state) =>
+    selectPlaylistSongCovers(state, playlist),
+  );
 
   return (
     <button
@@ -254,9 +254,13 @@ const songCovers = useAppSelector((state) => selectPlaylistSongCovers(state,play
 
       {/* Check indicator */}
       {isChecked ? (
-        <CircleCheck className="w-4 h-4 fill-purple-600 text-black shrink-0" />
+        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-black">
+          <Check size={12} strokeWidth={3} />
+        </div>
       ) : (
-        <Circle className="w-4 h-4 text-white/20 shrink-0" />
+        <div className="flex h-5 w-5 items-center justify-center rounded-full border border-white/40 text-white/70 transition-colors group-hover:border-white group-hover:text-white">
+          <Plus size={14} />
+        </div>
       )}
     </button>
   );
@@ -312,9 +316,13 @@ export default function AddToPlaylistMenu({
         className="flex items-center justify-center text-white/60 hover:text-white transition-colors duration-150"
       >
         {isInAnything ? (
-          <CircleCheck className="w-5 h-5 text-black fill-purple-600 " />
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-black">
+            <Check size={12} strokeWidth={3} />
+          </div>
         ) : (
-          <CirclePlus className="w-5 h-5" />
+          <div className="flex h-5 w-5 items-center justify-center rounded-full border border-white/40 text-white/70 transition-colors group-hover:border-white group-hover:text-white">
+            <Plus size={14} />
+          </div>
         )}
       </button>
 

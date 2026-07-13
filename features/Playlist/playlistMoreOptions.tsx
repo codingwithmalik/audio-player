@@ -29,7 +29,9 @@ import {
 } from "@/features/Folder/folderSlice";
 import ConfirmDialog from "@/features/Common/ConfirmDialog";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
-import { setQueue } from "../RightSidebar/Queue/queueSlice";
+import {
+  addManyToManualQueue,
+} from "../RightSidebar/Queue/queueSlice";
 import { RefObject } from "react";
 
 export default function PlaylistMoreOptions({
@@ -128,11 +130,7 @@ export default function PlaylistMoreOptions({
       action: () => {
         console.log("Add to Queue");
         dispatch(
-          setQueue({
-            songIds: sourcePlaylist.songs.map((s) => s.songId),
-            sourceType: "playlist",
-            sourceId: playlistId,
-          }),
+          addManyToManualQueue(sourcePlaylist.songs.map((s) => s.songId)),
         );
         onClose();
       },

@@ -10,7 +10,7 @@ import {
   selectLikedPlaylistId,
   selectIsLiked,
 } from "@/features/Playlist/playlistSlice";
-import { addToQueue } from "@/features/RightSidebar/Queue/queueSlice";
+import { addToManualQueue, } from "@/features/RightSidebar/Queue/queueSlice";
 import type { RootState } from "@/store/store";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
 import { RefObject } from "react";
@@ -132,7 +132,7 @@ export default function SongMoreOptions({
       label: "Add to queue",
       icon: ListPlus,
       action: () => {
-        dispatch(addToQueue(songId));
+        dispatch(addToManualQueue(songId));
         onClose();
       },
     },

@@ -31,6 +31,8 @@ import {
   selectQueueIds,
   selectCurrentIndex,
   setCurrentIndex,
+  selectManualQueueIds,
+  shiftManualQueue,
 } from "@/features/RightSidebar/Queue/queueSlice";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -59,6 +61,7 @@ export default function PlayerControls({
   const isDragging = useAppSelector(selectIsDraggingProgress);
   const queueIds = useAppSelector(selectQueueIds);
   const currentIndex = useAppSelector(selectCurrentIndex);
+  const manualQueueIds = useAppSelector(selectManualQueueIds);
   // Duration resolved from the song — 0 when nothing is loaded
   const duration = song?.duration ?? 0;
   const progress = useAppSelector(selectProgress(duration));
@@ -86,6 +89,12 @@ export default function PlayerControls({
   };
 
   const handleSkipNext = () => {
+    if (manualQueueIds.length > 0) {
+      const nextSongId = manualQueueIds[0];
+      dispatch(shiftManualQueue());
+      dispatch(setSong(nextSongId));
+      return;
+    }
     if (!queueIds.length) return;
     const nextIndex =
       currentIndex + 1 >= queueIds.length ? 0 : currentIndex + 1;

@@ -21,7 +21,9 @@ import {
 import {
   selectQueueIds,
   selectCurrentIndex,
+  selectManualQueueIds,
   setCurrentIndex,
+  shiftManualQueue,
 } from "@/features/RightSidebar/Queue/queueSlice";
 
 export default function AudioEngine() {
@@ -37,6 +39,7 @@ export default function AudioEngine() {
   const isDragging = useAppSelector(selectIsDraggingProgress);
   const queueIds = useAppSelector(selectQueueIds);
   const currentIndex = useAppSelector(selectCurrentIndex);
+  const manualQueueIds = useAppSelector(selectManualQueueIds);
 
   // ── Create audio element once ─────────────────────────────────────────────
   useEffect(() => {
@@ -122,6 +125,15 @@ export default function AudioEngine() {
         dispatch(setCurrentTime(0));
         return;
       }
+      // Manual queue ("Add to Queue") always takes priority over the
+      // context queue, regardless of repeat mode — it's a temporary
+      // detour, not part of what repeat should loop over.
+      if (manualQueueIds.length > 0) {
+        const nextSongId = manualQueueIds[0];
+        dispatch(shiftManualQueue());
+        dispatch(setSong(nextSongId));
+        return;
+      }
 
       if (repeatMode === "all" || currentIndex < queueIds.length - 1) {
         // Play next in queue
@@ -144,7 +156,7 @@ export default function AudioEngine() {
 
     audio.addEventListener("ended", handleEnded);
     return () => audio.removeEventListener("ended", handleEnded);
-  }, [dispatch, repeatMode, queueIds, currentIndex]);
+  }, [dispatch, repeatMode, queueIds, currentIndex, manualQueueIds]);
 
   // debugging
   useEffect(() => {
@@ -169,107 +181,105 @@ export default function AudioEngine() {
   }, [dispatch]);
 
   // Keyboard Shortcuts for app
-useEffect(() => {
-  const handleKeyDown = (e: KeyboardEvent) => {
-    // Only respond when this tab is active
-    if (document.visibilityState !== "visible") return;
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only respond when this tab is active
+      if (document.visibilityState !== "visible") return;
 
-    // Ignore typing in inputs/textareas/contenteditable
-    const target = e.target as HTMLElement | null;
-    if (
-      target &&
-      (target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable)
-    ) {
-      return;
-    }
-
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    switch (e.code) {
-      case "Space": {
-        e.preventDefault();
-        dispatch(setPlaying(!isPlaying));
-        break;
+      // Ignore typing in inputs/textareas/contenteditable
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
       }
 
-      case "ArrowLeft": {
-        // Ctrl/Cmd + ← = Previous track
-        if (e.shiftKey || e.metaKey) {
+      const audio = audioRef.current;
+      if (!audio) return;
+
+      switch (e.code) {
+        case "Space": {
           e.preventDefault();
-
-          if (currentIndex > 0) {
-            const previousIndex = currentIndex - 1;
-            dispatch(setCurrentIndex(previousIndex));
-            dispatch(setSong(queueIds[previousIndex]));
-          }
-
-          return;
+          dispatch(setPlaying(!isPlaying));
+          break;
         }
 
-        // ← = Seek back 10 seconds
-        e.preventDefault();
-        audio.currentTime = Math.max(0, audio.currentTime - 5);
-        dispatch(setCurrentTime(audio.currentTime));
-        break;
-      }
+        case "ArrowLeft": {
+          // Ctrl/Cmd + ← = Previous track
+          if (e.shiftKey || e.metaKey) {
+            e.preventDefault();
 
-      case "ArrowRight": {
-        // Ctrl/Cmd + → = Next track
-        if (e.shiftKey || e.metaKey) {
-          e.preventDefault();
+            if (currentIndex > 0) {
+              const previousIndex = currentIndex - 1;
+              dispatch(setCurrentIndex(previousIndex));
+              dispatch(setSong(queueIds[previousIndex]));
+            }
 
-          if (currentIndex < queueIds.length - 1) {
-            const nextIndex = currentIndex + 1;
-            dispatch(setCurrentIndex(nextIndex));
-            dispatch(setSong(queueIds[nextIndex]));
+            return;
           }
 
-          return;
+          // ← = Seek back 10 seconds
+          e.preventDefault();
+          audio.currentTime = Math.max(0, audio.currentTime - 5);
+          dispatch(setCurrentTime(audio.currentTime));
+          break;
         }
 
-        // → = Seek forward 10 seconds
-        e.preventDefault();
-        audio.currentTime = Math.min(
-          audio.duration || Infinity,
-          audio.currentTime + 5,
-        );
-        dispatch(setCurrentTime(audio.currentTime));
-        break;
+        case "ArrowRight": {
+          // Ctrl/Cmd + → = Next track
+          if (e.shiftKey || e.metaKey) {
+            e.preventDefault();
+
+            if (manualQueueIds.length > 0) {
+              const nextSongId = manualQueueIds[0];
+              dispatch(shiftManualQueue());
+              dispatch(setSong(nextSongId));
+            } else if (currentIndex < queueIds.length - 1) {
+              const nextIndex = currentIndex + 1;
+              dispatch(setCurrentIndex(nextIndex));
+              dispatch(setSong(queueIds[nextIndex]));
+            }
+
+            return;
+          }
+
+          // → = Seek forward 10 seconds
+          e.preventDefault();
+          audio.currentTime = Math.min(
+            audio.duration || Infinity,
+            audio.currentTime + 5,
+          );
+          dispatch(setCurrentTime(audio.currentTime));
+          break;
+        }
+
+        case "KeyM": {
+          e.preventDefault();
+          dispatch(toggleMute());
+          break;
+        }
+
+        case "ArrowUp": {
+          e.preventDefault();
+          dispatch(setVolume(Math.min(100, effectiveVolume + 5)));
+          break;
+        }
+
+        case "ArrowDown": {
+          e.preventDefault();
+          dispatch(setVolume(Math.max(0, effectiveVolume - 5)));
+          break;
+        }
       }
+    };
 
-      case "KeyM": {
-        e.preventDefault();
-        dispatch(toggleMute());
-        break;
-      }
+    window.addEventListener("keydown", handleKeyDown);
 
-      case "ArrowUp": {
-        e.preventDefault();
-        dispatch(setVolume(Math.min(100, effectiveVolume + 5)));
-        break;
-      }
-
-      case "ArrowDown": {
-        e.preventDefault();
-        dispatch(setVolume(Math.max(0, effectiveVolume - 5)));
-        break;
-      }
-    }
-  };
-
-  window.addEventListener("keydown", handleKeyDown);
-
-  return () => window.removeEventListener("keydown", handleKeyDown);
-}, [
-  dispatch,
-  isPlaying,
-  effectiveVolume,
-  currentIndex,
-  queueIds,
-]);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [dispatch, isPlaying, effectiveVolume, currentIndex, queueIds, manualQueueIds]);
 
   // ── Render nothing ────────────────────────────────────────────────────────
   return null;

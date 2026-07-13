@@ -77,7 +77,8 @@ export const songs: Song[] = [
     title: "Bad Guy",
     artists: ["Billie Eilish"],
     coverImage: "https://picsum.photos/seed/badguy/600/600",
-    audioUrl: "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+    audioUrl:
+      "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
     duration: 194,
     uploadedBy: "user-2",
     createdAt: "2025-08-01T00:00:00Z",
@@ -88,7 +89,8 @@ export const songs: Song[] = [
     title: "HIGHEST IN THE ROOM",
     artists: ["Travis Scott"],
     coverImage: "https://picsum.photos/seed/highest/600/600",
-    audioUrl: "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+    audioUrl:
+      "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
     duration: 176,
     uploadedBy: "user-2",
     createdAt: "2025-07-15T00:00:00Z",
@@ -99,11 +101,116 @@ export const songs: Song[] = [
     title: "Blinding Lights",
     artists: ["The Weeknd"],
     coverImage: "https://picsum.photos/seed/blinding/600/600",
-    audioUrl: "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+    audioUrl:
+      "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
     duration: 200,
     uploadedBy: "user-2",
     createdAt: "2025-06-30T00:00:00Z",
     updatedAt: "2025-06-30T00:00:00Z",
+  },
+  {
+    id: "proximity-dj-snake-bieber",
+    title: "Let Me Love You",
+    artists: ["DJ Snake", "Justin Bieber"],
+    audioUrl: "/audio/letmeloveyou.mp3",
+    coverImage:
+      "https://images.unsplash.com/photo-1523354177913-be035fcee55e?w=600&h=600&fit=crop&auto=format",
+
+    duration: 198,
+    uploadedBy: "system",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    language: "english",
+    genres: ["pop", "dance"],
+  },
+  {
+    id: "middle-of-the-night-elley-duhe",
+    title: "Middle of the Night",
+    artists: ["Elley Duhé"],
+    audioUrl: "/audio/middleofnight.mp3",
+    coverImage:
+      "https://images.unsplash.com/photo-1697984779325-ee1933b1a78a?w=600&h=600&fit=crop&auto=format",
+
+    duration: 200,
+    uploadedBy: "system",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    language: "english",
+    genres: ["pop", "dark pop"],
+  },
+  {
+    id: "him-and-i-geazy-halsey",
+    title: "Him & I",
+    artists: ["G-Eazy", "Halsey"],
+    audioUrl: "/audio/himandI.mp3",
+    coverImage:
+      "https://images.unsplash.com/photo-1519307212971-dd9561667ffb?w=600&h=600&fit=crop&auto=format",
+
+    duration: 285,
+    uploadedBy: "system",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    language: "english",
+    genres: ["hip-hop", "romantic"],
+  },
+  {
+    id: "heat-waves-glass-animals",
+    title: "Heat Waves",
+    artists: ["Glass Animals"],
+    audioUrl: "/audio/heatwaves.mp3",
+    coverImage:
+      "https://images.unsplash.com/photo-1708748513828-2227f6d39c04?w=600&h=600&fit=crop&auto=format",
+
+    duration: 238,
+    uploadedBy: "system",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    language: "english",
+    genres: ["indie", "chill"],
+  },
+  {
+    id: "darkside-neoni",
+    title: "DARKSIDE",
+    artists: ["Neoni"],
+    audioUrl: "/audio/darkside.mp3",
+    coverImage:
+      "https://images.unsplash.com/photo-1758551051834-61f10a361b73?w=600&h=600&fit=crop&auto=format",
+
+    duration: 187,
+    uploadedBy: "system",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    language: "english",
+    genres: ["electronic", "dark pop"],
+  },
+  {
+    id: "sweater-weather-the-neighbourhood",
+    title: "Sweater Weather",
+    artists: ["The Neighbourhood"],
+    audioUrl: "/audio/sweatherweather.mp3",
+    coverImage:
+      "https://images.unsplash.com/photo-1736158064402-5b68c2cbcc77?w=600&h=600&fit=crop&auto=format",
+
+    duration: 240,
+    uploadedBy: "system",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    language: "english",
+    genres: ["indie rock", "romantic"],
+  },
+  {
+    id: "starboy-the-weeknd",
+    title: "Starboy",
+    artists: ["The Weeknd", "Daft Punk"],
+    audioUrl: "/audio/starboy.mp3",
+    coverImage:
+      "https://images.unsplash.com/photo-1747499967281-c0c5eec9933c?w=600&h=600&fit=crop&auto=format",
+    duration: 230,
+    uploadedBy: "system",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    language: "english",
+    genres: ["r&b", "pop"],
   },
 ];
 
@@ -213,6 +320,37 @@ export const playlists: Playlist[] = [
     ownerId: "user-1",
     createdAt: "2026-01-10",
     updatedAt: "2026-01-10",
+  },
+  {
+    id: "playlist-mixed-hits",
+    title: "Mixed Hits",
+    type: "playlist",
+    description: "A mix of pop, indie, and R&B favorites",
+    coverImage:
+      "https://images.unsplash.com/photo-1747499967281-c0c5eec9933c?w=600&h=600&fit=crop&auto=format",
+
+    ownerId: "user-1",
+    folderId: null,
+    songs: [
+      {
+        songId: "proximity-dj-snake-bieber",
+        addedAt: new Date().toISOString(),
+      },
+      {
+        songId: "middle-of-the-night-elley-duhe",
+        addedAt: new Date().toISOString(),
+      },
+      { songId: "him-and-i-geazy-halsey", addedAt: new Date().toISOString() },
+      { songId: "heat-waves-glass-animals", addedAt: new Date().toISOString() },
+      { songId: "darkside-neoni", addedAt: new Date().toISOString() },
+      {
+        songId: "sweater-weather-the-neighbourhood",
+        addedAt: new Date().toISOString(),
+      },
+      { songId: "starboy-the-weeknd", addedAt: new Date().toISOString() },
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
 ];
 

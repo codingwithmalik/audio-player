@@ -9,6 +9,9 @@ import {
   selectCurrentIndex,
   selectQueueSourceId,
   setCurrentIndex,
+  clearManualQueue,
+  shiftManualQueue,
+  selectManualQueueIds,
 } from "@/features/RightSidebar/Queue/queueSlice";
 import { selectSongById } from "@/features/Songs/songsSlice";
 import { selectPlaylistById } from "@/features/Playlist/playlistSlice";
@@ -17,6 +20,7 @@ import { closeRightSidebarPanel } from "@/slices/rightSidebarSlice";
 import type { RootState } from "@/store/store";
 import RecentlyPlayed from "@/features/RightSidebar/Queue/recentlyPlayed";
 import SongCover from "@/features/Common/SongCover";
+import { selectCurrentSong } from "@/store/playerSlice";
 
 export default function QueuePanel() {
   const dispatch = useAppDispatch();
@@ -27,18 +31,14 @@ export default function QueuePanel() {
   const queueIds = useAppSelector(selectQueueIds);
   const currentIndex = useAppSelector(selectCurrentIndex);
   const sourceId = useAppSelector(selectQueueSourceId);
+  const manualQueueIds = useAppSelector(selectManualQueueIds);
+  const contextUpcomingIds = queueIds.slice(currentIndex + 1);
 
   const playlist = useAppSelector((state: RootState) =>
     sourceId ? selectPlaylistById(state, sourceId) : null,
   );
   const playlistName = playlist?.title ?? "Queue";
-
-  const currentSongId = queueIds[currentIndex] ?? null;
-  const currentSong = useAppSelector((state: RootState) =>
-    currentSongId ? selectSongById(state, currentSongId) : null,
-  );
-
-  const upcomingIds = queueIds.slice(currentIndex + 1);
+  const currentSong = useAppSelector(selectCurrentSong);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [initOS] = useOverlayScrollbars({
@@ -60,7 +60,18 @@ export default function QueuePanel() {
 
   const handleClose = () => dispatch(closeRightSidebarPanel());
 
-  const handleSelectUpcoming = (offsetFromCurrent: number) => {
+  const handleSelectManual = (index: number) => {
+    const targetId = manualQueueIds[index];
+    if (!targetId) return;
+    // Drop everything in the manual queue up to and including the
+    // clicked song — they've effectively been "passed."
+    for (let i = 0; i <= index; i++) {
+      dispatch(shiftManualQueue());
+    }
+    dispatch(setSong(targetId));
+  };
+
+  const handleSelectContext = (offsetFromCurrent: number) => {
     const targetIndex = currentIndex + 1 + offsetFromCurrent;
     const targetId = queueIds[targetIndex];
     if (!targetId) return;
@@ -139,29 +150,53 @@ export default function QueuePanel() {
               </div>
             </section>
           )}
-
-          {upcomingIds.length > 0 && (
-            <section>
-              <h3 className="mb-2 truncate text-sm font-bold text-white">
-                Next from: {playlistName}
-              </h3>
+          {manualQueueIds.length > 0 && (
+            <section className="mb-6">
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-sm font-bold text-white">Next in queue</h3>
+                <button
+                  onClick={() => dispatch(clearManualQueue())}
+                  className="shrink-0 text-xs font-medium text-white/50 hover:text-white transition-colors"
+                >
+                  Clear queue
+                </button>
+              </div>
               <div className="flex flex-col">
-                {upcomingIds.map((id, i) => (
+                {manualQueueIds.map((id, i) => (
                   <QueueRow
-                    key={`${id}-${i}`}
+                    key={`manual-${id}-${i}`}
                     songId={id}
-                    onClick={() => handleSelectUpcoming(i)}
+                    onClick={() => handleSelectManual(i)}
                   />
                 ))}
               </div>
             </section>
           )}
 
-          {!currentSong && upcomingIds.length === 0 && (
-            <div className="flex h-full w-full items-center justify-center text-sm text-white/40">
-              Queue is empty
-            </div>
+          {contextUpcomingIds.length > 0 && (
+            <section>
+              <h3 className="mb-2 truncate text-sm font-bold text-white">
+                Next from: {playlistName}
+              </h3>
+              <div className="flex flex-col">
+                {contextUpcomingIds.map((id, i) => (
+                  <QueueRow
+                    key={`context-${id}-${i}`}
+                    songId={id}
+                    onClick={() => handleSelectContext(i)}
+                  />
+                ))}
+              </div>
+            </section>
           )}
+
+          {!currentSong &&
+            manualQueueIds.length === 0 &&
+            contextUpcomingIds.length === 0 && (
+              <div className="flex h-full w-full items-center justify-center text-sm text-white/40">
+                Queue is empty
+              </div>
+            )}
         </div>
       </div>
     </div>

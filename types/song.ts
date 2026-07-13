@@ -10,16 +10,16 @@ export interface Song {
   audioUrl: string;
 
   duration: number;
-  
+
   uploadedBy: string;
 
   createdAt: string;
-  //added the updated at myself can remove it later if does any mishap
+
   updatedAt: string;
+
+  /** Always stored lowercase, e.g. "english", "hindi", "punjabi" */
+  language?: string;
+
+  /** Always stored lowercase, e.g. ["romantic", "sad"] */
+  genres?: string[];
 }
-
-
-// plays: number;
-
-// likes: number;
-    

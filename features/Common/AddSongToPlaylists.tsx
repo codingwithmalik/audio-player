@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Heart,
-  Plus,
-  Search,
-  X,
-  Check,
-} from "lucide-react";
+import { Heart, Plus, Search, X, Check } from "lucide-react";
 import { useRef, useState, useLayoutEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
@@ -86,23 +80,13 @@ function MenuContent({
   };
 
   const handleCreatePlaylist = () => {
-    const now = new Date().toISOString();
-    const newId = crypto.randomUUID();
-    dispatch(
+    const action = dispatch(
       addPlaylist({
-        id: newId,
-        type: "playlist",
         title: "New Playlist " + (playlists.length + 1),
-        description: "",
-        coverImage: "",
-        songs: [],
-        folderId: null,
         ownerId: userId,
-        createdAt: now,
-        updatedAt: now,
       }),
     );
-    dispatch(addSongToPlaylist({ playlistId: newId, songId }));
+    dispatch(addSongToPlaylist({ playlistId: action.payload.id, songId }));
     onClose();
   };
 

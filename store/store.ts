@@ -11,6 +11,7 @@ import songsSlice from "@/features/Songs/songsSlice";
 import queueSlice from "@/features/RightSidebar/Queue/queueSlice";
 import rightSidebarSlice from "@/slices/rightSidebarSlice";
 import historySlice from "@/slices/historySlice";
+import searchSlice from "@/features/Search/searchSlice";
 // ...
 
 export const store = configureStore({
@@ -24,6 +25,7 @@ export const store = configureStore({
     queue: queueSlice,
     rightSidebar: rightSidebarSlice,
     history: historySlice,
+    search: searchSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()

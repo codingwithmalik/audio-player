@@ -7259,7 +7259,6 @@ export const playlists: Playlist[] = [
     type: "playlist",
     title: "Favorites",
     description: "Best tracks",
-    coverImage: "/covers/favorites.jpg",
     songs: [{ songId: "song-1", addedAt: "2025-01-05" }],
     folderId: null,
     ownerId: "user-1",

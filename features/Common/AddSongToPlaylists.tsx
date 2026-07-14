@@ -295,7 +295,10 @@ export default function AddToPlaylistMenu({
     <>
       <button
         ref={triggerRef}
-        onClick={() => setOpen((v) => !v)}
+        onClick={(e) => {
+          setOpen((v) => !v);
+          e.stopPropagation();
+        }}
         aria-label="Add to playlist"
         className="flex items-center justify-center text-white/60 hover:text-white transition-colors duration-150"
       >

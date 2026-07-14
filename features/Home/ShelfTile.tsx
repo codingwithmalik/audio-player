@@ -11,7 +11,7 @@ export default function ShelfTile({ item }: { item: ShelfItem }) {
     item.kind === "playlist" ? (item.onPlay ?? item.onClick) : item.onClick;
 
   return (
-    <button
+    <div
       onClick={item.onClick}
       className="w-full text-left group hover:bg-white/10 p-2 rounded-md"
     >
@@ -41,23 +41,26 @@ export default function ShelfTile({ item }: { item: ShelfItem }) {
         >
           <Play className="w-4 h-4 text-white fill-white ml-0.5" />
         </span>
+      </div>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-white truncate group-hover:underline">
+            {item.title}
+          </p>
+          {item.kind === "song" && item.subtitle && (
+            <p className="text-xs text-zinc-400 truncate">{item.subtitle}</p>
+          )}
+        </div>
+
         {item.kind === "song" && (
           <div
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            onClick={(e) => e.stopPropagation()}
+            className="shrink-0 pt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           >
             <AddToPlaylistMenu songId={item.id} />
           </div>
         )}
       </div>
-      <p className="text-sm font-medium text-white truncate group-hover:underline">
-        {item.title}
-      </p>
-      {item.kind === "song" && item.subtitle && (
-        <p className="text-xs text-zinc-400 truncate">{item.subtitle}</p>
-      )}
-    </button>
+    </div>
   );
 }

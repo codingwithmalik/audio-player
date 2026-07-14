@@ -35,7 +35,6 @@ export default function SongMoreOptions({
     selectIsLiked(state, songId),
   );
   const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
-  const now = new Date().toISOString();
 
   const currentPlaylist = useAppSelector((state: RootState) =>
     playlistId ? state.playlists.entities[playlistId] : null,
@@ -54,16 +53,8 @@ export default function SongMoreOptions({
     const newPlaylistId = crypto.randomUUID();
     dispatch(
       addPlaylist({
-        id: newPlaylistId,
-        type: "playlist",
         title: "New Playlist " + (playlists.length + 1),
-        description: "",
-        coverImage: "",
-        songs: [],
-        folderId: null,
         ownerId: userId,
-        createdAt: now,
-        updatedAt: now,
       }),
     );
     handleAddToPlaylist(newPlaylistId);

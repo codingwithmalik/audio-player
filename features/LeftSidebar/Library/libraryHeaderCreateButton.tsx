@@ -86,22 +86,13 @@ export default function CreateButton() {
   const handleSelect = (type: "playlist" | "folder") => {
     const now = new Date().toISOString();
     if (type === "playlist") {
-      const playlistId = crypto.randomUUID();
-      dispatch(
+      const action = dispatch(
         addPlaylist({
-          id: playlistId,
-          type: "playlist",
           title: "New Playlist " + (playlistCount + 1),
-          description: "",
-          coverImage: "",
-          songs: [],
-          folderId: null,
           ownerId: userId,
-          createdAt: now,
-          updatedAt: now,
         }),
-        router.push(`/playlist/${playlistId}`),
       );
+      router.push(`/playlist/${action.payload.id}`);
     } else {
       const folderId = crypto.randomUUID();
       dispatch(

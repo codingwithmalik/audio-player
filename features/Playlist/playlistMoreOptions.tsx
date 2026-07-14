@@ -95,22 +95,13 @@ export default function PlaylistMoreOptions({
   };
 
   const handleCreatePlaylist = () => {
-    const newPlaylistId = crypto.randomUUID();
-    dispatch(
+    const action = dispatch(
       addPlaylist({
-        id: newPlaylistId,
-        type: "playlist",
         title: "New Playlist " + (playlists.length + 1),
-        description: "",
-        coverImage: "",
-        songs: [],
-        folderId: null,
         ownerId: userId,
-        createdAt: now,
-        updatedAt: now,
       }),
     );
-    handleAddToPlaylist(newPlaylistId);
+    handleAddToPlaylist(action.payload.id);
   };
 
   // ── Options ───────────────────────────────────────────────────────────────

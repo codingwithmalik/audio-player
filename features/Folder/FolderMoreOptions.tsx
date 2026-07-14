@@ -4,9 +4,7 @@ import { Pencil, Trash2, ListMusic, Plus } from "lucide-react";
 import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import { useRouter } from "next/navigation";
-import {
-  removeFolder,
-} from "@/features/Folder/folderSlice";
+import { removeFolder } from "@/features/Folder/folderSlice";
 import {
   selectPlaylists,
   addPlaylist,
@@ -32,32 +30,21 @@ export default function FolderMoreOptions({
   const dispatch = useAppDispatch();
   const playlists = useAppSelector(selectPlaylists);
   const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
-  const now = new Date().toISOString();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const handleAddToFolder = (
-    playlistId: string,
-  ) => {
+  const handleAddToFolder = (playlistId: string) => {
     dispatch(setPlaylistFolder({ playlistId, folderId }));
     onClose();
   };
 
   const handleCreatePlaylist = () => {
-    const newPlaylistId = crypto.randomUUID();
-    dispatch(
+    const action = dispatch(
       addPlaylist({
-        id: newPlaylistId,
-        type: "playlist",
         title: "New Playlist " + (playlists.length + 1),
-        description: "",
-        coverImage: "",
-        songs: [],
-        folderId,
         ownerId: userId,
-        createdAt: now,
-        updatedAt: now,
       }),
     );
+    handleAddToFolder(action.payload.id);
     onClose();
   };
 

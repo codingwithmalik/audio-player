@@ -54,7 +54,7 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
       ownedPlaylists.filter((p) =>
         activeTab === "playlists" ? p.folderId === null : p.folderId !== null,
       ),
-    [ownedPlaylists, activeTab ],
+    [ownedPlaylists, activeTab],
   );
 
   const displayedPlaylists = useMemo(() => {
@@ -92,21 +92,8 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
 
   const handleCreatePlaylist = () => {
     if (!currentUserId) return;
-    const now = new Date().toISOString();
-    const newPlaylist: Playlist = {
-      id: crypto.randomUUID(),
-      type: "playlist",
-      title: "My Playlist",
-      description: "",
-      coverImage: "",
-      songs: [],
-      folderId: null, // set via setPlaylistFolder below, so the sync middleware handles folder.playlistIds too
-      ownerId: currentUserId,
-      createdAt: now,
-      updatedAt: now,
-    };
-    dispatch(addPlaylist(newPlaylist));
-    dispatch(setPlaylistFolder({ playlistId: newPlaylist.id, folderId }));
+    const action = dispatch(addPlaylist({ title: "New Playlist", ownerId: currentUserId }));
+    dispatch(setPlaylistFolder({ playlistId: action.payload.id, folderId }));
   };
 
   // Tabs scrolling logic

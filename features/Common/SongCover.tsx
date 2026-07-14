@@ -9,6 +9,8 @@ interface SongCoverProps {
   alt: string;
   /** Size in px — used for both width and height (square cover art). Default 44. */
   size?: number;
+  /** When true, cover stretches to fill its parent (parent must be sized, e.g. via aspect-square). */
+  fill?: boolean;
   rounded?: string;
   className?: string;
   sizes?: string;
@@ -19,6 +21,7 @@ export default function SongCover({
   src,
   alt,
   size = 44,
+  fill = false,
   rounded = "rounded-md",
   className = "",
   sizes,
@@ -29,13 +32,14 @@ export default function SongCover({
   // Reset error state when the source changes (e.g. row reused for a
   // different song), so a failed image doesn't get stuck forever.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setImgError(false);
   }, [src]);
 
   return (
     <div
-      className={`relative shrink-0 overflow-hidden ${rounded} ${className}`}
-      style={{ width: size, height: size }}
+      className={`relative shrink-0 overflow-hidden ${rounded} ${fill ? "w-full h-full" : ""} ${className}`}
+      style={fill ? undefined : { width: size, height: size }}
     >
       {/* Placeholder icon — always rendered underneath, so it's visible
           instantly and shows through if there's no src, or the image
@@ -43,7 +47,11 @@ export default function SongCover({
       <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-purple-900/60 to-indigo-900/60">
         <Music2
           className="text-white/30"
-          style={{ width: size * 0.4, height: size * 0.4 }}
+          style={
+            fill
+              ? { width: "40%", height: "40%" }
+              : { width: size * 0.4, height: size * 0.4 }
+          }
         />
       </div>
 
@@ -52,7 +60,7 @@ export default function SongCover({
           src={src}
           alt={alt}
           fill
-          sizes={sizes ?? `${size}px`}
+          sizes={sizes ?? (fill ? "200px" : `${size}px`)}
           priority={priority}
           className="object-cover"
           onError={() => setImgError(true)}

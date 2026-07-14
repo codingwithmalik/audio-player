@@ -13,7 +13,7 @@ export interface Playlist {
 
   coverImage?: string;
 
-  songs:PlaylistSong[];
+  songs: PlaylistSong[];
 
   folderId: string | null;
 
@@ -22,4 +22,7 @@ export interface Playlist {
   createdAt: string;
 
   updatedAt: string;
+
+  /** Last time a song was played from this playlist (not just opened/viewed). */
+  accessedAt?: string ;
 }

@@ -22,4 +22,7 @@ export interface Song {
 
   /** Always stored lowercase, e.g. ["romantic", "sad"] */
   genres?: string[];
+
+  /** Total number of times this song has been played, across all sources. */
+  playCount: number;
 }

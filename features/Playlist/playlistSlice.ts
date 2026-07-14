@@ -127,6 +127,7 @@ const playlistsSlice = createSlice({
 
       target.updatedAt = new Date().toISOString();
     },
+
     addSongToPlaylist(
       state,
       action: PayloadAction<{ playlistId: string; songId: string }>,
@@ -193,9 +194,31 @@ const playlistsSlice = createSlice({
       delete state.entities[action.payload];
       delete state.fetchStatus[action.payload];
     },
-    addPlaylist(state, action: PayloadAction<Playlist>) {
-      state.entities[action.payload.id] = action.payload;
+
+    addPlaylist: {
+      reducer(state, action: PayloadAction<Playlist>) {
+        state.entities[action.payload.id] = action.payload;
+        state.fetchStatus[action.payload.id] = "done";
+      },
+      prepare({ title, ownerId }: { title: string; ownerId: string }) {
+        const now = new Date().toISOString();
+        return {
+          payload: {
+            id: crypto.randomUUID(),
+            type: "playlist" as const,
+            title,
+            description: "",
+            coverImage: "",
+            songs: [],
+            folderId: null,
+            ownerId,
+            createdAt: now,
+            updatedAt: now,
+          },
+        };
+      },
     },
+    
     setPlaylistFolder(
       state,
       action: PayloadAction<{ playlistId: string; folderId: string | null }>,
@@ -243,6 +266,11 @@ const playlistsSlice = createSlice({
       state.sortDir = "asc";
       state.viewMode = "list";
     },
+    // updates accessed at when any song is played from playlist
+    touchPlaylist(state, action: PayloadAction<string>) {
+      const playlist = state.entities[action.payload];
+      if (playlist) playlist.accessedAt = new Date().toISOString();
+    },
   },
 });
 
@@ -265,6 +293,7 @@ export const {
   setViewMode,
   resetPlaylistUI,
   addPlaylist,
+  touchPlaylist,
 } = playlistsSlice.actions;
 
 // ─── Base selectors ───────────────────────────────────────────────────────────

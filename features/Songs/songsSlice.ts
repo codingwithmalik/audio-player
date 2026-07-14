@@ -69,13 +69,22 @@ const songsSlice = createSlice({
       delete state.entities[action.payload];
       delete state.fetchStatus[action.payload];
     },
+    incrementPlayCount(state, action: PayloadAction<string>) {
+      const song = state.entities[action.payload];
+      if (song) song.playCount += 1;
+    },
   },
 });
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
 
-export const { upsertSongs, setSongFetchStatus, setError, removeSong } =
-  songsSlice.actions;
+export const {
+  upsertSongs,
+  setSongFetchStatus,
+  setError,
+  removeSong,
+  incrementPlayCount,
+} = songsSlice.actions;
 
 // ─── Selectors ────────────────────────────────────────────────────────────────
 
@@ -116,6 +125,18 @@ export const selectSongsByIds = createSelector(
       if (song) songs.push(song);
       return songs;
     }, []),
+);
+
+/** Songs ranked by playCount, descending — used for "popular" fallback recommendations. */
+export const selectTopPlayedSongs = createSelector(
+  [
+    (state: RootState) => state.songs.entities,
+    (_: RootState, limit: number) => limit,
+  ],
+  (entities, limit) =>
+    Object.values(entities)
+      .sort((a, b) => b.playCount - a.playCount)
+      .slice(0, limit),
 );
 
 export default songsSlice.reducer;

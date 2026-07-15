@@ -98,7 +98,8 @@ export default function PlaylistActions({
   const sortDir = useAppSelector(selectSortDir);
   const viewMode = useAppSelector(selectViewMode);
   const sourceId = useAppSelector(selectQueueSourceId);
-  const isShuffle = useAppSelector(selectIsShuffle);
+  const shuffle = useAppSelector(selectIsShuffle);
+  const isShuffle = sourceId === playlist.id && shuffle;
   const isAddToPlaylistOpen = useAppSelector(selectIsAddToPlaylistOpen);
   const isMobile = useIsMobile();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -149,7 +150,7 @@ export default function PlaylistActions({
 
   const handleShuffle = () => {
     // console.log("shuffle playlist");
-    dispatch(toggleShuffle());
+    if (sourceId === playlist.id) dispatch(toggleShuffle());
   };
 
   const handleSortChange = (newSortBy: SortBy) => {

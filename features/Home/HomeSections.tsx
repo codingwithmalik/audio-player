@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
@@ -12,6 +12,7 @@ import ShelfRow, { ShelfItem } from "@/features/Home/ShelfRow";
 import ShelfTile from "@/features/Home/ShelfTile";
 import PlaylistShortcutTile from "@/features/Home/PlaylistShortcutTile";
 import { selectPlaylistSongCovers } from "@/features/Playlist/playlistSlice";
+import { store } from "@/store/store";
 import {
   setQueue,
   setCurrentIndex,
@@ -25,11 +26,19 @@ import { useIsMobile } from "@/hooks/useIsMobile"; // adjust to your actual path
 export default function HomeSections() {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const currentUser = useAppSelector((state: RootState) => state.auth.user?.id);
   const [activeTab, setActiveTab] = useState<string>("home");
   const isMobile = useIsMobile(768);
-  const sections = useAppSelector(selectHomeSections);
+  const [sections, setSections] = useState<
+    ReturnType<typeof selectHomeSections>
+  >([]);
   const playlistsById = useAppSelector((s: RootState) => s.playlists.entities);
   const songsById = useAppSelector((s: RootState) => s.songs.entities);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSections(selectHomeSections(store.getState()));
+  }, [currentUser]);
 
   const handlePlaylistClick = (playlistId: string) => {
     router.push(`/playlist/${playlistId}`);
@@ -186,4 +195,3 @@ export default function HomeSections() {
     </div>
   );
 }
- 

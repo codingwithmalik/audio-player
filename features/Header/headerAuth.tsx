@@ -17,7 +17,9 @@ import {
 } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import { logout, setUser } from "../Auth/authSlice";
-import { folders, playlists, songs } from "@/lib/mockData";
+import { folders ,songs, playlists } from "@/lib/mockData";
+// import { songs } from "@/lib/mockSongs";
+// import { playlists } from "@/lib/mockPlaylists";
 import {
   ensureLikedPlaylist,
   upsertPlaylists,
@@ -53,13 +55,13 @@ export default function HeaderAuth() {
     return () => document.removeEventListener("mousedown", handler);
   }, [profileMenu]);
 
-    useEffect(() => {
+  useEffect(() => {
     // console.log("User signed in now setting the playlists");
     dispatch(upsertFolders(folders));
     dispatch(upsertPlaylists(playlists));
     dispatch(upsertSongs(songs));
   }, [dispatch]);
-  
+
   const handleLogout = () => {
     dispatch(logout());
     setProfileMenu(false);
@@ -75,7 +77,6 @@ export default function HeaderAuth() {
     dispatch(ensureLikedPlaylist({ userId: user.id, username: user.username }));
   };
   // console.log(user);
-
 
   return (
     <div className="flex items-center gap-3">

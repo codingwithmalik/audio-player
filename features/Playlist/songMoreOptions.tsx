@@ -10,7 +10,7 @@ import {
   selectLikedPlaylistId,
   selectIsLiked,
 } from "@/features/Playlist/playlistSlice";
-import { addToManualQueue, } from "@/features/RightSidebar/Queue/queueSlice";
+import { addToManualQueue } from "@/features/RightSidebar/Queue/queueSlice";
 import type { RootState } from "@/store/store";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
 import { RefObject } from "react";
@@ -31,6 +31,7 @@ export default function SongMoreOptions({
   const dispatch = useAppDispatch();
   const playlists = useAppSelector(selectPlaylists);
   const likedPlaylistId = useAppSelector(selectLikedPlaylistId);
+  const songsById = useAppSelector((state: RootState) => state.songs.entities);
   const isLiked = useAppSelector((state: RootState) =>
     selectIsLiked(state, songId),
   );
@@ -83,6 +84,13 @@ export default function SongMoreOptions({
             id: p.id,
             label: p.title,
             action: () => handleAddToPlaylist(p.id),
+            cover: {
+              coverImage: p.coverImage,
+              songCovers: p.songs
+                .slice(0, 4)
+                .map((s) => songsById[s.songId]?.coverImage),
+              isLikedPlaylist: false, // already filtered out above, but explicit for clarity
+            },
           })),
       ],
     },

@@ -5,6 +5,7 @@ import { Playlist } from "@/types/playlist";
 import { Folder } from "@/types/folder";
 import { useAppSelector } from "@/globalHooks";
 import { selectFilteredItems } from "./libraryslice";
+import HeaderAuth from "@/features/Header/headerAuth";
 
 export default function LibraryList() {
   const items = useAppSelector(selectFilteredItems);
@@ -18,6 +19,7 @@ export default function LibraryList() {
     return (
       <div className="mt-5 px-2 text-sm text-zinc-500 text-center">
         Log in to see your library
+        <HeaderAuth />
       </div>
     );
   }

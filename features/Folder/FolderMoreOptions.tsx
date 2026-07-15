@@ -12,6 +12,7 @@ import {
 } from "@/features/Playlist/playlistSlice";
 import ConfirmDialog from "@/features/Common/ConfirmDialog";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
+import { RootState } from "@/store/store";
 
 export default function FolderMoreOptions({
   folderId,
@@ -29,6 +30,8 @@ export default function FolderMoreOptions({
   const router = useRouter();
   const dispatch = useAppDispatch();
   const playlists = useAppSelector(selectPlaylists);
+  const songsById = useAppSelector((state: RootState) => state.songs.entities);
+
   const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -79,6 +82,13 @@ export default function FolderMoreOptions({
             id: p.id,
             label: p.title,
             action: () => handleAddToFolder(p.id),
+            cover: {
+              coverImage: p.coverImage,
+              songCovers: p.songs
+                .slice(0, 4)
+                .map((s) => songsById[s.songId]?.coverImage),
+              isLikedPlaylist: false, // already filtered out above, but explicit for clarity
+            },
           })),
       ],
     },

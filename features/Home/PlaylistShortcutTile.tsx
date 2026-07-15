@@ -23,7 +23,7 @@ export default function PlaylistShortcutTile({
   return (
     <button
       onClick={onClick}
-      className="group relative flex items-center gap-3 p-2 rounded-md bg-white/5 hover:bg-white/10 transition-colors text-left overflow-hidden"
+      className="group relative flex items-center gap-3 rounded-md bg-white/5 hover:bg-white/10 transition-colors text-left overflow-hidden"
     >
       <div className="relative w-14 h-14 shrink-0">
         <PlaylistMosaicCover

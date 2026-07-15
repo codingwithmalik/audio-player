@@ -45,9 +45,9 @@ export default function LibraryItem({ item }: Props) {
           {/* Icon is always rendered as the base — instantly visible */}
           <div className="flex items-center justify-center transition-opacity duration-200 overflow-hidden">
             {isFolder ? (
-              <FolderClosed className="w-12 h-12" />
+              <FolderClosed className="w-10 h-10" />
             ) : (
-              <div className=" w-14 h-14 aspect-square">
+              <div className=" w-13 h-13 aspect-square">
                 <PlaylistMosaicCover
                   songCovers={songCoversStrings}
                   title={isPlaylist ? item.title : ""}

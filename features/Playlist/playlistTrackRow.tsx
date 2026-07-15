@@ -12,15 +12,15 @@
  */
 
 import { useRef, useState } from "react";
-import { Music2, Play, Pause, MoreHorizontal } from "lucide-react";
+import { Play, Pause, MoreHorizontal } from "lucide-react";
 import { Song } from "@/types/song";
-import Image from "next/image";
 import EqBars from "../Common/EQBars";
 import SongMoreOptions from "./songMoreOptions";
 import { useParams } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import BottomSheet from "../Common/BottomSheet";
 import AddToPlaylistMenu from "../Common/AddSongToPlaylists";
+import SongCover from "../Common/SongCover";
 
 interface PlaylistTrackRowProps {
   song: Song;
@@ -56,15 +56,10 @@ export default function PlaylistTrackRow({
   isCurrent
 }: PlaylistTrackRowProps) {
   const [hovered, setHovered] = useState(false);
-  const [imgReady, setImgReady] = useState(false);
-  const [imgFailed, setImgFailed] = useState(false);
   const [SongMoreOptionsOpen, setSongMoreOptionsOpen] = useState(false);
   const params = useParams();
   const IsMobile = useIsMobile();
   const playlistId: string = params.ID as string;
-
-  const handleLoad = () => setImgReady(true);
-  const handleError = () => setImgFailed(true);
   const anchorRef = useRef<HTMLButtonElement>(null);
   const artistLabel = song.artists.join(", ");
 
@@ -109,32 +104,7 @@ export default function PlaylistTrackRow({
       {/* ── 2: cover + title + artists + like ── */}
       <div className="flex items-center gap-3 min-w-0">
         {/* Cover */}
-        {/* Fallback icon */}
-        <div className="relative w-11 h-11 rounded-md shrink-0 flex items-center justify-center">
-          <div
-            className={`absolute inset-0 flex items-center justify-center bg-white/10 transition-opacity duration-200 rounded-md ${
-              imgReady || (song.coverImage && !imgFailed)
-                ? "opacity-0 pointer-events-none"
-                : "opacity-100"
-            }`}
-          >
-            <Music2 className="w-7 h-7 text-white/60" />
-          </div>
-
-          {/* Image layer */}
-          {song.coverImage && !imgFailed && (
-            <Image
-              src={song.coverImage}
-              alt={song.title}
-              fill
-              className={`object-cover rounded-md transition-opacity duration-200 ${
-                imgReady ? "opacity-100" : "opacity-0"
-              }`}
-              onLoad={handleLoad}
-              onError={handleError}
-            />
-          )}
-        </div>
+        <SongCover src={song.coverImage} alt={song.title} />
         {/* Text */}
         <div className="flex flex-col min-w-0">
           <span

@@ -21,16 +21,12 @@ import {
   addSongsToPlaylist,
 } from "./playlistSlice";
 import { useRouter } from "next/navigation";
-import {
-  addFolder,
-  selectFolders,
-} from "@/features/Folder/folderSlice";
+import { addFolder, selectFolders } from "@/features/Folder/folderSlice";
 import ConfirmDialog from "@/features/Common/ConfirmDialog";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
-import {
-  addManyToManualQueue,
-} from "../RightSidebar/Queue/queueSlice";
+import { addManyToManualQueue } from "../RightSidebar/Queue/queueSlice";
 import { RefObject } from "react";
+import { RootState } from "@/store/store";
 
 export default function PlaylistMoreOptions({
   onEditDetails,
@@ -54,6 +50,8 @@ export default function PlaylistMoreOptions({
   const playlists = useAppSelector(selectPlaylists);
   const folders = useAppSelector(selectFolders);
   const now = new Date().toISOString();
+  const songsById = useAppSelector((state: RootState) => state.songs.entities);
+
   const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
   const sourcePlaylist = useAppSelector((state) =>
     selectPlaylistById(state, playlistId),
@@ -199,6 +197,13 @@ export default function PlaylistMoreOptions({
             id: p.id,
             label: p.title,
             action: () => handleAddToPlaylist(p.id),
+            cover: {
+              coverImage: p.coverImage,
+              songCovers: p.songs
+                .slice(0, 4)
+                .map((s) => songsById[s.songId]?.coverImage),
+              isLikedPlaylist: false, // already filtered out above, but explicit for clarity
+            },
           })),
       ],
     },

@@ -80,7 +80,7 @@ export default function SearchOverlay({
               autoHideDelay: 0,
             },
           }}
-          className="max-h-105"
+          className="max-h-105  backdrop-blur-[800px]"
         >
           <div className="flex flex-col gap-0.5 px-1 pb-2">
             {displayed.map((song) => (

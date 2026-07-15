@@ -57,7 +57,11 @@ export default function LibrarySearch() {
   return (
     <div className="flex md:hidden lg:flex items-center justify-between gap-2">
       {/* Search — icon toggles input */}
-      <div className="flex items-center gap-2 flex-1 min-w-0">
+      <div
+        className={`flex items-center gap-2 rounded-md border border-white/10 bg-white/5 transition-all duration-200 min-w-0 ${
+          searchOpen ? "flex-1 px-3 py-1.5" : "shrink-0 p-1.5"
+        }`}
+      >
         <button
           onClick={() => ToggleSearch()}
           className="shrink-0 text-zinc-400 hover:text-white transition-colors"
@@ -70,7 +74,7 @@ export default function LibrarySearch() {
           <input
             ref={inputRef}
             placeholder="Search in library"
-            className="bg-transparent outline-none text-sm w-full text-white placeholder:text-zinc-500 border-b border-zinc-600 pb-0.5"
+            className="bg-transparent outline-none text-sm w-full min-w-0 text-white placeholder:text-zinc-500"
             onChange={(e) => dispatch(setSearch(e.target.value))}
             onBlur={() => setSearchOpen(false)}
           />
@@ -109,22 +113,22 @@ export default function LibrarySearch() {
         )}
         <BottomSheet isOpen={sortOpen} onClose={() => setSortOpen(false)}>
           <div className="mt-2">
-          {SORT_OPTIONS.map((o) => {
-            const isActive = sort === o.value;
-            return (
-              <button
-                key={o.value}
-                onClick={() => {
-                  dispatch(setSort(o.value));
-                  setSortOpen(false);
-                }}
-                className={`flex w-full items-center justify-between px-3 py-4 text-lg  hover:bg-white/10 transition-colors ${isActive ? "text-purple-600" : "text-zinc-300"}`}
-              >
-                {o.label}
-                {isActive && <Check size={14} className="text-purple-600" />}
-              </button>
-            );
-          })}
+            {SORT_OPTIONS.map((o) => {
+              const isActive = sort === o.value;
+              return (
+                <button
+                  key={o.value}
+                  onClick={() => {
+                    dispatch(setSort(o.value));
+                    setSortOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between px-3 py-4 text-lg  hover:bg-white/10 transition-colors ${isActive ? "text-purple-600" : "text-zinc-300"}`}
+                >
+                  {o.label}
+                  {isActive && <Check size={14} className="text-purple-600" />}
+                </button>
+              );
+            })}
           </div>
         </BottomSheet>
       </div>

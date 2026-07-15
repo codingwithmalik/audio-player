@@ -92,7 +92,9 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
 
   const handleCreatePlaylist = () => {
     if (!currentUserId) return;
-    const action = dispatch(addPlaylist({ title: "New Playlist", ownerId: currentUserId }));
+    const action = dispatch(
+      addPlaylist({ title: "New Playlist", ownerId: currentUserId }),
+    );
     dispatch(setPlaylistFolder({ playlistId: action.payload.id, folderId }));
   };
 
@@ -176,7 +178,7 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
       <div className="relative flex shrink-0 items-center px-4 pb-2">
         <button
           onClick={() => scrollTabs("left")}
-          className={`absolute left-4 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-zinc-800 backdrop-blur-md text-white shadow-lg transition-all duration-300 ${
+          className={`absolute left-4 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-purple-950/80 hover:bg-purple-950 backdrop-blur-md text-white shadow-lg transition-all duration-300 ${
             canScrollLeft
               ? "opacity-100 translate-x-0"
               : "pointer-events-none -translate-x-2 opacity-0"
@@ -206,7 +208,7 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
 
         <button
           onClick={() => scrollTabs("right")}
-          className={`absolute right-4 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-zinc-800 text-white shadow-lg transition-all duration-300 ${
+          className={`absolute right-4 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-purple-950/80 hover:bg-purple-950 text-white shadow-lg transition-all duration-300 ${
             canScrollRight
               ? "opacity-100 translate-x-0"
               : "pointer-events-none translate-x-2 opacity-0"

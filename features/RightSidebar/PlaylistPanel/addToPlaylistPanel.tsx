@@ -8,6 +8,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  RefreshCw,
 } from "lucide-react";
 import { useOverlayScrollbars } from "overlayscrollbars-react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
@@ -22,7 +23,11 @@ import { selectRecentSongIds } from "@/slices/historySlice";
 import SongCover from "@/features/Common/SongCover";
 import type { RootState } from "@/store/store";
 import type { Song } from "@/types/song";
-import { selectSongs } from "@/features/Songs/songsSlice";
+import {
+  getTopGenresFromHistory,
+  getRecommendedSongs,
+  getPopularSongs,
+} from "@/utils/recommendationUtils";
 
 type TabType = "recentlyPlayed" | "liked" | "suggested";
 
@@ -31,6 +36,9 @@ export default function AddToPlaylistPanel({
 }: {
   playlistId: string;
 }) {
+  const TOP_GENRES_LIMIT = 5;
+  const SUGGESTED_LIMIT = 40;
+
   const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<TabType>("suggested");
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,42 +55,97 @@ export default function AddToPlaylistPanel({
   const likedPlaylist = useAppSelector((state: RootState) =>
     likedPlaylistId ? selectPlaylistById(state, likedPlaylistId) : null,
   );
-  const likedIds = likedPlaylist?.songs.map((s) => s.songId) || [];
-  const allSongs = useAppSelector(selectSongs);
+  const likedIds = useMemo(
+    () => likedPlaylist?.songs.map((s) => s.songId) || [],
+    [likedPlaylist],
+  );
+
+  // added update of working suggested songs rather that showing all songs
+  const songsById = useAppSelector((state: RootState) => state.songs.entities);
+  const [suggestedSongs, setSuggestedSongs] = useState<Song[]>([]);
+  const seenSuggestedIdsRef = useRef<Set<string>>(new Set());
+
+  const generateSuggestions = () => {
+    const playlistSongIds = targetPlaylist?.songs.map((s) => s.songId) ?? [];
+    const excludeIds = new Set([
+      ...targetSongIds,
+      ...seenSuggestedIdsRef.current,
+    ]);
+
+    // 1st choice: genres derived from the playlist's own songs
+    const playlistGenreSource = playlistSongIds.map((songId) => ({ songId }));
+    const playlistGenres = getTopGenresFromHistory(
+      playlistGenreSource,
+      songsById,
+      TOP_GENRES_LIMIT,
+    );
+
+    let recs = getRecommendedSongs(
+      songsById,
+      playlistGenres,
+      excludeIds,
+      SUGGESTED_LIMIT,
+    );
+
+    // 2nd choice: fall back to the user's overall history genres (empty/new playlist)
+    if (recs.length === 0) {
+      const historyEntries = recentIds.map((songId) => ({ songId }));
+      const historyGenres = getTopGenresFromHistory(
+        historyEntries,
+        songsById,
+        TOP_GENRES_LIMIT,
+      );
+      recs = getRecommendedSongs(
+        songsById,
+        historyGenres,
+        excludeIds,
+        SUGGESTED_LIMIT,
+      );
+    }
+
+    // 3rd choice: globally popular songs
+    if (recs.length === 0) {
+      recs = getPopularSongs(songsById, excludeIds, SUGGESTED_LIMIT);
+    }
+
+    recs.forEach((s) => seenSuggestedIdsRef.current.add(s.id));
+    setSuggestedSongs(recs);
+  };
+
+  // Runs exactly once per mount — panel closing/reopening remounts and resets everything.
+  useEffect(() => {
+    generateSuggestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Determine which IDs to show based on active tab
-  const getTabSongIds = () => {
+const baseSongs = useMemo(() => {
     switch (activeTab) {
       case "recentlyPlayed":
-        return recentIds;
+        return recentIds
+          .map((id) => songsById[id])
+          .filter((s): s is Song => !!s);
       case "liked":
-        return likedIds;
+        return likedIds
+          .map((id) => songsById[id])
+          .filter((s): s is Song => !!s);
       case "suggested":
-        return allSongs.map((s) => s.id);
+        return suggestedSongs;
       default:
         return [];
     }
-  };
+  }, [activeTab, recentIds, likedIds, songsById, suggestedSongs]);
 
-  const currentTabIds = getTabSongIds();
-
-  // We need the full Song objects to filter by search query
   const displayedSongs = useMemo(() => {
-    const rawIds = currentTabIds;
-    // Map to actual songs and filter nulls
-    const mapped = rawIds
-      .map((id) => allSongs.find((s) => s.id === id))
-      .filter((s): s is NonNullable<typeof s> => !!s);
-
-    if (!searchQuery.trim()) return mapped;
+    if (!searchQuery.trim()) return baseSongs;
 
     const q = searchQuery.toLowerCase();
-    return mapped.filter(
+    return baseSongs.filter(
       (s) =>
         s.title.toLowerCase().includes(q) ||
         s.artists.some((a) => a.toLowerCase().includes(q)),
     );
-  }, [currentTabIds, allSongs, searchQuery]);
+  }, [baseSongs, searchQuery]);
 
   // Scrollbars
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -175,7 +238,7 @@ export default function AddToPlaylistPanel({
       <div className="relative flex shrink-0 items-center px-4 pb-2">
         <button
           onClick={() => scrollTabs("left")}
-          className={`absolute left-4 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-zinc-800 backdrop-blur-md text-white shadow-lg transition-all duration-300 ${
+          className={`absolute left-4 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-purple-950/80 hover:bg-purple-950 backdrop-blur-md text-white shadow-lg transition-all duration-300 ${
             canScrollLeft
               ? "opacity-100 translate-x-0"
               : "pointer-events-none -translate-x-2 opacity-0"
@@ -211,7 +274,7 @@ export default function AddToPlaylistPanel({
 
         <button
           onClick={() => scrollTabs("right")}
-          className={`absolute right-4 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-zinc-800 text-white shadow-lg transition-all duration-300 ${
+          className={`absolute right-4 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-purple-950/80 hover:bg-purple-950 text-white shadow-lg transition-all duration-300 ${
             canScrollRight
               ? "opacity-100 translate-x-0"
               : "pointer-events-none translate-x-2 opacity-0"
@@ -220,7 +283,17 @@ export default function AddToPlaylistPanel({
           <ChevronRight size={16} />
         </button>
       </div>
-
+      {activeTab === "suggested" && (
+        <div className="flex shrink-0 items-center justify-end px-4 pb-2">
+          <button
+            onClick={generateSuggestions}
+            className="flex items-center gap-1.5 text-xs font-medium text-white/60 transition-colors hover:text-white"
+          >
+            <RefreshCw size={14} />
+            Refresh
+          </button>
+        </div>
+      )}
       {/* Track List */}
       <div
         ref={scrollContainerRef}

@@ -139,24 +139,34 @@ export default function SongCard({
   useEffect(() => {
     if (!song) return;
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        artRef.current,
-        { opacity: 0, scale: 0.93 },
-        { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out", delay: 0.1 },
-      );
-      gsap.fromTo(
-        infoRef.current,
-        { opacity: 0, y: 12 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: "power2.out",
-          delay: 0.25,
-          onComplete: () =>
-            gsap.set(infoRef.current, { clearProps: "transform" }),
-        },
-      );
+      if (artRef.current) {
+        gsap.fromTo(
+          artRef.current,
+          { opacity: 0, scale: 0.93 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.5,
+            ease: "power2.out",
+            delay: 0.1,
+          },
+        );
+      }
+      if (infoRef.current) {
+        gsap.fromTo(
+          infoRef.current,
+          { opacity: 0, y: 12 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.4,
+            ease: "power2.out",
+            delay: 0.25,
+            onComplete: () =>
+              gsap.set(infoRef.current, { clearProps: "transform" }),
+          },
+        );
+      }
     }, cardRef);
     return () => ctx.revert();
   }, [song]);
@@ -167,11 +177,13 @@ export default function SongCard({
       .writeText(`${window.location.origin}/songs/${song.id}`)
       .catch(() => {});
     setCopied(true);
-    gsap.fromTo(
-      copyRef.current,
-      { scale: 0.95 },
-      { scale: 1, duration: 0.25, ease: "back.out(2)" },
-    );
+    if (copyRef.current) {
+      gsap.fromTo(
+        copyRef.current,
+        { scale: 0.95 },
+        { scale: 1, duration: 0.25, ease: "back.out(2)" },
+      );
+    }
     setTimeout(() => setCopied(false), 2200);
   };
 
@@ -187,9 +199,7 @@ export default function SongCard({
     <div
       ref={cardRef}
       className={`relative h-full w-full flex flex-col ${
-        isFull
-          ? ""
-          : "rounded-md bg-[#1a0a2e]/80 border border-white/[0.07]"
+        isFull ? "" : "rounded-md bg-[#1a0a2e]/80 border border-white/[0.07]"
       }`}
     >
       {/* Dynamic background blur for full view */}
@@ -199,6 +209,7 @@ export default function SongCard({
             src={song.coverImage}
             alt=""
             fill
+            sizes="100vw"
             className="object-cover opacity-20 blur-3xl scale-150"
             aria-hidden="true"
           />
@@ -225,7 +236,9 @@ export default function SongCard({
               <ChevronDown size={18} />
             </button>
           )}
-          <div className={`min-w-0 ${isFull ? "flex gap-4 text-2xl justify-center items-center" : ""}`}>
+          <div
+            className={`min-w-0 ${isFull ? "flex gap-4 text-2xl justify-center items-center" : ""}`}
+          >
             <p className="text-[10px] uppercase tracking-widest text-white/40">
               Playing from
             </p>

@@ -4,6 +4,7 @@ import { QueueState } from "./queueTypes";
 
 const initialState: QueueState = {
   songIds: [],
+  originalSongIds: [],
   currentIndex: 0,
   sourceType: null,
   sourceId: null,
@@ -16,10 +17,12 @@ const queueSlice = createSlice({
   reducers: {
     addToQueue(state, action: PayloadAction<string>) {
       state.songIds.push(action.payload);
+      state.originalSongIds.push(action.payload);
     },
 
     addManyToQueue(state, action: PayloadAction<string[]>) {
       state.songIds.push(...action.payload);
+      state.originalSongIds.push(...action.payload);
     },
 
     removeFromQueue(state, action: PayloadAction<number>) {
@@ -30,6 +33,7 @@ const queueSlice = createSlice({
 
     clearQueue(state) {
       state.songIds = [];
+      state.originalSongIds = [];
       state.currentIndex = 0;
       state.sourceType = null;
       state.sourceId = null;
@@ -42,9 +46,10 @@ const queueSlice = createSlice({
         songIds: string[];
         sourceType: QueueState["sourceType"];
         sourceId: string | null;
-      }>
+      }>,
     ) {
       state.songIds = action.payload.songIds;
+      state.originalSongIds = action.payload.songIds;
       state.currentIndex = 0;
       state.sourceType = action.payload.sourceType;
       state.sourceId = action.payload.sourceId;
@@ -72,6 +77,31 @@ const queueSlice = createSlice({
     clearManualQueue(state) {
       state.manualQueueIds = [];
     },
+
+    /** Shuffles only upcoming (not-yet-played) songs; already-played history stays put. */
+    shuffleQueue(state) {
+      const played = state.songIds.slice(0, state.currentIndex + 1);
+      const upcoming = state.songIds.slice(state.currentIndex + 1);
+
+      for (let i = upcoming.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [upcoming[i], upcoming[j]] = [upcoming[j], upcoming[i]];
+      }
+
+      state.songIds = [...played, ...upcoming];
+    },
+
+    /** Restores original order, resuming at wherever the current song naturally sits. */
+    unshuffleQueue(
+      state,
+      action: PayloadAction<{ currentSongId: string | null }>,
+    ) {
+      state.songIds = [...state.originalSongIds];
+      const idx = action.payload.currentSongId
+        ? state.originalSongIds.indexOf(action.payload.currentSongId)
+        : -1;
+      state.currentIndex = idx >= 0 ? idx : 0;
+    },
   },
 });
 
@@ -86,6 +116,8 @@ export const {
   addManyToManualQueue,
   shiftManualQueue,
   clearManualQueue,
+  shuffleQueue,
+  unshuffleQueue,
 } = queueSlice.actions;
 
 export default queueSlice.reducer;
@@ -93,14 +125,18 @@ export default queueSlice.reducer;
 // ─── Selectors ────────────────────────────────────────────────────────────────
 
 export const selectQueueIds = (state: RootState) => state.queue.songIds;
-export const selectCurrentIndex = (state: RootState) => state.queue.currentIndex;
-export const selectQueueLength = (state: RootState) => state.queue.songIds.length;
-export const selectQueueSourceType = (state: RootState) => state.queue.sourceType;
+export const selectCurrentIndex = (state: RootState) =>
+  state.queue.currentIndex;
+export const selectQueueLength = (state: RootState) =>
+  state.queue.songIds.length;
+export const selectQueueSourceType = (state: RootState) =>
+  state.queue.sourceType;
 export const selectQueueSourceId = (state: RootState) => state.queue.sourceId;
 export const selectIsInQueue = (state: RootState, songId: string) =>
   state.queue.songIds.includes(songId);
 
-export const selectManualQueueIds = (state: RootState) => state.queue.manualQueueIds;
+export const selectManualQueueIds = (state: RootState) =>
+  state.queue.manualQueueIds;
 export const selectHasManualQueue = (state: RootState) =>
   state.queue.manualQueueIds.length > 0;
 

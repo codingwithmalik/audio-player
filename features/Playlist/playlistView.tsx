@@ -34,7 +34,7 @@ interface PlaylistViewProps {
   filteredSongs: Song[];
   totalDurationLabel: string;
   isPlaylistPlaying: boolean;
-  isCurrentPlaylist:boolean;
+  isCurrentPlaylist: boolean;
   onPlaySong: (songId: string, index: number) => void;
 }
 
@@ -69,19 +69,34 @@ export default function PlaylistView({
       const actions = el.querySelector<HTMLElement>("[data-gsap='actions']");
       const rows = el.querySelectorAll<HTMLElement>("[data-gsap='track-row']");
 
-      gsap.set([hero, actions], { opacity: 0, y: 24 });
-      gsap.set(rows, { opacity: 0, x: -12 });
+      const fadeUpTargets = [hero, actions].filter(
+        (t): t is HTMLElement => !!t,
+      );
+      const hasRows = rows.length > 0;
 
-      gsap
-        .timeline({
-          defaults: { ease: "power2.out" },
-          onComplete: () => {
-            gsap.set([hero, actions, rows], { clearProps: "transform" });
-          },
-        })
-        .to(hero, { opacity: 1, y: 0, duration: 0.45 })
-        .to(actions, { opacity: 1, y: 0, duration: 0.3 }, "-=0.2")
-        .to(rows, { opacity: 1, x: 0, duration: 0.25, stagger: 0.03 }, "-=0.1");
+      if (fadeUpTargets.length === 0 && !hasRows) return;
+
+      if (fadeUpTargets.length > 0)
+        gsap.set(fadeUpTargets, { opacity: 0, y: 24 });
+      if (hasRows) gsap.set(rows, { opacity: 0, x: -12 });
+
+      const tl = gsap.timeline({
+        defaults: { ease: "power2.out" },
+        onComplete: () => {
+          if (fadeUpTargets.length > 0)
+            gsap.set(fadeUpTargets, { clearProps: "transform" });
+          if (hasRows) gsap.set(rows, { clearProps: "transform" });
+        },
+      });
+
+      if (hero) tl.to(hero, { opacity: 1, y: 0, duration: 0.45 });
+      if (actions) tl.to(actions, { opacity: 1, y: 0, duration: 0.3 }, "-=0.2");
+      if (hasRows)
+        tl.to(
+          rows,
+          { opacity: 1, x: 0, duration: 0.25, stagger: 0.03 },
+          "-=0.1",
+        );
     },
     { scope: containerRef, dependencies: [playlist.id] },
   );

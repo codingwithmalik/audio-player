@@ -12,6 +12,7 @@ import queueSlice from "@/features/RightSidebar/Queue/queueSlice";
 import rightSidebarSlice from "@/slices/rightSidebarSlice";
 import historySlice from "@/slices/historySlice";
 import searchSlice from "@/features/Search/searchSlice";
+import { shuffleSyncMiddleware } from "@/middlewares/shuffleSyncMiddleware";
 // ...
 
 export const store = configureStore({
@@ -31,7 +32,8 @@ export const store = configureStore({
     getDefaultMiddleware()
       .prepend(historyListenerMiddleware.middleware)
       .prepend(folderSyncMiddleware.middleware)
-      .prepend(playTrackingMiddleware.middleware),
+      .prepend(playTrackingMiddleware.middleware)
+      .prepend(shuffleSyncMiddleware.middleware),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

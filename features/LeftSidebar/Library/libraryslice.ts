@@ -138,8 +138,13 @@ export const selectFilteredItems = createSelector(
         case "recently-added":
           return b.createdAt.localeCompare(a.createdAt);
 
-        case "recents":
-          return b.updatedAt.localeCompare(a.updatedAt);
+        case "recents": {
+          const aTime =
+            "accessedAt" in a && a.accessedAt ? a.accessedAt : a.createdAt;
+          const bTime =
+            "accessedAt" in b && b.accessedAt ? b.accessedAt : b.createdAt;
+          return bTime.localeCompare(aTime);
+        }
 
         default:
           return 0;

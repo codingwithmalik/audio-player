@@ -127,7 +127,7 @@ export default function HeaderSearch() {
 
         {focused && !isMobile && (
           // <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-lg bg-zinc-900 border border-white/10 shadow-2xl">
-          <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-lg backdrop-blur-2xl bg-zinc-900/60 border border-white/10 shadow-2xl">
+          <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-lg bg-black/50 backdrop-blur-[80px] border border-white/10 shadow-2xl">
             <SearchOverlay variant="dropdown" />
           </div>
         )}

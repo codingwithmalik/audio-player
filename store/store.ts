@@ -3,6 +3,7 @@ import { historyListenerMiddleware } from "@/middlewares/historyMiddleware";
 import { folderSyncMiddleware } from "@/middlewares/folderSyncMiddleware";
 import { playTrackingMiddleware } from "@/middlewares/playCountMiddleware";
 import { shuffleSyncMiddleware } from "@/middlewares/shuffleSyncMiddleware";
+import { privateSessionMiddleware } from "@/middlewares/privateSessionMiddleware";
 import authslice from "@/features/Auth/authSlice";
 import librarySlice from "@/features/LeftSidebar/Library/libraryslice";
 import playerSlice from "@/store/playerSlice";
@@ -15,7 +16,7 @@ import historySlice from "@/slices/historySlice";
 import searchSlice from "@/features/Search/searchSlice";
 import accountSlice from "@/features/Profile/accountSlice";
 import settingsSlice from "@/features/Profile/settingsSlice";
-import { privateSessionMiddleware } from "@/middlewares/privateSessionMiddleware";
+import localfilesSlice from "@/features/LeftSidebar/LocalFiles/localFilesSlice"
 // ...
 
 export const store = configureStore({
@@ -32,6 +33,7 @@ export const store = configureStore({
     search: searchSlice,
     account: accountSlice,
     settings: settingsSlice,
+    localFiles: localfilesSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()

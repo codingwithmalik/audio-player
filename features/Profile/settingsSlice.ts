@@ -22,7 +22,7 @@ const initialState: Settings = {
     streamingQuality: "automatic",
   },
   library: {
-    showDownloadedSongs: true,
+    showDownloadedSongs: false,
   },
   storage: {
     cacheSizeMb: 0,

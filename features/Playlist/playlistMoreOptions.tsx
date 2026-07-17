@@ -13,12 +13,12 @@ import {
 import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
-  removePlaylist,
   selectPlaylists,
   addPlaylist,
   setPlaylistFolder,
   selectPlaylistById,
   addSongsToPlaylist,
+  softDeletePlaylist,
 } from "./playlistSlice";
 import { useRouter } from "next/navigation";
 import { addFolder, selectFolders } from "@/features/Folder/folderSlice";
@@ -236,7 +236,7 @@ export default function PlaylistMoreOptions({
               confirmLabel="Delete"
               cancelLabel="Cancel"
               onConfirm={() => {
-                dispatch(removePlaylist(playlistId));
+                dispatch(softDeletePlaylist(playlistId));
                 handleRemoveFromFolder();
                 setConfirmOpen(false);
                 router.push("/");

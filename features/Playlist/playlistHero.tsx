@@ -4,6 +4,7 @@ import PlaylistMosaicCover from "./playlistMosaicCover";
 import { Playlist } from "@/types/playlist";
 import { selectUsernameById } from "@/features/Auth/authSlice";
 import { useAppSelector } from "@/globalHooks";
+import Link from "next/link";
 
 interface PlaylistHeroProps {
   playlist: Playlist;
@@ -76,9 +77,11 @@ export default function PlaylistHero({
                 {ownerName.charAt(0).toUpperCase()}
               </span>
             </div>
-            <span className="text-sm font-semibold text-white">
-              {ownerName}
-            </span>
+            <Link href={`/profile`}>
+              <span className="text-sm font-semibold text-white">
+                {ownerName}
+              </span>
+            </Link>
             <span className="text-sm text-white/60 mx-1">•</span>
             <span className="text-sm text-white/60">
               {songCount} songs, {totalDurationLabel}
@@ -155,9 +158,11 @@ export default function PlaylistHero({
                 {ownerName.charAt(0).toUpperCase()}
               </span>
             </div>
-            <span className="text-sm font-semibold text-white hover:underline cursor-pointer">
-              {ownerName}
-            </span>
+            <Link href={`/profile`}>
+              <span className="text-sm font-semibold text-white hover:underline cursor-pointer">
+                {ownerName}
+              </span>
+            </Link>
             <span className="text-sm text-white/60 mx-1">•</span>
             <span className="text-sm text-white/60 font-medium">
               {songCount} songs,{" "}

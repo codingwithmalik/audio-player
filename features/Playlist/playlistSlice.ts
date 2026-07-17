@@ -15,7 +15,6 @@ import type { RootState } from "@/store/store";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type FetchStatus = "idle" | "loading" | "done" | "error";
-
 export type SortBy =
   | "custom"
   | "title"
@@ -48,6 +47,14 @@ const initialState: PlaylistsState = {
   sortDir: "asc",
   viewMode: "list",
 };
+
+const TRASH_RETENTION_DAYS = 90;
+
+function isExpired(deletedAt: string): boolean {
+  const expiry = new Date(deletedAt);
+  expiry.setDate(expiry.getDate() + TRASH_RETENTION_DAYS);
+  return expiry.getTime() < Date.now();
+}
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
 
@@ -195,6 +202,21 @@ const playlistsSlice = createSlice({
       delete state.fetchStatus[action.payload];
     },
 
+    /** Moves a playlist to trash. Hidden from normal views, recoverable until expiresAt. */
+    softDeletePlaylist(state, action: PayloadAction<string>) {
+      const playlist = state.entities[action.payload];
+      if (!playlist) return;
+      playlist.deletedAt = new Date().toISOString();
+    },
+
+    /** Pulls a playlist back out of trash. No-op if it was never deleted. */
+    restorePlaylist(state, action: PayloadAction<string>) {
+      const playlist = state.entities[action.payload];
+      if (!playlist) return;
+      delete playlist.deletedAt;
+      playlist.updatedAt = new Date().toISOString();
+    },
+
     addPlaylist: {
       reducer(state, action: PayloadAction<Playlist>) {
         state.entities[action.payload.id] = action.payload;
@@ -218,7 +240,7 @@ const playlistsSlice = createSlice({
         };
       },
     },
-    
+
     setPlaylistFolder(
       state,
       action: PayloadAction<{ playlistId: string; folderId: string | null }>,
@@ -294,13 +316,19 @@ export const {
   resetPlaylistUI,
   addPlaylist,
   touchPlaylist,
+  softDeletePlaylist,
+  restorePlaylist,
 } = playlistsSlice.actions;
 
 // ─── Base selectors ───────────────────────────────────────────────────────────
 
 export const selectPlaylists = createSelector(
-  [(state: RootState) => state.playlists.entities],
-  (entities) => Object.values(entities),
+  [
+    (state: RootState) => state.playlists.entities,
+    (state: RootState) => state.auth.user?.id,
+  ],
+  (entities, userId) =>
+    Object.values(entities).filter((p) => !p.deletedAt && p.ownerId === userId),
 );
 
 export const selectPlaylistById = (state: RootState, id: string) =>
@@ -331,7 +359,9 @@ export const selectViewMode = (state: RootState) => state.playlists.viewMode;
 
 // in playlistsSlice.ts
 export const selectPlaylistCount = (state: RootState) =>
-  Object.values(state.playlists.entities).length;
+  Object.values(state.playlists.entities).filter(
+    (p) => p.ownerId === state.auth.user?.id,
+  ).length;
 
 export const selectIsLiked = (state: RootState, songId: string): boolean => {
   const userId = state.auth.user?.id;
@@ -344,7 +374,13 @@ export const selectLikedPlaylistId = (state: RootState): string | null => {
   const userId = state.auth.user?.id;
   return userId ? `liked-${userId}` : null;
 };
-
+export const selectDeletedPlaylists = createSelector(
+  [(state: RootState) => state.playlists.entities],
+  (entities) =>
+    Object.values(entities)
+      .filter((p) => p.deletedAt && !isExpired(p.deletedAt))
+      .sort((a, b) => (b.deletedAt! > a.deletedAt! ? 1 : -1)), // most recently deleted first
+);
 // ─── selectFilteredSongs ──────────────────────────────────────────────────────
 /**
  * The primary derived selector for the playlist page.

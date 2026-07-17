@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { historyListenerMiddleware } from "@/middlewares/historyMiddleware";
 import { folderSyncMiddleware } from "@/middlewares/folderSyncMiddleware";
 import { playTrackingMiddleware } from "@/middlewares/playCountMiddleware";
+import { shuffleSyncMiddleware } from "@/middlewares/shuffleSyncMiddleware";
 import authslice from "@/features/Auth/authSlice";
 import librarySlice from "@/features/LeftSidebar/Library/libraryslice";
 import playerSlice from "@/store/playerSlice";
@@ -12,7 +13,9 @@ import queueSlice from "@/features/RightSidebar/Queue/queueSlice";
 import rightSidebarSlice from "@/slices/rightSidebarSlice";
 import historySlice from "@/slices/historySlice";
 import searchSlice from "@/features/Search/searchSlice";
-import { shuffleSyncMiddleware } from "@/middlewares/shuffleSyncMiddleware";
+import accountSlice from "@/features/Profile/accountSlice";
+import settingsSlice from "@/features/Profile/settingsSlice";
+import { privateSessionMiddleware } from "@/middlewares/privateSessionMiddleware";
 // ...
 
 export const store = configureStore({
@@ -27,13 +30,16 @@ export const store = configureStore({
     rightSidebar: rightSidebarSlice,
     history: historySlice,
     search: searchSlice,
+    account: accountSlice,
+    settings: settingsSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .prepend(historyListenerMiddleware.middleware)
       .prepend(folderSyncMiddleware.middleware)
       .prepend(playTrackingMiddleware.middleware)
-      .prepend(shuffleSyncMiddleware.middleware),
+      .prepend(shuffleSyncMiddleware.middleware)
+      .prepend(privateSessionMiddleware.middleware),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

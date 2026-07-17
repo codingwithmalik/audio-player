@@ -19,6 +19,13 @@ const authSlice = createSlice({
       state.loading = false;
     },
 
+    // add to authSlice.ts reducers, alongside setUser/logout/setLoading
+
+    updateUser: (state, action: PayloadAction<Partial<User>>) => {
+      if (!state.user) return;
+      Object.assign(state.user, action.payload);
+    },
+
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
@@ -31,7 +38,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, logout, setLoading } = authSlice.actions;
+export const { setUser, logout, setLoading ,updateUser} = authSlice.actions;
 export const selectUsernameById = (state: RootState, userId: string) => {
   const user = state.auth.user;
 

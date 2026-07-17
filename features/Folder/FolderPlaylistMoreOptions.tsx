@@ -7,8 +7,8 @@ import ConfirmDialog from "@/features/Common/ConfirmDialog";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
 import { selectFolders, addFolder } from "@/features/Folder/folderSlice";
 import {
-  removePlaylist,
   setPlaylistFolder,
+  softDeletePlaylist,
 } from "@/features/Playlist/playlistSlice";
 
 export default function FolderPlaylistMoreOptions({
@@ -123,7 +123,7 @@ export default function FolderPlaylistMoreOptions({
             confirmLabel="Delete"
             cancelLabel="Cancel"
             onConfirm={() => {
-              dispatch(removePlaylist(playlistId));
+              dispatch(softDeletePlaylist(playlistId));
               setConfirmOpen(false);
               onClose();
               // No router.push — stay on folder page, list updates automatically

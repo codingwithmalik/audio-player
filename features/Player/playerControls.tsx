@@ -128,6 +128,7 @@ export default function PlayerControls({
         <div className="flex items-center justify-center gap-6 md:hidden">
           <button
             aria-label="Previous"
+            onClick={handleSkipPrev}
             className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-300 transition hover:scale-110 hover:text-white active:scale-95"
           >
             <SkipBack className="h-4.5 w-4.5 fill-current" />
@@ -148,6 +149,7 @@ export default function PlayerControls({
 
           <button
             aria-label="Next"
+            onClick={handleSkipNext}
             className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-300 transition hover:scale-110 hover:text-white active:scale-95"
           >
             <SkipForward className="h-4.5 w-4.5 fill-current" />

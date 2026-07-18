@@ -6,7 +6,7 @@ import Rightsidebar from "@/components/rightsidebar";
 import LeftSidebar from "@/components/leftsidebar";
 import BottomNav from "@/components/mobileNavbar";
 import NowPlayingView from "@/features/Player/NowPlayingView";
-import { selectIsNowPlayingOpen } from "@/store/playerSlice";
+import { selectCurrentSong, selectIsNowPlayingOpen } from "@/store/playerSlice";
 import { useAppSelector } from "@/globalHooks";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import RightSidebarPanelOverlay from "@/features/RightSidebar/RightSidebarPanelOverlay";
@@ -16,6 +16,7 @@ const LayoutContent = ({
 }: Readonly<{ children: React.ReactNode }>) => {
   const isNowPlayingOpen = useAppSelector(selectIsNowPlayingOpen);
   const isMobileLayout = useIsMobile(768);
+  const currentSong = useAppSelector(selectCurrentSong);
 
   const [showNowPlayingSlot, setShowNowPlayingSlot] =
     useState(isNowPlayingOpen);
@@ -32,7 +33,7 @@ const LayoutContent = ({
   if (isMobileLayout) {
     return (
       <>
-        <div className="flex flex-col h-screen">
+        <div className={`flex flex-col h-screen  `}>
           <div
             className={`w-full h-full my-1 overflow-hidden ${
               showNowPlayingSlot ? "" : "hidden"
@@ -44,17 +45,17 @@ const LayoutContent = ({
             />
           </div>
           <main
-            className={`flex-1 overflow-y-auto pb-37 ${
+            className={`flex-1 overflow-y-auto ${
               showNowPlayingSlot ? "hidden" : ""
-            }`}
+            }${currentSong ? "pb-47" : "pb-37 "}`}
           >
             {children}
           </main>
           <div className={`${showNowPlayingSlot ? "hidden" : ""}`}>
-            <div className="fixed bottom-16 left-0 right-0 z-40">
+            <div className="fixed  bottom-16 left-0 right-0 z-40">
               <Player />
             </div>
-            <BottomNav />
+              <BottomNav />
           </div>
         </div>
         <RightSidebarPanelOverlay />

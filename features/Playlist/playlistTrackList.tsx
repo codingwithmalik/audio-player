@@ -147,7 +147,7 @@ function SortableTrackRow({
   };
 
   return (
-    <div ref={setNodeRef} style={style}  {...(isReorderEnabled ? { ...attributes, ...listeners } : {})} className="touch-none" data-gsap="track-row">
+    <div ref={setNodeRef} style={style}  {...(isReorderEnabled ? { ...attributes, ...listeners } : {})} className="touch-pan-y" data-gsap="track-row">
       <PlaylistTrackRow
         song={song}
         index={index}

@@ -95,7 +95,7 @@ export default function LibraryItem({
         className={`flex-1 min-w-0 ${isDragging ? "opacity-40" : ""}`}
       >
         <div
-          className={`group flex items-center gap-3 rounded-xl lg:p-1 pl-0 py-1 transition cursor-pointer touch-none ${
+          className={`group flex items-center gap-3 rounded-xl lg:p-1 pl-0 py-1 transition cursor-pointer touch-pan-y ${
             showAsHoveredTarget
               ? "bg-purple-600/20 ring-1 ring-purple-500/50"
               : showAsValidTarget

@@ -52,7 +52,7 @@ export default function PlaylistSongGridCard({
         if (window.innerWidth >= 640) onPlaySong();
       }}
       className={`flex flex-col gap-2 p-3 rounded-xl md:hover:bg-white/10
-                 transition-colors duration-150 cursor-default group bg-white/5 touch-none`}
+                 transition-colors duration-150 cursor-default group bg-white/5 touch-pan-y`}
     >
       <div className="relative aspect-square rounded-lg overflow-hidden z-10">
         <div className="relative w-full h-full rounded-md shrink-0 flex items-center justify-center">

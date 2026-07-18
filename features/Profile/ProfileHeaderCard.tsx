@@ -32,9 +32,9 @@ export default function ProfileHeaderCard({
   if (!user) return null;
 
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex items-center gap-6 overflow-x-hidden">
       {user.image ? (
-        <div className="relative w-24 h-24 rounded-full overflow-hidden shrink-0">
+        <div className="relative w-24 h-24 max-md:w-12 max-md:h-12 rounded-full overflow-hidden shrink-0">
           <Image
             src={user.image}
             alt={user.username}
@@ -44,14 +44,16 @@ export default function ProfileHeaderCard({
         </div>
       ) : (
         <div
-          className={`w-24 h-24 rounded-full flex items-center justify-center text-4xl font-bold text-white shrink-0 ${getAvatarColor(user.username)}`}
+          className={`w-24 h-24 max-md:w-18 max-md:h-18 rounded-full flex items-center justify-center text-4xl font-bold text-white shrink-0 ${getAvatarColor(user.username)}`}
         >
           {user.username.charAt(0).toUpperCase()}
         </div>
       )}
       <div>
         <p className="text-xs uppercase tracking-wide text-white/60">Profile</p>
-        <h1 className="text-4xl font-extrabold">{user.username}</h1>
+        <h1 className="max-md:text-2xl md:text-3xl lg:text-4xl font-extrabold">
+          {user.username}
+        </h1>
         <p className="text-sm text-white/60 mt-1">
           {playlistCount} {playlistCount === 1 ? "Playlist" : "Playlists"}
         </p>

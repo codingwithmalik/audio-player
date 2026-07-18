@@ -67,7 +67,7 @@ export default function Library({ scrollable = false }: Props) {
     });
 
     return () => ScrollTrigger.getAll().forEach((t) => t.kill());
-  }, [scrollable, osInstance]);
+  }, [scrollable, osInstance, isAuthenticated]);
 
   if (!isAuthenticated) return <LibraryTeaser />;
 

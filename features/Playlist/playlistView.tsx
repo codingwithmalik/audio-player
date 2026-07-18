@@ -156,6 +156,7 @@ export default function PlaylistView({
       <div className="pb-8">
         {viewMode === "list" ? (
           <PlaylistTrackList
+            playlistId={playlist.id}
             songs={filteredSongs}
             playlistSongs={playlist.songs}
             currentSongId={currentSongId}
@@ -166,6 +167,8 @@ export default function PlaylistView({
         ) : (
           /* Grid view */
           <PlaylistTrackGrid
+            playlistId={playlist.id}
+            playlistSongs={playlist.songs}
             filteredSongs={filteredSongs}
             currentSongId={currentSongId}
             onPlaySong={onPlaySong}

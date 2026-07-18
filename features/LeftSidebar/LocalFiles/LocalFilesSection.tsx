@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { FolderOpen, FileAudio } from "lucide-react";
+import { FolderOpen, FileAudio, ArrowLeft } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import { upsertSongs } from "@/features/Songs/songsSlice"; // adjust action name if different
 import {
@@ -19,7 +19,7 @@ import { parseLocalFile } from "./parseLocalFile";
 import SongCover from "@/features/Common/SongCover";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 
-export default function LocalFilesSection() {
+export default function LocalFilesSection({ onBack }: { onBack?: () => void }) {
   const dispatch = useAppDispatch();
   const songIds = useAppSelector(selectLocalFileIds);
   const isParsing = useAppSelector(selectIsParsingLocalFiles);
@@ -56,7 +56,20 @@ export default function LocalFilesSection() {
   }
   return (
     <OverlayScrollbarsComponent defer className="bg-inherit w-full h-full">
-      <div className="flex flex-col gap-4 p-4">
+      <div className="flex items-center gap-3 px-1  pt-2">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="p-2 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+            aria-label="Back to library"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+        )}
+        <h2 className="text-md font-bold text-white">Local Files</h2>
+      </div>
+
+      <div className="flex flex-col gap-4 p-2">
         <div className="flex gap-2">
           <button
             onClick={() => filesInputRef.current?.click()}

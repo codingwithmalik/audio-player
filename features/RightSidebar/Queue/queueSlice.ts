@@ -102,6 +102,57 @@ const queueSlice = createSlice({
         : -1;
       state.currentIndex = idx >= 0 ? idx : 0;
     },
+    /**
+     * Reorders across the combined "upcoming" list (manual + context), and can
+     * move items between the two sections depending on drop position.
+     *
+     * fromIndex/toIndex are positions within [...manualQueueIds, ...contextUpcoming] —
+     * i.e. exactly what selectUpcomingIds returns, index-for-index.
+     *
+     * Classification rule: after the move, whichever items land at or before
+     * the (adjusted) manual boundary become manual; everything after becomes
+     * context. Dropping a manual song later in the list "demotes" it into the
+     * context queue, and vice versa for promoting a context song forward.
+     */
+    reorderUpcoming(
+      state,
+      action: PayloadAction<{ fromIndex: number; toIndex: number }>,
+    ) {
+      const { fromIndex, toIndex } = action.payload;
+      const manualLen = state.manualQueueIds.length;
+      const contextUpcoming = state.songIds.slice(state.currentIndex + 1);
+      const combined = [...state.manualQueueIds, ...contextUpcoming];
+
+      if (
+        fromIndex < 0 ||
+        fromIndex >= combined.length ||
+        toIndex < 0 ||
+        toIndex >= combined.length ||
+        fromIndex === toIndex
+      ) {
+        return;
+      }
+
+      const removedWasManual = fromIndex < manualLen;
+      const [moved] = combined.splice(fromIndex, 1);
+      const manualLenAfterRemoval = removedWasManual
+        ? manualLen - 1
+        : manualLen;
+
+      const insertAt = Math.min(toIndex, combined.length);
+      combined.splice(insertAt, 0, moved);
+
+      const newManualLen =
+        insertAt <= manualLenAfterRemoval
+          ? manualLenAfterRemoval + 1
+          : manualLenAfterRemoval;
+
+      state.manualQueueIds = combined.slice(0, newManualLen);
+      state.songIds = [
+        ...state.songIds.slice(0, state.currentIndex + 1),
+        ...combined.slice(newManualLen),
+      ];
+    },
   },
 });
 
@@ -118,6 +169,7 @@ export const {
   clearManualQueue,
   shuffleQueue,
   unshuffleQueue,
+  reorderUpcoming,
 } = queueSlice.actions;
 
 export default queueSlice.reducer;

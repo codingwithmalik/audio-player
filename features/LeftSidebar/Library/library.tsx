@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LibraryHeader from "./libraryHeader";
@@ -7,6 +7,9 @@ import LibrarySearch from "./librarySearchbar";
 import LibraryList from "./libraryList";
 import LibraryFilters from "./libraryfilters";
 import { useOverlayScrollbars } from "overlayscrollbars-react";
+import LocalFilesSection from "../LocalFiles/LocalFilesSection";
+import { useAppSelector } from "@/globalHooks";
+import LibraryTeaser from "./libraryTeaser";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,8 +18,10 @@ type Props = {
 };
 
 export default function Library({ scrollable = false }: Props) {
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const asideRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const [showLocalFiles, setShowLocalFiles] = useState(false);
 
   const [initOS, osInstance] = useOverlayScrollbars({
     options: {
@@ -31,8 +36,9 @@ export default function Library({ scrollable = false }: Props) {
 
   // Init OS only when used as sidebar panel
   useEffect(() => {
-    if (!scrollable && asideRef.current) initOS(asideRef.current);
-  }, [initOS, scrollable]);
+    if (!scrollable && asideRef.current && !showLocalFiles)
+      initOS(asideRef.current);
+  }, [initOS, scrollable, showLocalFiles]);
 
   // Scroll shadow effect
   useEffect(() => {
@@ -63,22 +69,32 @@ export default function Library({ scrollable = false }: Props) {
     return () => ScrollTrigger.getAll().forEach((t) => t.kill());
   }, [scrollable, osInstance]);
 
+  if (!isAuthenticated) return <LibraryTeaser />;
+
+  // Local Files renders as a layer on top of the regular library — same
+  // container, swapped content, with its own back button to return.
   return (
-    <aside
-      ref={asideRef}
-      className={`min-h-full h-full w-full overflow-x-hidden scrollbar-none bg-white/5 ${scrollable ? "overflow-y-auto" : ""}`}
-    >
-      <div
-        ref={headerRef}
-        className="sticky top-0 left-0 p-4 pb-2 w-full z-50 will-change-transform md:rounded-t-md"
+    <>
+      <div className={`${showLocalFiles ? "flex" : "hidden"}`}>
+        <LocalFilesSection onBack={() => setShowLocalFiles(false)} />
+      </div>
+      <aside
+        ref={asideRef}
+        className={` min-h-full h-full w-full overflow-x-hidden scrollbar-none bg-white/5 ${scrollable ? "overflow-y-auto" : ""}`}
+        style={{ display: showLocalFiles ? "none" : undefined }}
       >
-        <LibraryHeader />
-        <LibraryFilters />
-      </div>
-      <div className="pr-4 pb-4 pl-3">
-        <LibrarySearch />
-        <LibraryList />
-      </div>
-    </aside>
+        <div
+          ref={headerRef}
+          className="sticky top-0 left-0 p-4 pb-2 w-full z-50 will-change-transform md:rounded-t-md"
+        >
+          <LibraryHeader />
+          <LibraryFilters />
+        </div>
+        <div className="pr-4 pb-4 pl-3">
+          <LibrarySearch />
+          <LibraryList ShowLocalFiles={() => setShowLocalFiles(true)} />
+        </div>
+      </aside>
+    </>
   );
 }

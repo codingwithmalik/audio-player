@@ -12,6 +12,7 @@ import {
   clearManualQueue,
   shiftManualQueue,
   selectManualQueueIds,
+  reorderUpcoming,
 } from "@/features/RightSidebar/Queue/queueSlice";
 import { selectSongById } from "@/features/Songs/songsSlice";
 import { selectPlaylistById } from "@/features/Playlist/playlistSlice";
@@ -21,6 +22,20 @@ import type { RootState } from "@/store/store";
 import RecentlyPlayed from "@/features/RightSidebar/Queue/recentlyPlayed";
 import SongCover from "@/features/Common/SongCover";
 import { selectCurrentSong } from "@/store/playerSlice";
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export default function QueuePanel() {
   const dispatch = useAppDispatch();
@@ -78,6 +93,29 @@ export default function QueuePanel() {
     dispatch(setCurrentIndex(targetIndex));
     dispatch(setSong(targetId));
   };
+
+  // Combined list matches selectUpcomingIds exactly — manual first, then
+  // context upcoming. Row ids are position-based (songId::index), since the
+  // same song can legitimately appear more than once in the queue.
+  const combinedIds = [...manualQueueIds, ...contextUpcomingIds];
+  const rowIds = combinedIds.map((id, i) => `${id}::${i}`);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { delay: 150, tolerance: 8 },
+    }),
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const fromIndex = rowIds.indexOf(active.id as string);
+    const toIndex = rowIds.indexOf(over.id as string);
+    if (fromIndex === -1 || toIndex === -1) return;
+
+    dispatch(reorderUpcoming({ fromIndex, toIndex }));
+  }
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -150,45 +188,63 @@ export default function QueuePanel() {
               </div>
             </section>
           )}
-          {manualQueueIds.length > 0 && (
-            <section className="mb-6">
-              <div className="mb-2 flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white">Next in queue</h3>
-                <button
-                  onClick={() => dispatch(clearManualQueue())}
-                  className="shrink-0 text-xs font-medium text-white/50 hover:text-white transition-colors"
-                >
-                  Clear queue
-                </button>
-              </div>
-              <div className="flex flex-col">
-                {manualQueueIds.map((id, i) => (
-                  <QueueRow
-                    key={`manual-${id}-${i}`}
-                    songId={id}
-                    onClick={() => handleSelectManual(i)}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={rowIds}
+              strategy={verticalListSortingStrategy}
+            >
+              {manualQueueIds.length > 0 && (
+                <section className="mb-6">
+                  <div className="mb-2 flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-white">
+                      Next in queue
+                    </h3>
+                    <button
+                      onClick={() => dispatch(clearManualQueue())}
+                      className="shrink-0 text-xs font-medium text-white/50 hover:text-white transition-colors"
+                    >
+                      Clear queue
+                    </button>
+                  </div>
+                  <div className="flex flex-col">
+                    {manualQueueIds.map((id, i) => (
+                      <SortableQueueRow
+                        key={rowIds[i]}
+                        rowId={rowIds[i]}
+                        songId={id}
+                        onClick={() => handleSelectManual(i)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
 
-          {contextUpcomingIds.length > 0 && (
-            <section>
-              <h3 className="mb-2 truncate text-sm font-bold text-white">
-                Next from: {playlistName}
-              </h3>
-              <div className="flex flex-col">
-                {contextUpcomingIds.map((id, i) => (
-                  <QueueRow
-                    key={`context-${id}-${i}`}
-                    songId={id}
-                    onClick={() => handleSelectContext(i)}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+              {contextUpcomingIds.length > 0 && (
+                <section>
+                  <h3 className="mb-2 truncate text-sm font-bold text-white">
+                    Next from: {playlistName}
+                  </h3>
+                  <div className="flex flex-col">
+                    {contextUpcomingIds.map((id, i) => {
+                      const globalIndex = manualQueueIds.length + i;
+                      return (
+                        <SortableQueueRow
+                          key={rowIds[globalIndex]}
+                          rowId={rowIds[globalIndex]}
+                          songId={id}
+                          onClick={() => handleSelectContext(i)}
+                        />
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+            </SortableContext>
+          </DndContext>
 
           {!currentSong &&
             manualQueueIds.length === 0 &&
@@ -199,6 +255,45 @@ export default function QueuePanel() {
             )}
         </div>
       </div>
+    </div>
+  );
+}
+function SortableQueueRow({
+  rowId,
+  songId,
+  onClick,
+}: {
+  rowId: string;
+  songId: string;
+  onClick: () => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: rowId,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="touch-none transition-colors hover:bg-white/5 rounded-md"
+    >
+      <QueueRow songId={songId} onClick={onClick} />
     </div>
   );
 }
@@ -218,7 +313,7 @@ function QueueRow({
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-white/5"
+      className="flex items-center gap-3 p-2 text-left "
     >
       <SongCover src={song.coverImage} alt={song.title} size={44} />
       <div className="min-w-0 flex-1">

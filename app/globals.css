@@ -9,12 +9,12 @@ header {
 }
 
 .os-scrollbar-handle {
-  background: rgba(255,255,255,0.5) !important;
+  background: rgba(255, 255, 255, 0.5) !important;
   border-radius: 8px !important;
 }
 
 .os-scrollbar-handle:hover {
-  background: rgba(255,255,255,0.7) !important;
+  background: rgba(255, 255, 255, 0.7) !important;
 }
 .os-scrollbar {
   --os-size: 12px;
@@ -27,4 +27,64 @@ header {
     display: none !important;
   }
 }
+/* globals.css */
 
+[data-sonner-toast] {
+  background:
+    linear-gradient(135deg, rgba(88, 28, 135, 0.25), rgba(49, 46, 129, 0.25)),
+    rgba(24, 24, 27, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(168, 85, 247, 0.2) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  padding: 0.75rem 1rem !important;
+  width: 250px;
+  max-width: 300px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+[data-sonner-toast] [data-title] {
+  color: white !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+[data-sonner-toast] [data-description] {
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-size: 0.75rem !important;
+}
+
+[data-sonner-toast] [data-button] {
+  border-radius: 9999px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
+[data-sonner-toast] [data-action] {
+  background: rgb(
+    147,
+    51,
+    234
+  ) !important; /* purple-600, matches your play buttons */
+  color: white !important;
+}
+[data-sonner-toast] [data-cancel] {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+[data-sonner-toast] [data-close-button] {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  border: none !important;
+}
+
+/* Success/error still need to be distinguishable at a glance, so they keep
+   a small color cue — just desaturated/muted to sit inside the purple
+   theme instead of clashing primary green/red */
+[data-sonner-toast][data-type="success"] {
+  border-left: 3px solid rgb(168, 85, 247) !important; /* purple-500 */
+}
+[data-sonner-toast][data-type="error"] {
+  border-left: 3px solid rgb(244, 63, 94) !important; /* rose-500, muted red that still reads as "error" without a jarring pure-red */
+}

@@ -16,8 +16,8 @@ import historySlice from "@/slices/historySlice";
 import searchSlice from "@/features/Search/searchSlice";
 import accountSlice from "@/features/Profile/accountSlice";
 import settingsSlice from "@/features/Profile/settingsSlice";
-import localfilesSlice from "@/features/LeftSidebar/LocalFiles/localFilesSlice"
-// ...
+import localfilesSlice from "@/features/LeftSidebar/LocalFiles/localFilesSlice";
+import { toastMiddleware } from "@/middlewares/toastMiddleware";
 
 export const store = configureStore({
   reducer: {
@@ -41,7 +41,8 @@ export const store = configureStore({
       .prepend(folderSyncMiddleware.middleware)
       .prepend(playTrackingMiddleware.middleware)
       .prepend(shuffleSyncMiddleware.middleware)
-      .prepend(privateSessionMiddleware.middleware),
+      .prepend(privateSessionMiddleware.middleware)
+      .prepend(toastMiddleware.middleware),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

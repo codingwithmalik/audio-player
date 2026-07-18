@@ -36,9 +36,9 @@ export default function Library({ scrollable = false }: Props) {
 
   // Init OS only when used as sidebar panel
   useEffect(() => {
-    if (!scrollable && asideRef.current && !showLocalFiles)
+    if (!scrollable && asideRef.current && !showLocalFiles && isAuthenticated)
       initOS(asideRef.current);
-  }, [initOS, scrollable, showLocalFiles]);
+  }, [initOS, scrollable, showLocalFiles, isAuthenticated]);
 
   // Scroll shadow effect
   useEffect(() => {

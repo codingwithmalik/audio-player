@@ -30,7 +30,6 @@ export default function LibraryList({
   const allPlaylists = useAppSelector((state) => state.playlists.entities);
   const { showDownloadedSongs } = useAppSelector(selectLibrarySettings);
   const isMobile = useIsMobile();
-
   const [expandedFolderIds, setExpandedFolderIds] = useState<Set<string>>(
     new Set(),
   );
@@ -140,7 +139,11 @@ function RootDropZone({
   children: React.ReactNode;
   isAnyDragActive: boolean;
 }) {
-  const { setNodeRef, isOver } = useDroppable({ id: "root" });
+  const isMobile = useIsMobile();
+  const { setNodeRef, isOver } = useDroppable({
+    id: "root",
+    disabled: isMobile,
+  });
 
   return (
     <div

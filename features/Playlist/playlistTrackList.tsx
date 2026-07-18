@@ -16,6 +16,7 @@ import { Song } from "@/types/song";
 import { PlaylistSong } from "@/types/playlist";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import { reorderPlaylistSongs, selectSortBy, selectSearchQuery } from "@/features/Playlist/playlistSlice";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface PlaylistTrackListProps {
   playlistId: string;
@@ -131,9 +132,11 @@ function SortableTrackRow({
   onPlay: () => void;
   isReorderEnabled: boolean;
 }) {
+    const isMobile = useIsMobile();
+  
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: song.id,
-    disabled: !isReorderEnabled,
+    disabled: !isReorderEnabled|| isMobile,
   });
 
   const style = {

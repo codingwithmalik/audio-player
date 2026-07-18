@@ -18,13 +18,17 @@ import { setSong, setPlaying } from "@/store/playerSlice";
 import { parseLocalFile } from "./parseLocalFile";
 import SongCover from "@/features/Common/SongCover";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import { createSelector } from "@reduxjs/toolkit";
+import { RootState } from "@/store/store";
 
 export default function LocalFilesSection({ onBack }: { onBack?: () => void }) {
   const dispatch = useAppDispatch();
   const songIds = useAppSelector(selectLocalFileIds);
   const isParsing = useAppSelector(selectIsParsingLocalFiles);
-  const songs = useAppSelector((state) =>
-    songIds.map((id) => state.songs.entities[id]).filter(Boolean),
+  const songs = useAppSelector(
+    createSelector([(state: RootState) => state.songs.entities], (entities) => {
+      return songIds.map((id) => entities[id]).filter(Boolean);
+    }),
   );
   const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
 

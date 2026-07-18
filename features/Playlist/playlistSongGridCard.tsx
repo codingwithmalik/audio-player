@@ -5,6 +5,7 @@ import { Pause, Play } from "lucide-react";
 import SongCover from "../Common/SongCover";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export default function PlaylistSongGridCard({
   song,
@@ -19,6 +20,7 @@ export default function PlaylistSongGridCard({
   isCurrent: boolean;
   isReorderEnabled: boolean;
 }) {
+  const isMobile = useIsMobile();
   const {
     attributes,
     listeners,
@@ -28,7 +30,7 @@ export default function PlaylistSongGridCard({
     isDragging,
   } = useSortable({
     id: song.id,
-    disabled: !isReorderEnabled,
+    disabled: !isReorderEnabled || isMobile,
   });
 
   const style = {

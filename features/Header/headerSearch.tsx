@@ -59,6 +59,8 @@ export default function HeaderSearch() {
   useEffect(() => {
     if (!focused) return;
     const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest("[data-portal-menu]")) return; // click landed in a portaled dropdown — ignore
       if (
         containerRef.current &&
         !containerRef.current.contains(e.target as Node)
@@ -116,7 +118,7 @@ export default function HeaderSearch() {
           onFocus={handleFocus}
           rightSlot={
             <Link
-            onClick={()=> setFocused(false)}
+              onClick={() => setFocused(false)}
               href="/genre"
               className="shrink-0 text-neutral-400 hover:text-white transition"
             >
@@ -126,8 +128,7 @@ export default function HeaderSearch() {
         />
 
         {focused && !isMobile && (
-          // <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-lg bg-zinc-900 border border-white/10 shadow-2xl">
-          <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-lg bg-black/50 backdrop-blur-[80px] border border-white/10 shadow-2xl">
+          <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-lg bg-[#2C0E3B] backdrop-blur-[800px] border border-white/10 shadow-2xl">
             <SearchOverlay variant="dropdown" />
           </div>
         )}

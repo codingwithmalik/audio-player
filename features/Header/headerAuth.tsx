@@ -108,7 +108,7 @@ export default function HeaderAuth() {
           <div ref={profileWrapperRef} className="relative">
             <Link
               href="/profile"
-              className="flex items-center gap-3 rounded-full px-1 py-1 border border-white/10 bg-black/30 text-white transition hover:bg-white/10"
+              className="flex items-center gap-2 rounded-full px-1 border border-white/10 bg-black/30 text-white transition hover:bg-white/10"
             >
               {user.image ? (
                 <Image

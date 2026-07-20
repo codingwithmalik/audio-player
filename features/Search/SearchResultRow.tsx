@@ -3,7 +3,7 @@
 import { Play, X } from "lucide-react";
 import SongCover from "@/features/Common/SongCover";
 import type { Song } from "@/types/song";
-
+import AddSongToPlaylists from "@/features/Common/AddSongToPlaylists";
 interface SearchResultRowProps {
   song: Song;
   onClick: () => void;
@@ -11,16 +11,20 @@ interface SearchResultRowProps {
   onRemove?: () => void;
 }
 
-export default function SearchResultRow({ song, onClick, onRemove }: SearchResultRowProps) {
+export default function SearchResultRow({
+  song,
+  onClick,
+  onRemove,
+}: SearchResultRowProps) {
   return (
-    <button
+    <div
       onClick={onClick}
       className="group relative flex w-full items-center gap-3 rounded-md p-2 pr-3 text-left hover:bg-white/10 transition-colors"
     >
       <div className="relative w-12 h-12 shrink-0">
         <SongCover src={song.coverImage} alt={song.title} fill sizes="48px" />
-        <span className="absolute inset-0 flex items-center justify-center rounded-md bg-purple-950/60 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Play className="w-4 h-4 text-white fill-white" />
+        <span className="absolute inset-0 flex items-center justify-center rounded-md bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Play className="w-4 h-4 text-purple-600 fill-purple-600" />
         </span>
       </div>
 
@@ -30,7 +34,9 @@ export default function SearchResultRow({ song, onClick, onRemove }: SearchResul
           Song • {song.artists.join(", ")}
         </p>
       </div>
-
+      <span onClick={(e) => e.stopPropagation()}>
+        <AddSongToPlaylists songId={song.id} />
+      </span>
       {onRemove && (
         <span
           onClick={(e) => {
@@ -43,6 +49,6 @@ export default function SearchResultRow({ song, onClick, onRemove }: SearchResul
           <X className="w-4 h-4" />
         </span>
       )}
-    </button>
+    </div>
   );
 }

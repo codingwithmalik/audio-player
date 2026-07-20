@@ -346,6 +346,7 @@ export default function AddToPlaylistMenu({
                 width: 280,
                 zIndex: 9999,
               }}
+              data-portal-menu
               ref={menuRef}
               className="bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2 overflow-hidden"
             >

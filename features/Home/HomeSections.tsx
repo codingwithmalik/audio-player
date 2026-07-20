@@ -21,14 +21,12 @@ import { setSong } from "@/store/playerSlice";
 import type { RootState } from "@/store/store";
 import type { Playlist } from "@/types/playlist";
 import type { Song } from "@/types/song";
-import { useIsMobile } from "@/hooks/useIsMobile"; // adjust to your actual path
 
 export default function HomeSections() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state: RootState) => state.auth.user?.id);
   const [activeTab, setActiveTab] = useState<string>("home");
-  const isMobile = useIsMobile(768);
   const [sections, setSections] = useState<
     ReturnType<typeof selectHomeSections>
   >([]);
@@ -164,7 +162,7 @@ export default function HomeSections() {
           return (
             <section key={section.id} className="mb-8">
               <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
-                {(isMobile ? shelfItems.slice(0, 4) : shelfItems).map((item) =>
+                {shelfItems.map((item) =>
                   item.kind === "playlist" ? (
                     <PlaylistShortcutTile
                       key={item.id}

@@ -35,7 +35,7 @@ const LayoutContent = ({
       <>
         <div className={`flex flex-col h-screen  `}>
           <div
-            className={`w-full h-full my-1 overflow-hidden ${
+            className={`w-full h-full my-1 max-md:mb-27 overflow-hidden ${
               showNowPlayingSlot ? "" : "hidden"
             }`}
           >
@@ -47,7 +47,7 @@ const LayoutContent = ({
           <main
             className={`flex-1 overflow-y-auto ${
               showNowPlayingSlot ? "hidden" : ""
-            }${currentSong ? "pb-47" : "pb-37 "}`}
+            }${currentSong ? "pb-60" : "pb-40 "}`}
           >
             {children}
           </main>

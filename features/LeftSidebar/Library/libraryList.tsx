@@ -19,12 +19,14 @@ import {
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { selectLibrarySettings } from "@/features/Profile/settingsSlice";
 import LocalFilesLibraryRow from "../LocalFiles/LocalFilesLibraryRow";
+import { useRouter } from "next/navigation";
 
 export default function LibraryList({
   ShowLocalFiles,
 }: {
   ShowLocalFiles: () => void;
 }) {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const items = useAppSelector(selectFilteredItems);
   const allPlaylists = useAppSelector((state) => state.playlists.entities);
@@ -39,7 +41,7 @@ export default function LibraryList({
   const rootItems = items.filter(
     (item) => item.type === "folder" || item.folderId === null,
   );
-
+  const isDesktop = !useIsMobile(1024);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { delay: 150, tolerance: 8 },
@@ -75,6 +77,9 @@ export default function LibraryList({
   function handleDragCancel() {
     setActiveId(null);
   }
+  const handleshowFiles = () => {
+    router.push("/Storage");
+  };
 
   return (
     <DndContext
@@ -84,7 +89,11 @@ export default function LibraryList({
       onDragCancel={handleDragCancel}
     >
       <RootDropZone isAnyDragActive={activeId !== null}>
-        {showLocalFilesRow && <LocalFilesLibraryRow onClick={ShowLocalFiles} />}
+        {showLocalFilesRow && (
+          <LocalFilesLibraryRow
+            onClick={isDesktop ? ShowLocalFiles : handleshowFiles}
+          />
+        )}
 
         {rootItems.length === 0 ? (
           <div className="mt-3 px-2 text-sm text-zinc-500 text-center">

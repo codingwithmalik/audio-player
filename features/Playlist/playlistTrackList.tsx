@@ -60,14 +60,6 @@ export default function PlaylistTrackList({
     dispatch(reorderPlaylistSongs({ playlistId, fromIndex, toIndex }));
   }
 
-  if (songs.length === 0) {
-    return (
-      <div className="px-6 py-16 text-center text-white/40 text-sm">
-        No songs in this playlist yet.
-      </div>
-    );
-  }
-
   return (
     <div role="table" aria-label="Playlist tracks" className="w-full px-2">
       {/* Column header */}

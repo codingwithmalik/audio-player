@@ -41,15 +41,14 @@ const authSlice = createSlice({
 export const { setUser, logout, setLoading ,updateUser} = authSlice.actions;
 export const selectUsernameById = (state: RootState, userId: string) => {
   const user = state.auth.user;
-
   if (user && user.id === userId) {
     return user.username;
   }
-
   return "Unknown User";
 };
 export const selectCurrentUsername = (state: RootState) => {
   const user = state.auth.user;
   return user ? user.username : "Unknown User";
 };
+export const selectisAuthenticated = (state:RootState)=> state.auth.isAuthenticated
 export default authSlice.reducer;

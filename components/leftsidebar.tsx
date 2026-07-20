@@ -24,7 +24,7 @@ const LeftSidebar = () => {
 
   return (
     <div
-      className="md:flex flex-col w-full min-h-full overflow-hidden glass hidden rounded-lg"
+      className="md:flex flex-col w-full h-full overflow-hidden glass hidden rounded-lg"
       ref={sidebarRef}
     >
       <Library />

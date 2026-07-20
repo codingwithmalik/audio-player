@@ -5,7 +5,11 @@ import LibraryItem from "./libraryItem";
 import { Playlist } from "@/types/playlist";
 import { Folder } from "@/types/folder";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
-import { selectFilteredItems } from "./libraryslice";
+import {
+  selectFilteredItems,
+  selectFilters,
+  selectSearch,
+} from "./libraryslice";
 import { setPlaylistFolder } from "@/features/Playlist/playlistSlice";
 import {
   DndContext,
@@ -30,6 +34,9 @@ export default function LibraryList({
   const dispatch = useAppDispatch();
   const items = useAppSelector(selectFilteredItems);
   const allPlaylists = useAppSelector((state) => state.playlists.entities);
+  const filters = useAppSelector(selectFilters);
+  const search = useAppSelector(selectSearch);
+
   const { showDownloadedSongs } = useAppSelector(selectLibrarySettings);
   const isMobile = useIsMobile();
   const [expandedFolderIds, setExpandedFolderIds] = useState<Set<string>>(
@@ -94,46 +101,60 @@ export default function LibraryList({
             onClick={isDesktop ? ShowLocalFiles : handleshowFiles}
           />
         )}
-
-        {rootItems.length === 0 ? (
-          <div className="mt-3 px-2 text-sm text-zinc-500 text-center">
-            No playlists or folders yet
-          </div>
-        ) : (
-          rootItems.map((item) => {
-            const isFolder = item.type === "folder";
-            const isExpanded = isFolder && expandedFolderIds.has(item.id);
-
-            return (
-              <div key={item.id}>
-                <LibraryItem
-                  item={item as Folder | Playlist}
-                  isAnyDragActive={activeId !== null}
-                  isExpanded={isExpanded}
-                  onToggleExpand={
-                    isFolder ? () => toggleExpand(item.id) : undefined
-                  }
-                />
-                {isExpanded && (
-                  <div className="flex flex-col gap-1">
-                    {(item as Folder).playlistIds.map((playlistId) => {
-                      const nestedPlaylist = allPlaylists[playlistId];
-                      if (!nestedPlaylist) return null;
-                      return (
-                        <LibraryItem
-                          key={nestedPlaylist.id}
-                          item={nestedPlaylist}
-                          depth={1}
-                          isAnyDragActive={activeId !== null}
-                        />
-                      );
-                    })}
-                  </div>
-                )}
+        <>
+          {rootItems.length === 0 &&
+            filters.length === 0 &&
+            search.length === 0 && (
+              <div className="mt-3 px-2 text-sm text-zinc-500 text-center">
+                No playlists or folders yet
               </div>
-            );
-          })
-        )}
+            )}
+
+          {rootItems.length === 0 && filters.length > 0 && (
+            <div className="mt-3 px-2 text-sm text-zinc-500 text-center">
+              No matches for selected filters
+            </div>
+          )}
+
+          {rootItems.length === 0 && search.length > 0 && (
+            <div className="mt-3 px-2 text-sm text-zinc-500 text-center">
+              No results found for {search}
+            </div>
+          )}
+          {rootItems.length > 0 &&
+            rootItems.map((item) => {
+              const isFolder = item.type === "folder";
+              const isExpanded = isFolder && expandedFolderIds.has(item.id);
+              return (
+                <div key={item.id}>
+                  <LibraryItem
+                    item={item as Folder | Playlist}
+                    isAnyDragActive={activeId !== null}
+                    isExpanded={isExpanded}
+                    onToggleExpand={
+                      isFolder ? () => toggleExpand(item.id) : undefined
+                    }
+                  />
+                  {isExpanded && (
+                    <div className="flex flex-col gap-1">
+                      {(item as Folder).playlistIds.map((playlistId) => {
+                        const nestedPlaylist = allPlaylists[playlistId];
+                        if (!nestedPlaylist) return null;
+                        return (
+                          <LibraryItem
+                            key={nestedPlaylist.id}
+                            item={nestedPlaylist}
+                            depth={1}
+                            isAnyDragActive={activeId !== null}
+                          />
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+        </>
       </RootDropZone>
     </DndContext>
   );

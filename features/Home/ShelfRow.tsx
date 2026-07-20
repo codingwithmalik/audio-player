@@ -93,7 +93,7 @@ export default function ShelfRow({
           <>
             <button
               onClick={() => scroll("left")}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-purple-900/70 backdrop-blur-sm hover:bg-purple-700 hover:scale-105 flex items-center justify-center shadow-lg opacity-0 group-hover/shelf:opacity-100 transition-all"
+              className="absolute left-2 top-[40%] -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-purple-900/70 backdrop-blur-sm hover:bg-purple-700 hover:scale-105 flex items-center justify-center shadow-lg opacity-0 group-hover/shelf:opacity-100 transition-all"
               aria-label="Scroll left"
             >
               <ChevronLeft className="w-5 h-5 text-white" />
@@ -105,7 +105,7 @@ export default function ShelfRow({
           <>
             <button
               onClick={() => scroll("right")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-purple-900/70 backdrop-blur-sm hover:bg-purple-700 hover:scale-105 flex items-center justify-center shadow-lg opacity-0 group-hover/shelf:opacity-100 transition-all"
+              className="absolute right-2 top-[40%] -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-purple-900/70 backdrop-blur-sm hover:bg-purple-700 hover:scale-105 flex items-center justify-center shadow-lg opacity-0 group-hover/shelf:opacity-100 transition-all"
               aria-label="Scroll right"
             >
               <ChevronRight className="w-5 h-5 text-white" />

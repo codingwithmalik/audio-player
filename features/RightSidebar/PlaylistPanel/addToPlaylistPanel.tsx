@@ -238,7 +238,7 @@ const baseSongs = useMemo(() => {
       <div className="relative flex shrink-0 items-center px-4 pb-2">
         <button
           onClick={() => scrollTabs("left")}
-          className={`absolute left-4 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-purple-950/80 hover:bg-purple-950 backdrop-blur-md text-white shadow-lg transition-all duration-300 ${
+          className={`hidden md:flex absolute left-4 z-10 h-7 w-7 items-center justify-center rounded-full bg-purple-950/80 hover:bg-purple-950 backdrop-blur-md text-white shadow-lg transition-all duration-300 ${
             canScrollLeft
               ? "opacity-100 translate-x-0"
               : "pointer-events-none -translate-x-2 opacity-0"
@@ -274,7 +274,7 @@ const baseSongs = useMemo(() => {
 
         <button
           onClick={() => scrollTabs("right")}
-          className={`absolute right-4 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-purple-950/80 hover:bg-purple-950 text-white shadow-lg transition-all duration-300 ${
+          className={`hidden md:flex absolute right-4 z-10 h-7 w-7 items-center justify-center rounded-full bg-purple-950/80 hover:bg-purple-950 text-white shadow-lg transition-all duration-300 ${
             canScrollRight
               ? "opacity-100 translate-x-0"
               : "pointer-events-none translate-x-2 opacity-0"

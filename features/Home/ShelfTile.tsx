@@ -36,7 +36,7 @@ export default function ShelfTile({ item }: { item: ShelfItem }) {
             e.stopPropagation();
             onPlay();
           }}
-          className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-purple-600 shadow-lg flex items-center justify-center
+          className="hidden md:flex absolute bottom-2 right-2 w-10 h-10 rounded-full bg-purple-600 shadow-lg items-center justify-center
                      opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200"
         >
           <Play className="w-4 h-4 text-white fill-white ml-0.5" />
@@ -55,7 +55,7 @@ export default function ShelfTile({ item }: { item: ShelfItem }) {
         {item.kind === "song" && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="shrink-0 pt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            className="hidden md:flex shrink-0 pt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           >
             <AddToPlaylistMenu songId={item.id} />
           </div>

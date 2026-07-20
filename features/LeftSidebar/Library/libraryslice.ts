@@ -55,45 +55,6 @@ export const { setSearch, setSort, toggleFilter, clearFilters } =
 
 export default librarySlice.reducer;
 
-// export const selectFilteredItems = createSelector(
-//   [
-//     (state: { library: LibraryState }) => state.library.playlists,
-//     (state: { library: LibraryState }) => state.library.folders,
-//     (state: { library: LibraryState }) => state.library.search,
-//     (state: { library: LibraryState }) => state.library.sort,
-//     (state: { library: LibraryState }) => state.library.filters,
-//   ],
-//   (playlists, folders, search, sort, filters) => {
-//     // Determine which types to include based on active filters
-//     const showPlaylists = filters.length === 0 || filters.includes("playlists");
-//     const showFolders = filters.length === 0 || filters.includes("folders");
-
-//     let result: LibraryItem[] = [
-//       ...(showPlaylists ? playlists : []),
-//       ...(showFolders ? folders : []),
-//     ];
-//     if (search.trim()) {
-//       const searchLower = search.toLowerCase();
-//       result = result.filter((item) =>
-//         item.title.toLowerCase().includes(searchLower),
-//       );
-//     }
-
-//     result = [...result].sort((a, b) => {
-//       if (sort === "alphabetical") {
-//         return a.title.localeCompare(b.title);
-//       }
-//       if (sort === "recently-added" || sort === "recents") {
-//         // only recents are here for now but we have to create a seperate sort for recents because the recents means the recently played.
-//         // Sort descending by createdAt ISO string (lexicographic works for ISO dates)
-//         return b.createdAt.localeCompare(a.createdAt);
-//       }
-//       return 0;
-//     });
-
-//     return result;
-//   },
-// );
 
 export const selectFilteredItems = createSelector(
   [
@@ -147,3 +108,5 @@ export const selectFilteredItems = createSelector(
     return result;
   },
 );
+export const selectFilters = (state:RootState)=> state.library.filters
+export const selectSearch = (state:RootState)=> state.library.search

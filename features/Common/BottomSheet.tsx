@@ -178,6 +178,7 @@ export default function BottomSheet({
         expandSheet();
       } else {
         // Slow drag — snap based on position
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         pct > 15 ? collapseSheet() : expandSheet();
       }
     } else {
@@ -220,7 +221,7 @@ export default function BottomSheet({
       <div
         ref={backdropRef}
         onClick={onClose}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-9998"
         style={{ opacity: 0, pointerEvents: "none" }}
       />
 
@@ -228,7 +229,7 @@ export default function BottomSheet({
       <div
         ref={sheetRef}
         onClick={(e) => e.stopPropagation()}
-        className="fixed inset-x-0 bottom-0 z-[9999] flex bg-black/20 backdrop-blur-2xl  flex-col rounded-t-2xl border-t border-white/10 shadow-2xl"
+        className="fixed inset-x-0 bottom-0 z-9999 flex bg-black/20 backdrop-blur-2xl  flex-col rounded-t-2xl border-t border-white/10 shadow-2xl"
         style={{
           height: "100dvh",
           transform: "translateY(100%)",

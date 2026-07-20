@@ -17,6 +17,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import BottomSheet from "@/features/Common/BottomSheet";
 import PlaylistMosaicCover from "@/features/Playlist/playlistMosaicCover";
 import type { RootState } from "@/store/store";
+import { selectisAuthenticated } from "../Auth/authSlice";
+import { useRouter } from "next/navigation";
 
 // ─── Menu content ─────────────────────────────────────────────────────────────
 
@@ -265,7 +267,8 @@ export default function AddToPlaylistMenu({
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const playlists = useAppSelector(selectPlaylists);
-
+  const isAuthenticated = useAppSelector(selectisAuthenticated);
+  const router = useRouter();
   const isInAnything = playlists.some((p) =>
     p.songs.some((s) => s.songId === songId),
   );
@@ -319,11 +322,23 @@ export default function AddToPlaylistMenu({
           onClose={handleClose}
           title="Add to playlist"
         >
-          <MenuContent
-            songId={songId}
-            onClose={handleClose}
-            setHoveredFalse={setHoveredFalse}
-          />
+          {isAuthenticated ? (
+            <MenuContent
+              songId={songId}
+              onClose={handleClose}
+              setHoveredFalse={setHoveredFalse}
+            />
+          ) : (
+            <div className="flex flex-col gap-3 justify-center items-center p-2">
+              <span>Please Login to add to Playlist</span>
+              <button
+                onClick={() => router.push("/login")}
+                className="text-black bg-white px-4 py-1 rounded-3xl"
+              >
+                Login
+              </button>
+            </div>
+          )}
         </BottomSheet>
       ) : (
         open &&
@@ -350,14 +365,28 @@ export default function AddToPlaylistMenu({
               ref={menuRef}
               className="bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2 overflow-hidden"
             >
-              <p className="text-xs font-semibold uppercase tracking-wider text-white/40 px-4 py-2">
-                Add to playlist
-              </p>
-              <MenuContent
-                songId={songId}
-                onClose={handleClose}
-                setHoveredFalse={setHoveredFalse}
-              />
+              {isAuthenticated ? (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-white/40 px-4 py-2">
+                    Add to playlist
+                  </p>
+                  <MenuContent
+                    songId={songId}
+                    onClose={handleClose}
+                    setHoveredFalse={setHoveredFalse}
+                  />
+                </>
+              ) : (
+                <div className="flex flex-col gap-3 justify-center items-center p-2">
+                  <span>Please Login to add to Playlist</span>
+                  <button
+                    onClick={() => router.push("/login")}
+                    className="text-black bg-white px-4 py-1 rounded-3xl"
+                  >
+                    Login
+                  </button>
+                </div>
+              )}
             </div>
           </>,
           document.body,

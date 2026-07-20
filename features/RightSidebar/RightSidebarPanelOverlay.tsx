@@ -30,7 +30,7 @@ export default function RightSidebarPanelOverlay() {
           isOpen ? "opacity-100" : "opacity-0"
         }`}
       />
-      <div className="absolute inset-x-0 bottom-0 h-[92vh] ">
+      <div className="absolute inset-x-0 top-0 h-full ">
         <PanelSheet isOpen={isOpen} onClose={handleClose} mode="overlay">
           {panel.tab === "queue" && <QueuePanel />}
           {panel.tab === "addToPlaylist" && (

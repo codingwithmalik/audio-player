@@ -139,7 +139,7 @@ export default function LibraryItem({
                 e.stopPropagation();
                 onToggleExpand?.();
               }}
-              className="shrink-0 text-zinc-400 hover:text-white transition-colors p-1"
+              className="shrink-0 text-zinc-400 hover:text-white transition-colors p-1 md:hidden lg:block"
               aria-label={isExpanded ? "Collapse folder" : "Expand folder"}
             >
               <ChevronRight

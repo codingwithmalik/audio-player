@@ -49,7 +49,7 @@ export default function CustomSelect({
       </button>
 
       {isOpen && (
-        <div className="absolute z-20 mt-1 w-full max-h-56 overflow-y-auto rounded-lg bg-zinc-900 border border-white/10 shadow-xl py-1">
+        <div className="absolute z-20 mt-1 w-full max-h-56 overflow-y-auto rounded-lg bg-[#2C0E3B] border border-white/10 shadow-xl py-1">
           {options.map((option) => (
             <button
               key={option.value}

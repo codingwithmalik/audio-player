@@ -179,7 +179,7 @@ export default function MoreOptions({
       }
       className={
         variant === "dropdown"
-          ? "min-w-55 max-w-64 bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2"
+          ? "min-w-55 max-w-64 bg-[#2C0E3B] border border-white/10 rounded-xl shadow-2xl py-2"
           : undefined
       }
     >

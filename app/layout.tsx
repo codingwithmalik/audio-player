@@ -14,9 +14,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Audious",
+  title: "Audious | Enjoy Music without Ads",
   description: "Play your music without limits",
-  icons: { icon: "/logo.png" },
+  icons: { icon: "/logo.webp" },
 };
 export default function RootLayout({
   children,
@@ -31,19 +31,6 @@ export default function RootLayout({
               position="top-center"
               toastOptions={{
                 unstyled: true,
-                // classNames: {
-                //   toast:
-                //     "flex items-center gap-3 bg-purple-950 backdrop-blur-md border border-white/10 rounded-xl shadow-xl px-4 py-3 w-full",
-                //   title: "text-white text-sm font-medium",
-                //   description: "text-white/60 text-xs",
-                //   actionButton:
-                //     "bg-white text-black rounded-full text-xs font-semibold px-3 py-1.5",
-                //   cancelButton:
-                //     "bg-white/50 text-white rounded-full text-xs px-3 py-1.5",
-                //   closeButton: "bg-white/50 text-white/60 hover:text-white",
-                //   success: "border-green-500/30",
-                //   error: "border-red-500/30",
-                // },
               }}
             />
             {children}

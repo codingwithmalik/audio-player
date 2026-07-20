@@ -90,7 +90,7 @@ export default function Library({ scrollable = false }: Props) {
           <LibraryHeader />
           <LibraryFilters />
         </div>
-        <div className="pr-4 pb-4 pl-3">
+        <div className="md:pr-2 pr-4 pb-4 md:pl-3.2 pl-3">
           <LibrarySearch />
           <LibraryList ShowLocalFiles={() => setShowLocalFiles(true)} />
         </div>

@@ -363,7 +363,7 @@ export default function AddToPlaylistMenu({
               }}
               data-portal-menu
               ref={menuRef}
-              className="bg-[#1a0a2e] border border-white/10 rounded-xl shadow-2xl py-2 overflow-hidden"
+              className="bg-[#2C0E3B] border border-white/10 rounded-xl shadow-2xl py-2 overflow-hidden"
             >
               {isAuthenticated ? (
                 <>

@@ -13,10 +13,12 @@ import { usePanelWidths } from "@/hooks/usePanelWidths";
 import ResizeHandle from "@/features/Common/ResizeHandle";
 import { selectRightSidebarPanel } from "@/slices/rightSidebarSlice";
 import { selectisAuthenticated } from "@/features/Auth/authSlice";
+import useGlobalKeyboardShortcuts from "@/hooks/useGlobalKeyboardShortcuts";
 
 const LayoutContent = ({
   children,
 }: Readonly<{ children: React.ReactNode }>) => {
+  useGlobalKeyboardShortcuts()
   const isNowPlayingOpen = useAppSelector(selectIsNowPlayingOpen);
   const currentSong = useAppSelector(selectCurrentSong);
   const rightPanel = useAppSelector(selectRightSidebarPanel);

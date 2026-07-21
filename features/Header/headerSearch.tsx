@@ -11,6 +11,7 @@ import SearchOverlay from "@/features/Search/SearchOverlay";
 import { useAppDispatch } from "@/globalHooks";
 import { setQuery, clearQuery } from "@/features/Search/searchSlice";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { desktopSearchInputRef } from "@/features/Search/searchInputRef";
 
 const DEBOUNCE_MS = 500;
 
@@ -116,6 +117,7 @@ export default function HeaderSearch() {
           value={inputValue}
           onChange={(val) => (val === "" ? handleClear() : handleChange(val))}
           onFocus={handleFocus}
+          inputRef={desktopSearchInputRef}
           rightSlot={
             <Link
               onClick={() => setFocused(false)}

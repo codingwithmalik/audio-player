@@ -41,6 +41,28 @@ export default function AudioEngine() {
   const currentIndex = useAppSelector(selectCurrentIndex);
   const manualQueueIds = useAppSelector(selectManualQueueIds);
 
+  // ── Add near the top of the component, after the selectors ────────────────
+  // Shared next/previous logic — used by both keyboard shortcuts and Media Session
+  const playNext = () => {
+    if (manualQueueIds.length > 0) {
+      const nextSongId = manualQueueIds[0];
+      dispatch(shiftManualQueue());
+      dispatch(setSong(nextSongId));
+    } else if (currentIndex < queueIds.length - 1) {
+      const nextIndex = currentIndex + 1;
+      dispatch(setCurrentIndex(nextIndex));
+      dispatch(setSong(queueIds[nextIndex]));
+    }
+  };
+
+  const playPrevious = () => {
+    if (currentIndex > 0) {
+      const previousIndex = currentIndex - 1;
+      dispatch(setCurrentIndex(previousIndex));
+      dispatch(setSong(queueIds[previousIndex]));
+    }
+  };
+
   // ── Create audio element once ─────────────────────────────────────────────
   useEffect(() => {
     const audio = new Audio();
@@ -105,6 +127,23 @@ export default function AudioEngine() {
     const handleTimeUpdate = () => {
       if (!isDragging) {
         dispatch(setCurrentTime(Math.floor(audio.currentTime)));
+      }
+      // Media Session position sync — wrapped in try/catch since it throws
+      // if duration isn't finite yet (e.g. still loading metadata)
+      if (
+        "mediaSession" in navigator &&
+        audio.duration &&
+        isFinite(audio.duration)
+      ) {
+        try {
+          navigator.mediaSession.setPositionState({
+            duration: audio.duration,
+            playbackRate: audio.playbackRate,
+            position: audio.currentTime,
+          });
+        } catch {
+          // ignore — non-critical
+        }
       }
     };
 
@@ -211,13 +250,7 @@ export default function AudioEngine() {
           // Ctrl/Cmd + ← = Previous track
           if (e.shiftKey || e.metaKey) {
             e.preventDefault();
-
-            if (currentIndex > 0) {
-              const previousIndex = currentIndex - 1;
-              dispatch(setCurrentIndex(previousIndex));
-              dispatch(setSong(queueIds[previousIndex]));
-            }
-
+            playPrevious();
             return;
           }
 
@@ -233,16 +266,7 @@ export default function AudioEngine() {
           if (e.shiftKey || e.metaKey) {
             e.preventDefault();
 
-            if (manualQueueIds.length > 0) {
-              const nextSongId = manualQueueIds[0];
-              dispatch(shiftManualQueue());
-              dispatch(setSong(nextSongId));
-            } else if (currentIndex < queueIds.length - 1) {
-              const nextIndex = currentIndex + 1;
-              dispatch(setCurrentIndex(nextIndex));
-              dispatch(setSong(queueIds[nextIndex]));
-            }
-
+            playNext();
             return;
           }
 
@@ -279,7 +303,106 @@ export default function AudioEngine() {
     window.addEventListener("keydown", handleKeyDown);
 
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [dispatch, isPlaying, effectiveVolume, currentIndex, queueIds, manualQueueIds]);
+  }, [
+    dispatch,
+    isPlaying,
+    effectiveVolume,
+    currentIndex,
+    queueIds,
+    manualQueueIds,
+  ]);
+
+  // Media API
+  // ── Media Session: metadata ───────────────────────────────────────────────
+  useEffect(() => {
+    if (!("mediaSession" in navigator) || !song) return;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: song.title,
+      artist: song.artists.join(" , "),
+      artwork: song.coverImage
+        ? [
+            { src: song.coverImage, sizes: "96x96", type: "image/png" },
+            { src: song.coverImage, sizes: "256x256", type: "image/png" },
+            { src: song.coverImage, sizes: "512x512", type: "image/png" },
+          ]
+        : [],
+    });
+  }, [song]);
+
+  // ── Media Session: action handlers ────────────────────────────────────────
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return;
+
+    navigator.mediaSession.setActionHandler("play", () =>
+      dispatch(setPlaying(true)),
+    );
+    navigator.mediaSession.setActionHandler("pause", () =>
+      dispatch(setPlaying(false)),
+    );
+    navigator.mediaSession.setActionHandler("previoustrack", playPrevious);
+    navigator.mediaSession.setActionHandler("nexttrack", playNext);
+
+    navigator.mediaSession.setActionHandler("seekbackward", (details) => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      const skip = details.seekOffset || 5;
+      audio.currentTime = Math.max(0, audio.currentTime - skip);
+      dispatch(setCurrentTime(audio.currentTime));
+    });
+
+    navigator.mediaSession.setActionHandler("seekforward", (details) => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      const skip = details.seekOffset || 5;
+      audio.currentTime = Math.min(
+        audio.duration || Infinity,
+        audio.currentTime + skip,
+      );
+      dispatch(setCurrentTime(audio.currentTime));
+    });
+
+    navigator.mediaSession.setActionHandler("seekto", (details) => {
+      const audio = audioRef.current;
+      if (!audio || details.seekTime == null) return;
+      audio.currentTime = details.seekTime;
+      dispatch(setCurrentTime(details.seekTime));
+    });
+
+    navigator.mediaSession.setActionHandler("stop", () => {
+      dispatch(setPlaying(false));
+      dispatch(setCurrentTime(0));
+    });
+
+    return () => {
+      // Clear handlers on unmount to avoid stale closures controlling playback
+      [
+        "play",
+        "pause",
+        "previoustrack",
+        "nexttrack",
+        "seekbackward",
+        "seekforward",
+        "seekto",
+        "stop",
+      ].forEach((action) => {
+        try {
+          navigator.mediaSession.setActionHandler(
+            action as MediaSessionAction,
+            null,
+          );
+        } catch {
+          // Some actions unsupported in some browsers — safe to ignore
+        }
+      });
+    };
+  }, [dispatch, currentIndex, queueIds, manualQueueIds]);
+
+  // ── Media Session: playback state ─────────────────────────────────────────
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return;
+    navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
+  }, [isPlaying]);
 
   // ── Render nothing ────────────────────────────────────────────────────────
   return null;

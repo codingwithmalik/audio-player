@@ -8,12 +8,18 @@ import SearchOverlay from "@/features/Search/SearchOverlay";
 import BrowseGrid from "@/features/Genre/BrowseGrid";
 import "overlayscrollbars/overlayscrollbars.css";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import { mobileSearchInputRef } from "@/features/Search/searchInputRef";
 
 const DEBOUNCE_MS = 500;
 
 export default function SearchPage() {
   const dispatch = useAppDispatch();
   const inputRef = useRef<HTMLInputElement>(null);
+  const mergedRef = (node: HTMLInputElement | null) => {
+    inputRef.current = node;
+    mobileSearchInputRef.current = node;
+  };
+
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [inputValue, setInputValue] = useState("");
@@ -50,7 +56,7 @@ export default function SearchPage() {
               val === "" ? handleClear() : setInputValue(val)
             }
             onFocus={() => setFocused(true)}
-            inputRef={inputRef}
+            inputRef={mergedRef}
           />
         </div>
         {focused && (

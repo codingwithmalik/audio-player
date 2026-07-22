@@ -3,16 +3,11 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import {
-  selectCurrentSongId,
   selectIsShuffle,
   selectRepeatMode,
   setRepeatMode,
   toggleShuffle,
 } from "@/slices/playerSlice";
-import {
-  shuffleQueue,
-  unshuffleQueue,
-} from "@/features/RightSidebar/Queue/queueSlice";
 import {
   selectRightSidebarPanel,
   openQueue,
@@ -29,7 +24,6 @@ export default function useGlobalKeyboardShortcuts() {
   const dispatch = useAppDispatch();
   const repeatMode = useAppSelector(selectRepeatMode);
   const isShuffled = useAppSelector(selectIsShuffle);
-  const currentSongId = useAppSelector(selectCurrentSongId) ?? null;
   const rightSidebarPanel = useAppSelector(selectRightSidebarPanel);
 
   useEffect(() => {
@@ -61,9 +55,6 @@ export default function useGlobalKeyboardShortcuts() {
         }
         case e.code === "KeyS" && !e.ctrlKey && !e.metaKey && !e.altKey: {
           e.preventDefault();
-          dispatch(
-            isShuffled ? unshuffleQueue({ currentSongId }) : shuffleQueue(),
-          );
           dispatch(toggleShuffle())
           break;
         }
@@ -90,5 +81,5 @@ export default function useGlobalKeyboardShortcuts() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [dispatch, repeatMode, isShuffled, rightSidebarPanel, currentSongId]);
+  }, [dispatch, repeatMode, isShuffled, rightSidebarPanel,]);
 }

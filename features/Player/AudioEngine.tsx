@@ -17,6 +17,7 @@ import {
   setSong,
   setVolume,
   toggleMute,
+  setBuffering,
 } from "@/slices/playerSlice";
 import {
   selectQueueIds,
@@ -40,6 +41,42 @@ export default function AudioEngine() {
   const queueIds = useAppSelector(selectQueueIds);
   const currentIndex = useAppSelector(selectCurrentIndex);
   const manualQueueIds = useAppSelector(selectManualQueueIds);
+
+  const effectiveVolumeRef = useRef(effectiveVolume);
+  const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    effectiveVolumeRef.current = effectiveVolume;
+  }, [effectiveVolume]);
+
+  // ── Fade helper ────────────────────────────────────────────────────────────
+  const FADE_MS = 200;
+  const FADE_STEPS = 10;
+
+  const clearFade = () => {
+    if (fadeIntervalRef.current) {
+      clearInterval(fadeIntervalRef.current);
+      fadeIntervalRef.current = null;
+    }
+  };
+
+  const fadeVolume = (from: number, to: number, onComplete?: () => void) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    clearFade();
+    audio.volume = Math.max(0, Math.min(1, from));
+    let step = 0;
+    fadeIntervalRef.current = setInterval(() => {
+      step++;
+      const t = step / FADE_STEPS;
+      audio.volume = Math.max(0, Math.min(1, from + (to - from) * t));
+      if (step >= FADE_STEPS) {
+        clearFade();
+        audio.volume = Math.max(0, Math.min(1, to));
+        onComplete?.();
+      }
+    }, FADE_MS / FADE_STEPS);
+  };
 
   // ── Add near the top of the component, after the selectors ────────────────
   // Shared next/previous logic — used by both keyboard shortcuts and Media Session
@@ -87,6 +124,11 @@ export default function AudioEngine() {
     audio.src = song.audioUrl;
     audio.load();
     if (isPlaying) audio.play().catch(console.error);
+    if (isPlaying) {
+      audio.volume = 0;
+      audio.play().catch(console.error);
+      fadeVolume(0, effectiveVolumeRef.current / 100);
+    }
   }, [song?.id]); // only re-run when song ID changes, not isPlaying
 
   // ── Play / pause ──────────────────────────────────────────────────────────
@@ -95,8 +137,14 @@ export default function AudioEngine() {
     if (!audio || !song?.audioUrl) return;
     if (isPlaying) {
       audio.play().catch(console.error);
+      audio.volume = 0;
+      audio.play().catch(console.error);
+      fadeVolume(0, effectiveVolumeRef.current / 100);
     } else {
       audio.pause();
+      fadeVolume(audio.volume, 0, () => {
+        audio.pause();
+      });
     }
   }, [isPlaying]);
 
@@ -150,6 +198,25 @@ export default function AudioEngine() {
     audio.addEventListener("timeupdate", handleTimeUpdate);
     return () => audio.removeEventListener("timeupdate", handleTimeUpdate);
   }, [dispatch, isDragging]);
+
+  // ── Buffering state ────────────────────────────────────────────────────────
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleWaiting = () => dispatch(setBuffering(true));
+    const handleResumed = () => dispatch(setBuffering(false));
+
+    audio.addEventListener("waiting", handleWaiting);
+    audio.addEventListener("playing", handleResumed);
+    audio.addEventListener("canplay", handleResumed);
+
+    return () => {
+      audio.removeEventListener("waiting", handleWaiting);
+      audio.removeEventListener("playing", handleResumed);
+      audio.removeEventListener("canplay", handleResumed);
+    };
+  }, [dispatch]);
 
   // ── Song ended ────────────────────────────────────────────────────────────
   useEffect(() => {

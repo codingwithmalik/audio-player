@@ -11,6 +11,7 @@ import {
   SkipForward,
   Repeat,
   Repeat1,
+  Loader2,
 } from "lucide-react";
 import { useProgressDrag } from "@/hooks/UseSliderDrag";
 import {
@@ -26,6 +27,7 @@ import {
   selectIsDraggingProgress,
   setSong,
   setCurrentTime,
+  selectIsBuffering,
 } from "@/slices/playerSlice";
 import {
   selectQueueIds,
@@ -54,6 +56,7 @@ export default function PlayerControls({
 }) {
   const dispatch = useAppDispatch();
   const isPlaying = useAppSelector(selectIsPlaying);
+  const isBuffering = useAppSelector(selectIsBuffering);
   const isShuffle = useAppSelector(selectIsShuffle);
   const repeatMode = useAppSelector(selectRepeatMode);
   const song = useAppSelector(selectCurrentSong);
@@ -140,11 +143,14 @@ export default function PlayerControls({
             aria-label={isPlaying ? "Pause" : "Play"}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-[0_0_16px_rgba(255,255,255,0.2)] transition hover:bg-neutral-100 active:scale-95"
           >
-            {isPlaying ? (
-              <Pause className="h-4 w-4 fill-current" />
-            ) : (
-              <Play className="h-4 w-4 translate-x-0.5 fill-current" />
-            )}
+            {isPlaying &&
+              (isBuffering ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : isPlaying ? (
+                <Pause className="h-4 w-4 fill-current" />
+              ) : (
+                <Play className="h-4 w-4 translate-x-0.5 fill-current" />
+              ))}
           </button>
 
           <button
@@ -192,9 +198,15 @@ export default function PlayerControls({
             className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black shadow-[0_0_16px_rgba(255,255,255,0.2)] transition hover:bg-neutral-100 active:scale-95 lg:h-9 lg:w-9"
           >
             {isPlaying ? (
-              <Pause className="h-3.5 w-3.5 fill-current lg:h-4 lg:w-4" />
+              isBuffering ? (
+                <Loader2 className="h-4 w-4 animate-spin text-black" />
+              ) : isPlaying ? (
+                <Pause className="h-4 w-4 text-black fill-black" />
+              ) : (
+                <Play className="h-4 w-4 translate-x-0.5 fill-current" />
+              )
             ) : (
-              <Play className="h-3.5 w-3.5 translate-x-0.5 fill-current lg:h-4 lg:w-4" />
+              <Play className="h-4 w-4 translate-x-0.5 fill-current" />
             )}
           </button>
 

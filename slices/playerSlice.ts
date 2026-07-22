@@ -17,6 +17,7 @@ const initialState: PlayerState = {
   isDraggingProgress: false,
   isDraggingVolume: false,
   isNowPlayingOpen: false,
+  isBuffering: false,
 };
 
 // ─── Slice ─────────────────────────────────────────────────────────────────────
@@ -104,6 +105,9 @@ const playerSlice = createSlice({
     closeNowPlaying: (state) => {
       state.isNowPlayingOpen = false;
     },
+    setBuffering: (state, action: PayloadAction<boolean>) => {
+      state.isBuffering = action.payload;
+    },
   },
 });
 
@@ -124,6 +128,7 @@ export const {
   toggleNowPlaying,
   openNowPlaying,
   closeNowPlaying,
+  setBuffering,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;
@@ -158,3 +163,4 @@ export const selectCurrentSong = (state: RootState) => {
 };
 export const selectIsNowPlayingOpen = (state: RootState) =>
   state.player.isNowPlayingOpen;
+export const selectIsBuffering = (state: RootState) => state.player.isBuffering;

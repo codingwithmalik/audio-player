@@ -15,7 +15,7 @@ import {
   selectIsDraggingProgress,
   closeNowPlaying,
   openNowPlaying,
-} from "@/store/playerSlice";
+} from "@/slices/playerSlice";
 import AudioEngine from "./AudioEngine";
 
 export default function Player() {

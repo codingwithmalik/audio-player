@@ -17,7 +17,7 @@ import {
   setQueue,
   setCurrentIndex,
 } from "@/features/RightSidebar/Queue/queueSlice";
-import { setSong } from "@/store/playerSlice";
+import { setSong } from "@/slices/playerSlice";
 import type { RootState } from "@/store/store";
 import type { Playlist } from "@/types/playlist";
 import type { Song } from "@/types/song";

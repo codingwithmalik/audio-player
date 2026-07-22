@@ -6,7 +6,7 @@ import { shuffleSyncMiddleware } from "@/middlewares/shuffleSyncMiddleware";
 import { privateSessionMiddleware } from "@/middlewares/privateSessionMiddleware";
 import authslice from "@/features/Auth/authSlice";
 import librarySlice from "@/features/LeftSidebar/Library/libraryslice";
-import playerSlice from "@/store/playerSlice";
+import playerSlice from "@/slices/playerSlice";
 import playlistSlice from "@/features/Playlist/playlistSlice";
 import foldersSlice from "@/features/Folder/folderSlice";
 import songsSlice from "@/features/Songs/songsSlice";

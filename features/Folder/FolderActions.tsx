@@ -13,7 +13,7 @@ import {
   openAddToFolder,
   selectIsAddToFolderOpen,
 } from "@/slices/rightSidebarSlice";
-import { closeNowPlaying } from "@/store/playerSlice";
+import { closeNowPlaying } from "@/slices/playerSlice";
 
 export default function FolderActions({
   folderId,

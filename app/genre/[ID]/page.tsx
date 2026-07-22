@@ -10,7 +10,7 @@ import {
   setQueue,
   setCurrentIndex,
 } from "@/features/RightSidebar/Queue/queueSlice";
-import { setSong } from "@/store/playerSlice";
+import { setSong } from "@/slices/playerSlice";
 import ShelfTile from "@/features/Home/ShelfTile";
 import type { RootState } from "@/store/store";
 import type { ShelfItem } from "@/features/Home/ShelfRow";

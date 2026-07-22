@@ -16,12 +16,12 @@ import {
 } from "@/features/RightSidebar/Queue/queueSlice";
 import { selectSongById } from "@/features/Songs/songsSlice";
 import { selectPlaylistById } from "@/features/Playlist/playlistSlice";
-import { setSong } from "@/store/playerSlice";
+import { setSong } from "@/slices/playerSlice";
 import { closeRightSidebarPanel } from "@/slices/rightSidebarSlice";
 import type { RootState } from "@/store/store";
 import RecentlyPlayed from "@/features/RightSidebar/Queue/recentlyPlayed";
 import SongCover from "@/features/Common/SongCover";
-import { selectCurrentSong } from "@/store/playerSlice";
+import { selectCurrentSong } from "@/slices/playerSlice";
 import {
   DndContext,
   PointerSensor,

@@ -17,7 +17,7 @@ import {
   setSong,
   setVolume,
   toggleMute,
-} from "@/store/playerSlice";
+} from "@/slices/playerSlice";
 import {
   selectQueueIds,
   selectCurrentIndex,

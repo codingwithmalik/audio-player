@@ -8,7 +8,7 @@ import {
   setDraggingProgress,
   setVolume,
   setDraggingVolume,
-} from "@/store/playerSlice";
+} from "@/slices/playerSlice";
 
 // ─── Core primitive ───────────────────────────────────────────────────────────
 

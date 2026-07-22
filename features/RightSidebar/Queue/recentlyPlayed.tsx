@@ -3,7 +3,7 @@
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import { selectRecentSongIds } from "@/slices/historySlice";
 import { selectSongById } from "@/features/Songs/songsSlice";
-import { setSong } from "@/store/playerSlice";
+import { setSong } from "@/slices/playerSlice";
 import type { RootState } from "@/store/store";
 import SongCover from "@/features/Common/SongCover";
 

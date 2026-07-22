@@ -24,7 +24,7 @@ import {
   selectIsPlaying,
   togglePlay,
   selectCurrentSongId,
-} from "@/store/playerSlice";
+} from "@/slices/playerSlice";
 import {
   setCurrentIndex,
   setQueue,

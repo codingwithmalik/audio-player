@@ -17,7 +17,7 @@ import {
   setCurrentIndex,
   setQueue,
 } from "@/features/RightSidebar/Queue/queueSlice";
-import { setSong } from "@/store/playerSlice";
+import { setSong } from "@/slices/playerSlice";
 
 export default function ProfilePage() {
   const playlists = useAppSelector(selectPlaylists);

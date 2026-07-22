@@ -26,7 +26,7 @@ import {
   selectIsDraggingProgress,
   setSong,
   setCurrentTime,
-} from "@/store/playerSlice";
+} from "@/slices/playerSlice";
 import {
   selectQueueIds,
   selectCurrentIndex,

@@ -10,7 +10,7 @@ import { selectPlaylistById } from "@/features/Playlist/playlistSlice";
 import { selectSongsByIds } from "@/features/Songs/songsSlice";
 import PlaylistMosaicCover from "@/features/Playlist/playlistMosaicCover";
 import { selectQueueSourceId } from "@/features/RightSidebar/Queue/queueSlice";
-import { selectIsPlaying } from "@/store/playerSlice";
+import { selectIsPlaying } from "@/slices/playerSlice";
 import EqBars from "@/features/Common/EQBars";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 

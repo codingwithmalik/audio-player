@@ -1,5 +1,5 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit";
-import { setSong } from "@/store/playerSlice";
+import { setSong } from "@/slices/playerSlice";
 import { songPlayed } from "@/slices/historySlice";
 import { RootState } from "@/store/store";
 import { selectIsPrivateSessionActive } from "@/features/Profile/settingsSlice";

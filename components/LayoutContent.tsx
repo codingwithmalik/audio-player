@@ -3,10 +3,12 @@ import React, { useState, useCallback } from "react";
 import Header from "../components/header";
 import Player from "@/features/Player/player";
 import Rightsidebar from "@/components/rightsidebar";
+
+
 import LeftSidebar from "@/components/leftsidebar";
 import BottomNav from "@/components/mobileNavbar";
 import NowPlayingView from "@/features/Player/NowPlayingView";
-import { selectCurrentSong, selectIsNowPlayingOpen } from "@/store/playerSlice";
+import { selectCurrentSong, selectIsNowPlayingOpen } from "@/slices/playerSlice";
 import { useAppSelector } from "@/globalHooks";
 import RightSidebarPanelOverlay from "@/features/RightSidebar/RightSidebarPanelOverlay";
 import { usePanelWidths } from "@/hooks/usePanelWidths";

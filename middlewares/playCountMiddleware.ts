@@ -1,5 +1,5 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit";
-import { setSong } from "@/store/playerSlice";
+import { setSong } from "@/slices/playerSlice";
 import { incrementPlayCount } from "@/features/Songs/songsSlice";
 import { touchPlaylist } from "@/features/Playlist/playlistSlice";
 import type { RootState } from "@/store/store";

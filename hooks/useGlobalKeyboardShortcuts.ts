@@ -8,7 +8,7 @@ import {
   selectRepeatMode,
   setRepeatMode,
   toggleShuffle,
-} from "@/store/playerSlice";
+} from "@/slices/playerSlice";
 import {
   shuffleQueue,
   unshuffleQueue,

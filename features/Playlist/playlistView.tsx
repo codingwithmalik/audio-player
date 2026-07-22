@@ -25,7 +25,7 @@ import {
   selectViewMode,
   updatePlaylistMeta,
 } from "@/features/Playlist/playlistSlice";
-import { selectCurrentSongId } from "@/store/playerSlice";
+import { selectCurrentSongId } from "@/slices/playerSlice";
 // import { useAccentColor } from "@/hooks/UseAccentColor";
 
 interface PlaylistViewProps {

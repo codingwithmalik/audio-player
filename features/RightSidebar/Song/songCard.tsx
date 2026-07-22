@@ -15,7 +15,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useAppSelector } from "@/globalHooks";
-import { selectCurrentSong } from "@/store/playerSlice";
+import { selectCurrentSong } from "@/slices/playerSlice";
 import {
   selectQueueIds,
   selectCurrentIndex,

@@ -12,7 +12,7 @@ import {
   selectCurrentSong,
   selectRepeatMode,
   setCurrentTime,
-} from "@/store/playerSlice";
+} from "@/slices/playerSlice";
 
 export default function usePlaybackTicker() {
   const dispatch = useAppDispatch();

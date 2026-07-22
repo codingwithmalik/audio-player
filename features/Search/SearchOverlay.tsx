@@ -16,7 +16,7 @@ import {
   setCurrentIndex,
 } from "@/features/RightSidebar/Queue/queueSlice";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import { setSong } from "@/store/playerSlice";
+import { setSong } from "@/slices/playerSlice";
 import SearchResultRow from "./SearchResultRow";
 import type { RootState } from "@/store/store";
 

@@ -18,7 +18,7 @@ import {
   selectIsDraggingVolume,
   selectIsNowPlayingOpen,
   closeNowPlaying,
-} from "@/store/playerSlice";
+} from "@/slices/playerSlice";
 import {
   closeRightSidebarPanel,
   openQueue,

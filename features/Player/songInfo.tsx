@@ -8,7 +8,7 @@ import {
   openNowPlaying,
   selectCurrentSong,
   selectIsPlaying,
-} from "@/store/playerSlice";
+} from "@/slices/playerSlice";
 import { Song } from "@/types/song";
 import EqBars from "../Common/EQBars";
 

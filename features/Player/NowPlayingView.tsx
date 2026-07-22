@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import PanelSheet from "@/features/Common/PanelSheet";
 import SongCard from "@/features/RightSidebar/Song/songCard";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
-import { selectCurrentSong, closeNowPlaying } from "@/store/playerSlice";
+import { selectCurrentSong, closeNowPlaying } from "@/slices/playerSlice";
 import { openQueue, closeRightSidebarPanel } from "@/slices/rightSidebarSlice";
 import { useIsMobile } from "@/hooks/useIsMobile";
 

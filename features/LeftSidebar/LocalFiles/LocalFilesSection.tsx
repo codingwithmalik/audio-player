@@ -14,7 +14,7 @@ import {
   setQueue,
   setCurrentIndex,
 } from "@/features/RightSidebar/Queue/queueSlice";
-import { setSong, setPlaying } from "@/store/playerSlice";
+import { setSong, setPlaying } from "@/slices/playerSlice";
 import { parseLocalFile } from "./parseLocalFile";
 import SongCover from "@/features/Common/SongCover";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";

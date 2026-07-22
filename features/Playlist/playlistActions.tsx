@@ -47,7 +47,7 @@ import {
   setSong,
   togglePlay,
   toggleShuffle,
-} from "@/store/playerSlice";
+} from "@/slices/playerSlice";
 import { Song } from "@/types/song";
 import BottomSheet from "../Common/BottomSheet";
 import PlaylistMoreOptions from "./playlistMoreOptions";

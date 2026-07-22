@@ -1,5 +1,5 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit";
-import { toggleShuffle } from "@/store/playerSlice";
+import { toggleShuffle } from "@/slices/playerSlice";
 import {
   shuffleQueue,
   unshuffleQueue,

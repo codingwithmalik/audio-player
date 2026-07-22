@@ -21,14 +21,15 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import BottomSheet from "../Common/BottomSheet";
 import AddToPlaylistMenu from "../Common/AddSongToPlaylists";
 import SongCover from "../Common/SongCover";
+import { memo } from "react";
 
 interface PlaylistTrackRowProps {
   song: Song;
   index: number; // 1-based
   addedAt: string; // ISO — from playlist join data
   isPlaying: boolean;
-  onPlay: () => void;
-    isCurrent:boolean;
+  onPlay: (songId: string, index: number) => void;
+  isCurrent: boolean;
 }
 
 /** seconds → M:SS */
@@ -47,13 +48,13 @@ function formatDate(iso: string): string {
   });
 }
 
-export default function PlaylistTrackRow({
+function PlaylistTrackRow({
   song,
   index,
   addedAt,
   isPlaying,
   onPlay,
-  isCurrent
+  isCurrent,
 }: PlaylistTrackRowProps) {
   const [hovered, setHovered] = useState(false);
   const [SongMoreOptionsOpen, setSongMoreOptionsOpen] = useState(false);
@@ -63,16 +64,19 @@ export default function PlaylistTrackRow({
   const anchorRef = useRef<HTMLButtonElement>(null);
   const artistLabel = song.artists.join(", ");
 
+  const handlePlayClick = () => {
+    onPlay(song.id, index);
+  };
   return (
     <div
       role="row"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => {
-        if (window.innerWidth < 640) onPlay();
+        if (window.innerWidth < 640) onPlay(song.id, index);
       }}
       onDoubleClick={() => {
-        if (window.innerWidth >= 640) onPlay();
+        if (window.innerWidth >= 640) onPlay(song.id, index);
       }}
       className={`
         grid items-center gap-4 px-4 py-2 rounded-md cursor-default select-none
@@ -85,7 +89,10 @@ export default function PlaylistTrackRow({
         {isPlaying && !hovered ? (
           <EqBars />
         ) : hovered ? (
-          <button onClick={onPlay} aria-label={isPlaying ? "Pause" : "Play"}>
+          <button
+            onClick={handlePlayClick}
+            aria-label={isPlaying ? "Pause" : "Play"}
+          >
             {isPlaying ? (
               <Pause className="w-4 h-4 fill-white text-white hover:scale-110 transition-transform" />
             ) : (
@@ -189,3 +196,4 @@ export default function PlaylistTrackRow({
     </div>
   );
 }
+export default memo(PlaylistTrackRow);

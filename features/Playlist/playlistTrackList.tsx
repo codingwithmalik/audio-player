@@ -9,14 +9,23 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import PlaylistTrackRow from "./playlistTrackRow";
 import { Song } from "@/types/song";
 import { PlaylistSong } from "@/types/playlist";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
-import { reorderPlaylistSongs, selectSortBy, selectSearchQuery } from "@/features/Playlist/playlistSlice";
+import {
+  reorderPlaylistSongs,
+  selectSortBy,
+  selectSearchQuery,
+} from "@/features/Playlist/playlistSlice";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { memo } from "react";
 
 interface PlaylistTrackListProps {
   playlistId: string;
@@ -46,7 +55,9 @@ export default function PlaylistTrackList({
   const isReorderEnabled = sortBy === "custom" && searchQuery.trim() === "";
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: {delay:100, tolerance: 8 } }),
+    useSensor(PointerSensor, {
+      activationConstraint: { delay: 100, tolerance: 8 },
+    }),
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -68,10 +79,16 @@ export default function PlaylistTrackList({
         className="hidden sm:grid items-center gap-4 px-4 pb-2 mb-1 border-b border-white/10 sm:grid-cols-[20px_32px_1.5fr_20px_1fr_48px_32px]"
       >
         <span /> {/* drag handle spacer, keeps header aligned with rows */}
-        <span className="text-xs text-white/40 text-center font-semibold">#</span>
-        <span className="text-xs text-white/40 font-semibold uppercase tracking-wider">Title</span>
+        <span className="text-xs text-white/40 text-center font-semibold">
+          #
+        </span>
+        <span className="text-xs text-white/40 font-semibold uppercase tracking-wider">
+          Title
+        </span>
         <span></span>
-        <span className="text-xs text-white/40 font-semibold uppercase tracking-wider">Date added</span>
+        <span className="text-xs text-white/40 font-semibold uppercase tracking-wider">
+          Date added
+        </span>
         <span className="flex justify-end">
           <Clock className="w-4 h-4 text-white/40" />
         </span>
@@ -83,17 +100,20 @@ export default function PlaylistTrackList({
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext items={songs.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext
+          items={songs.map((s) => s.id)}
+          strategy={verticalListSortingStrategy}
+        >
           <div role="rowgroup" className="flex flex-col gap-0.5 mt-1">
             {songs.map((song, i) => (
-              <SortableTrackRow
+              <MemoizedSortableTrackRow
                 key={song.id}
                 song={song}
                 index={i + 1}
                 addedAt={playlistSongs[i]?.addedAt ?? song.createdAt}
                 isPlaying={isPlaylistPlaying && song.id === currentSongId}
                 isCurrent={isCurrentPlaylist && song.id === currentSongId}
-                onPlay={() => onPlaySong(song.id, i)}
+                onPlay={onPlaySong}
                 isReorderEnabled={isReorderEnabled}
               />
             ))}
@@ -121,14 +141,21 @@ function SortableTrackRow({
   addedAt: string;
   isPlaying: boolean;
   isCurrent: boolean;
-  onPlay: () => void;
+  onPlay: (songId: string, index: number) => void;
   isReorderEnabled: boolean;
 }) {
-    const isMobile = useIsMobile();
-  
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const isMobile = useIsMobile();
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: song.id,
-    disabled: !isReorderEnabled|| isMobile,
+    disabled: !isReorderEnabled || isMobile,
   });
 
   const style = {
@@ -139,7 +166,13 @@ function SortableTrackRow({
   };
 
   return (
-    <div ref={setNodeRef} style={style}  {...(isReorderEnabled ? { ...attributes, ...listeners } : {})} className="touch-pan-y" data-gsap="track-row">
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...(isReorderEnabled ? { ...attributes, ...listeners } : {})}
+      className="touch-pan-y"
+      data-gsap="track-row"
+    >
       <PlaylistTrackRow
         song={song}
         index={index}
@@ -151,3 +184,4 @@ function SortableTrackRow({
     </div>
   );
 }
+const MemoizedSortableTrackRow = memo(SortableTrackRow);

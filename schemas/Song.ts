@@ -14,5 +14,5 @@ const SongSchema = new Schema(
   },
   { timestamps: true },
 );
-
+SongSchema.index({ title: "text", artists: "text" });
 export default models.Song || model("Song", SongSchema);

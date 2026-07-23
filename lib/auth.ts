@@ -9,6 +9,7 @@ import UserProfile from "@/schemas/UserProfile";
 import { generateUniqueUsername } from "@/utils/generateUsername";
 import bcrypt from "bcryptjs";
 import { sendVerificationRequest } from "@/utils/email/sendVerificationRequest";
+import { playlistService } from "@/services/playlistService";
 
 export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
@@ -82,6 +83,7 @@ export const authOptions: NextAuthOptions = {
           username,
         });
         user.id = created._id;
+        await playlistService.ensureLikedPlaylist(created._id);
       } else {
         user.id = existing._id;
       }

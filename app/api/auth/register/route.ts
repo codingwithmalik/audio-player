@@ -10,13 +10,20 @@ export async function POST(req: NextRequest) {
   const { email, password } = await req.json();
 
   if (!email || !password) {
-    return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Email and password are required" },
+      { status: 400 },
+    );
   }
 
-  const alreadyExists = await checkEmailExists(email);
-  if (alreadyExists) {
+  const { exists } = await checkEmailExists(email);
+
+  if (exists) {
     return NextResponse.json(
-      { error: "An account with this email already exists. Try signing in with Google, Apple, or email link instead." },
+      {
+        error: "An account with this email already exists.",
+        code: "EMAIL_EXISTS",
+      },
       { status: 409 },
     );
   }

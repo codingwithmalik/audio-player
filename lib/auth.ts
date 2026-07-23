@@ -8,6 +8,7 @@ import { connectDB } from "@/lib/db/connect";
 import UserProfile from "@/schemas/UserProfile";
 import { generateUniqueUsername } from "@/utils/generateUsername";
 import bcrypt from "bcryptjs";
+import { sendVerificationRequest } from "@/utils/email/sendVerificationRequest";
 
 export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
@@ -23,7 +24,11 @@ export const authOptions: NextAuthOptions = {
 
         await connectDB();
         const user = await UserProfile.findOne({ email: credentials.email });
-        if (!user || !user.password) return null;
+
+        if (!user) return null;
+        if (!user.password) {
+          throw new Error("NO_PASSWORD_SET");
+        }
 
         const isValid = await bcrypt.compare(
           credentials.password,
@@ -53,30 +58,32 @@ export const authOptions: NextAuthOptions = {
         },
       },
       from: process.env.EMAIL_FROM,
+      sendVerificationRequest,
+      maxAge: 24 * 60 * 60,
     }),
   ],
 
   session: {
-    strategy: "jwt", // required — Credentials provider cannot use database sessions
+    strategy: "jwt",
   },
 
   callbacks: {
     async signIn({ user }) {
-      if (!user.id) return false;
+      if (!user.email) return false;
 
-      // Credentials users are already resolved by authorize() above — this
-      // only runs the "first-time" creation path for Google/Apple/Email.
       await connectDB();
-      
-      const existing = await UserProfile.findById(user.id);
+      const existing = await UserProfile.findOne({ email: user.email });
 
       if (!existing) {
-        if (!user.email) return false; // shouldn't happen, but guards the username generator
         const username = await generateUniqueUsername(user.email);
-        await UserProfile.create({
+        const created = await UserProfile.create({
           _id: user.id,
+          email: user.email,
           username,
         });
+        user.id = created._id;
+      } else {
+        user.id = existing._id;
       }
 
       return true;
@@ -104,6 +111,6 @@ export const authOptions: NextAuthOptions = {
   },
 
   pages: {
-    signIn: "/login",
+    verifyRequest: "/verify-request",
   },
 };

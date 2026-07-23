@@ -1,6 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
-import ReduxProvider from "../providers/reduxprovider";
+import ReduxProvider from "@/providers/reduxprovider";
+import SessionProvider from "@/providers/sessionProvider";
 import { Poppins } from "next/font/google";
 import { Toaster } from "sonner";
 
@@ -24,18 +25,20 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable}  antialiased`}>
       <body className="h-screen min-h-screen overflow-hidden text-white bg-linear-to-br from-slate-950 via-fuchsia-950 to-cyan-950 w-screen">
-        <ReduxProvider>
-          <LayoutContent>
-            <Toaster
-              theme="dark"
-              position="top-center"
-              toastOptions={{
-                unstyled: true,
-              }}
-            />
-            {children}
-          </LayoutContent>
-        </ReduxProvider>
+        <SessionProvider>
+          <ReduxProvider>
+            <LayoutContent>
+              <Toaster
+                theme="dark"
+                position="top-center"
+                toastOptions={{
+                  unstyled: true,
+                }}
+              />
+              {children}
+            </LayoutContent>
+          </ReduxProvider>
+        </SessionProvider>
       </body>
     </html>
   );

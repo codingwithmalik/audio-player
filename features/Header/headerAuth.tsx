@@ -4,27 +4,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import {
-  User,
-  LogIn,
-  UserPlus,
-  Cloud,
-} from "lucide-react";
-import { useAppSelector, useAppDispatch } from "@/globalHooks";
-import { setUser } from "../Auth/authSlice";
-import { folders, songs, playlists } from "@/lib/mockData";
-// import { songs } from "@/lib/mockSongs";
-// import { playlists } from "@/lib/mockPlaylists";
-import {
-  ensureLikedPlaylist,
-  upsertPlaylists,
-} from "../Playlist/playlistSlice";
-import { upsertSongs } from "../Songs/songsSlice";
-import { upsertFolders } from "../Folder/folderSlice";
+import { useSession, signOut } from "next-auth/react";
+import { User, LogIn, UserPlus, Cloud, LogOut } from "lucide-react";
 
 export default function HeaderAuth() {
-  const dispatch = useAppDispatch();
-  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === "authenticated";
+  const user = session?.user;
+
   const [profileMenu, setProfileMenu] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileWrapperRef = useRef<HTMLDivElement>(null);
@@ -50,32 +37,13 @@ export default function HeaderAuth() {
     return () => document.removeEventListener("mousedown", handler);
   }, [profileMenu]);
 
-  useEffect(() => {
-    // console.log("User signed in now setting the playlists");
-    dispatch(upsertFolders(folders));
-    dispatch(upsertPlaylists(playlists));
-    dispatch(upsertSongs(songs));
-  }, [dispatch]);
-  const handleLogin = () => {
-    const user = {
-      id: "user-1",
-      username: "codingwmalik",
-      email: "codingwithmalik@gmail.com",
-      createdAt: new Date().toISOString(),
-    };
-    dispatch(setUser(user));
-    dispatch(ensureLikedPlaylist({ userId: user.id, username: user.username }));
-  };
-  // console.log(user);
-
   return (
     <div className="flex items-center gap-3">
       {/* ── NOT LOGGED IN ── */}
       {!isAuthenticated && (
         <>
           <Link
-            href="#"
-            onClick={handleLogin}
+            href="/login"
             className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-white/10 hover:text-white"
           >
             <LogIn className="h-4 w-4" />
@@ -83,7 +51,7 @@ export default function HeaderAuth() {
           </Link>
 
           <Link
-            href="/signup"
+            href="/register"
             className="flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:scale-105 hover:bg-neutral-200"
           >
             <UserPlus className="h-4 w-4" />
@@ -95,7 +63,6 @@ export default function HeaderAuth() {
       {/* ── LOGGED IN ── */}
       {isAuthenticated && user && (
         <>
-          {/* Upload Song */}
           <Link
             href="/upload"
             className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black transition hover:scale-105"
@@ -104,15 +71,14 @@ export default function HeaderAuth() {
             Upload Song
           </Link>
 
-          {/* Profile button + dropdown */}
           <div ref={profileWrapperRef} className="relative">
-            <Link
-              href="/profile"
+            <button
+              onClick={() => setProfileMenu((v) => !v)}
               className="flex items-center gap-2 rounded-full px-1 border border-white/10 bg-black/30 text-white transition hover:bg-white/10"
             >
-              {user.image ? (
+              {user.coverImage ? (
                 <Image
-                  src={user.image}
+                  src={user.coverImage}
                   alt={user.username}
                   width={38}
                   height={38}
@@ -126,11 +92,32 @@ export default function HeaderAuth() {
               <span className="max-w-30 truncate pr-2 text-sm font-medium text-white">
                 {user.username}
               </span>
-            </Link>
+            </button>
+
+            {profileMenu && (
+              <div
+                ref={profileMenuRef}
+                className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-white/10 bg-[#1a0a2e] py-2 shadow-2xl"
+              >
+                <Link
+                  href="/profile"
+                  className="block px-4 py-2 text-sm text-white hover:bg-white/10"
+                  onClick={() => setProfileMenu(false)}
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-white/10"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Log out
+                </button>
+              </div>
+            )}
           </div>
         </>
       )}
     </div>
   );
 }
-

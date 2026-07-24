@@ -1,6 +1,6 @@
 "use client";
 
-import "../styles/backgrounds.css";
+import "@/styles/backgrounds.css";
 import "overlayscrollbars/overlayscrollbars.css";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import HomeSections from "@/features/Home/HomeSections";

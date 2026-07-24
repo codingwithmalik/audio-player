@@ -6,7 +6,6 @@ import { Poppins } from "next/font/google";
 import { Toaster } from "sonner";
 
 import "./globals.css";
-import LayoutContent from "@/components/LayoutContent";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -19,24 +18,21 @@ export const metadata: Metadata = {
   description: "Play your music without limits",
   icons: { icon: "/logo.webp" },
 };
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${poppins.variable}  antialiased`}>
+    <html lang="en" className={`${poppins.variable} antialiased`}>
       <body className="h-screen min-h-screen overflow-hidden text-white bg-linear-to-br from-slate-950 via-fuchsia-950 to-cyan-950 w-screen">
         <SessionProvider>
           <ReduxProvider>
-            <LayoutContent>
-              <Toaster
-                theme="dark"
-                position="top-center"
-                toastOptions={{
-                  unstyled: true,
-                }}
-              />
-              {children}
-            </LayoutContent>
+            <Toaster
+              theme="dark"
+              position="top-center"
+              toastOptions={{ unstyled: true }}
+            />
+            {children}
           </ReduxProvider>
         </SessionProvider>
       </body>

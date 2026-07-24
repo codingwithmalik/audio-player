@@ -31,11 +31,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // If a password already exists, this is a genuine "change password" —
-  // require proof of the current one, session alone isn't enough.
-  // If no password exists yet, the live email-verified session already
-  // proved ownership, so there's nothing to confirm against.
-  if (user.password) {
+  // A session established within the last 5 minutes means this request is
+  // arriving right after a real sign-in event (magic link or Google) — that
+  // freshly-proven ownership stands in for currentPassword, same reasoning
+  // as the original "no password set" case. An older, already-standing
+  // session doesn't get this pass, and must supply currentPassword instead.
+  const FRESH_SESSION_WINDOW_SECONDS = 5 * 60;
+  const sessionAgeSeconds =
+    Math.floor(Date.now() / 1000) - (session.sessionIssuedAt ?? 0);
+  const isFreshSession = sessionAgeSeconds < FRESH_SESSION_WINDOW_SECONDS;
+
+  if (user.password && !isFreshSession) {
     if (!currentPassword) {
       return NextResponse.json(
         { error: "Current password is required" },
@@ -57,8 +63,6 @@ export async function POST(req: NextRequest) {
   await user.save();
 
   return NextResponse.json({
-    message: user.password
-      ? "Password updated successfully."
-      : "Password set. You can now sign in with email and password too.",
+    message: "Password updated successfully.",
   });
 }

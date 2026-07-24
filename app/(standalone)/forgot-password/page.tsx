@@ -1,18 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import { storePendingPassword } from "@/utils/pendingPassword";
 import PasswordInput from "@/features/Auth/components/PasswordInput";
-import GoogleIcon from "@/icons/GoogleIcon";
 
-export default function RegisterPage() {
+export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -23,43 +21,29 @@ export default function RegisterPage() {
       toast.error("Email is required");
       return;
     }
-    if (password.length < 8) {
+    if (newPassword.length < 8) {
       toast.error("Password must be at least 8 characters");
       return;
     }
-    if (password !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       toast.error("Passwords don't match");
       return;
     }
 
     setIsSubmitting(true);
-
-    const res = await fetch("/api/auth/check-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json();
-
-    if (!res.ok || !data.available) {
-      toast.error(data.error || "Something went wrong");
-      setIsSubmitting(false);
-      return;
-    }
-
-    storePendingPassword(email, password);
-    await signIn("email", { email, redirect: false, callbackUrl: "/" });
+    storePendingPassword(email, newPassword);
+    await signIn("email", { email, redirect: false , callbackUrl:"/"});
     router.push("/verify-request");
   };
 
   return (
     <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-black/30 p-8">
       <h1 className="mb-2 text-2xl font-bold text-white">
-        Create your account
+        Reset your password
       </h1>
       <p className="mb-6 text-sm text-neutral-400">
-        We&apos;ll email you a link to verify it&apos;s really you before your
-        account is created.
+        Enter your email and a new password — we&apos;ll send a link to confirm
+        it&apos;s you.
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -73,14 +57,14 @@ export default function RegisterPage() {
         />
 
         <PasswordInput
-          value={password}
-          onChange={setPassword}
-          placeholder="Password"
+          value={newPassword}
+          onChange={setNewPassword}
+          placeholder="New password"
         />
         <PasswordInput
           value={confirmPassword}
           onChange={setConfirmPassword}
-          placeholder="Confirm password"
+          placeholder="Confirm new password"
         />
 
         <button
@@ -88,30 +72,9 @@ export default function RegisterPage() {
           disabled={isSubmitting}
           className="rounded-full bg-white px-4 py-3 text-sm font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-50"
         >
-          {isSubmitting ? "Sending verification link..." : "Sign up"}
+          {isSubmitting ? "Sending..." : "Send verification link"}
         </button>
       </form>
-
-      <div className="my-6 flex items-center gap-3">
-        <div className="h-px flex-1 bg-white/10" />
-        <span className="text-xs text-neutral-500">or</span>
-        <div className="h-px flex-1 bg-white/10" />
-      </div>
-
-      <button
-        onClick={() => signIn("google", { callbackUrl: "/" })}
-        className="flex w-full items-center justify-center gap-3 rounded-full border border-white/10 py-3 text-sm font-medium text-white transition hover:bg-white/10"
-      >
-        <GoogleIcon className="h-5 w-5" />
-        Continue with Google
-      </button>
-
-      <p className="mt-6 text-center text-sm text-neutral-400">
-        Already have an account?{" "}
-        <Link href="/login" className="text-white hover:underline">
-          Log in
-        </Link>
-      </p>
     </div>
   );
 }

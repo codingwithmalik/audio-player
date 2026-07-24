@@ -6,6 +6,7 @@ import { Poppins } from "next/font/google";
 import { Toaster } from "sonner";
 
 import "./globals.css";
+import PendingPasswordApplier from "@/components/PendingPasswordApplier";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body className="h-screen min-h-screen overflow-hidden text-white bg-linear-to-br from-slate-950 via-fuchsia-950 to-cyan-950 w-screen">
         <SessionProvider>
           <ReduxProvider>
+            <PendingPasswordApplier />
             <Toaster
               theme="dark"
               position="top-center"

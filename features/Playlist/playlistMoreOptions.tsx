@@ -27,6 +27,7 @@ import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
 import { addManyToManualQueue } from "../RightSidebar/Queue/queueSlice";
 import { RefObject } from "react";
 import { RootState } from "@/store/store";
+import { useSession } from "next-auth/react";
 
 export default function PlaylistMoreOptions({
   onEditDetails,
@@ -52,7 +53,8 @@ export default function PlaylistMoreOptions({
   const now = new Date().toISOString();
   const songsById = useAppSelector((state: RootState) => state.songs.entities);
 
-  const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const sourcePlaylist = useAppSelector((state) =>
     selectPlaylistById(state, playlistId),
   );
@@ -70,17 +72,18 @@ export default function PlaylistMoreOptions({
 
   const handleCreateFolder = () => {
     const newFolderId = crypto.randomUUID();
-    dispatch(
-      addFolder({
-        id: newFolderId,
-        type: "folder",
-        title: "New Folder " + (folders.length + 1),
-        playlistIds: [],
-        ownerId: userId,
-        createdAt: now,
-        updatedAt: now,
-      }),
-    );
+    if (userId)
+      dispatch(
+        addFolder({
+          id: newFolderId,
+          type: "folder",
+          title: "New Folder " + (folders.length + 1),
+          playlistIds: [],
+          ownerId: userId,
+          createdAt: now,
+          updatedAt: now,
+        }),
+      );
     handleAddToFolder(newFolderId);
   };
 
@@ -93,13 +96,15 @@ export default function PlaylistMoreOptions({
   };
 
   const handleCreatePlaylist = () => {
-    const action = dispatch(
-      addPlaylist({
-        title: "New Playlist " + (playlists.length + 1),
-        ownerId: userId,
-      }),
-    );
-    handleAddToPlaylist(action.payload.id);
+    if (userId) {
+      const action = dispatch(
+        addPlaylist({
+          title: "New Playlist " + (playlists.length + 1),
+          ownerId: userId,
+        }),
+      );
+      handleAddToPlaylist(action.payload.id);
+    }
   };
 
   // ── Options ───────────────────────────────────────────────────────────────

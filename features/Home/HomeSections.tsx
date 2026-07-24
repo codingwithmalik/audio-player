@@ -21,11 +21,14 @@ import { setSong } from "@/slices/playerSlice";
 import type { RootState } from "@/store/store";
 import type { Playlist } from "@/types/playlist";
 import type { Song } from "@/types/song";
+import { useSession } from "next-auth/react";
 
 export default function HomeSections() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const currentUser = useAppSelector((state: RootState) => state.auth.user?.id);
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+
   const [activeTab, setActiveTab] = useState<string>("home");
   const [sections, setSections] = useState<
     ReturnType<typeof selectHomeSections>
@@ -36,7 +39,7 @@ export default function HomeSections() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSections(selectHomeSections(store.getState()));
-  }, [currentUser]);
+  }, [userId]);
 
   const handlePlaylistClick = (playlistId: string) => {
     router.push(`/playlist/${playlistId}`);

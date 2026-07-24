@@ -22,6 +22,7 @@ import { selectFolderById } from "@/features/Folder/folderSlice";
 import SongCover from "@/features/Common/SongCover";
 import type { RootState } from "@/store/store";
 import type { Playlist } from "@/types/playlist";
+import { useSession } from "next-auth/react";
 
 type TabType = "playlists" | "otherFolders";
 
@@ -34,20 +35,13 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
     selectFolderById(state, folderId),
   );
 
-  const currentUserId = useAppSelector(
-    (state: RootState) => state.auth.user?.id,
-  );
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id ?? "local";
   const allPlaylists = useAppSelector(selectPlaylists);
 
   // Scope to the current user's own playlists, and exclude the special
   // "Liked Songs" playlist — that one isn't meant to be organized into folders.
-  const ownedPlaylists = useMemo(
-    () =>
-      allPlaylists.filter(
-        (p) => p.ownerId === currentUserId && p.id !== `liked-${currentUserId}`,
-      ),
-    [allPlaylists, currentUserId],
-  );
+  const ownedPlaylists = useMemo(() => allPlaylists, [allPlaylists]);
 
   const currentTabPlaylists = useMemo(
     () =>

@@ -55,7 +55,6 @@ export const { setSearch, setSort, toggleFilter, clearFilters } =
 
 export default librarySlice.reducer;
 
-
 export const selectFilteredItems = createSelector(
   [
     selectPlaylists,
@@ -63,18 +62,15 @@ export const selectFilteredItems = createSelector(
     (state: RootState) => state.library.search,
     (state: RootState) => state.library.sort,
     (state: RootState) => state.library.filters,
-    (state: RootState) => state.auth.user?.id,
   ],
 
-  (playlists, folders, search, sort, filters, userId): LibraryItem[] => {
-    if (!userId) return []; // not logged in — nothing to show
-
+  (playlists, folders, search, sort, filters): LibraryItem[] => {
     const showPlaylists = filters.length === 0 || filters.includes("playlists");
     const showFolders = filters.length === 0 || filters.includes("folders");
 
     let result: LibraryItem[] = [
-      ...(showPlaylists ? playlists.filter((p) => p.ownerId === userId) : []),
-      ...(showFolders ? folders.filter((f) => f.ownerId === userId) : []),
+      ...(showPlaylists ? playlists : []),
+      ...(showFolders ? folders : []),
     ];
 
     if (search.trim()) {
@@ -108,5 +104,5 @@ export const selectFilteredItems = createSelector(
     return result;
   },
 );
-export const selectFilters = (state:RootState)=> state.library.filters
-export const selectSearch = (state:RootState)=> state.library.search
+export const selectFilters = (state: RootState) => state.library.filters;
+export const selectSearch = (state: RootState) => state.library.search;

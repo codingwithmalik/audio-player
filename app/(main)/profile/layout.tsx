@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAppSelector } from "@/globalHooks";
+import { useSession } from "next-auth/react";
 
 const TABS = [
   { label: "Profile", href: "/profile" },
@@ -17,7 +17,8 @@ export default function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
   const pathname = usePathname();
 
   if (!isAuthenticated) {

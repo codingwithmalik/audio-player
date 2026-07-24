@@ -8,7 +8,8 @@ import LibraryList from "./libraryList";
 import LibraryFilters from "./libraryfilters";
 import { useOverlayScrollbars } from "overlayscrollbars-react";
 import LocalFilesSection from "../LocalFiles/LocalFilesSection";
-import { useAppSelector } from "@/globalHooks";
+import { useSession } from "next-auth/react";
+
 import LibraryTeaser from "./libraryTeaser";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -18,7 +19,8 @@ type Props = {
 };
 
 export default function Library({ scrollable = false }: Props) {
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
   const asideRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [showLocalFiles, setShowLocalFiles] = useState(false);

@@ -4,7 +4,6 @@ import { folderSyncMiddleware } from "@/middlewares/folderSyncMiddleware";
 import { playTrackingMiddleware } from "@/middlewares/playCountMiddleware";
 import { shuffleSyncMiddleware } from "@/middlewares/shuffleSyncMiddleware";
 import { privateSessionMiddleware } from "@/middlewares/privateSessionMiddleware";
-import authslice from "@/features/Auth/authSlice";
 import librarySlice from "@/features/LeftSidebar/Library/libraryslice";
 import playerSlice from "@/slices/playerSlice";
 import playlistSlice from "@/features/Playlist/playlistSlice";
@@ -21,7 +20,6 @@ import { toastMiddleware } from "@/middlewares/toastMiddleware";
 
 export const store = configureStore({
   reducer: {
-    auth: authslice,
     player: playerSlice,
     library: librarySlice,
     playlists: playlistSlice,

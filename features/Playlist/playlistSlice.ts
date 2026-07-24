@@ -323,12 +323,8 @@ export const {
 // ─── Base selectors ───────────────────────────────────────────────────────────
 
 export const selectPlaylists = createSelector(
-  [
-    (state: RootState) => state.playlists.entities,
-    (state: RootState) => state.auth.user?.id,
-  ],
-  (entities, userId) =>
-    Object.values(entities).filter((p) => !p.deletedAt && p.ownerId === userId),
+  [(state: RootState) => state.playlists.entities],
+  (entities) => Object.values(entities).filter((p) => !p.deletedAt),
 );
 
 export const selectPlaylistById = (state: RootState, id: string) =>
@@ -359,20 +355,16 @@ export const selectViewMode = (state: RootState) => state.playlists.viewMode;
 
 // in playlistsSlice.ts
 export const selectPlaylistCount = (state: RootState) =>
-  Object.values(state.playlists.entities).filter(
-    (p) => p.ownerId === state.auth.user?.id,
-  ).length;
+  Object.values(state.playlists.entities).length;
 
 export const selectIsLiked = (state: RootState, songId: string): boolean => {
-  const userId = state.auth.user?.id;
-  if (!userId) return false;
-  const likedPlaylist = state.playlists.entities[`liked-${userId}`];
+  const likedPlaylist = state.playlists.entities[`liked-`];
   if (!likedPlaylist) return false;
   return likedPlaylist.songs.some((s) => s.songId === songId);
 };
 export const selectLikedPlaylistId = (state: RootState): string | null => {
-  const userId = state.auth.user?.id;
-  return userId ? `liked-${userId}` : null;
+  const likedPlaylist = state.playlists.entities[`liked-`];
+  return likedPlaylist.id;
 };
 export const selectDeletedPlaylists = createSelector(
   [(state: RootState) => state.playlists.entities],

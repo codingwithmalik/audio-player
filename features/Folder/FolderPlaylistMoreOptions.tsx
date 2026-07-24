@@ -10,6 +10,7 @@ import {
   setPlaylistFolder,
   softDeletePlaylist,
 } from "@/features/Playlist/playlistSlice";
+import { useSession } from "next-auth/react";
 
 export default function FolderPlaylistMoreOptions({
   playlistId,
@@ -27,7 +28,8 @@ export default function FolderPlaylistMoreOptions({
   const dispatch = useAppDispatch();
   // const router = useRouter();
   const folders = useAppSelector(selectFolders);
-  const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   // ── Actions ───────────────────────────────────────────────────────────────
@@ -44,17 +46,18 @@ export default function FolderPlaylistMoreOptions({
   const handleCreateFolder = () => {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
-    dispatch(
-      addFolder({
-        id,
-        type: "folder",
-        title: `New Folder ${folders.length + 1}`,
-        playlistIds: [playlistId],
-        ownerId: userId,
-        createdAt: now,
-        updatedAt: now,
-      }),
-    );
+    if (userId)
+      dispatch(
+        addFolder({
+          id,
+          type: "folder",
+          title: `New Folder ${folders.length + 1}`,
+          playlistIds: [playlistId],
+          ownerId: userId,
+          createdAt: now,
+          updatedAt: now,
+        }),
+      );
     dispatch(setPlaylistFolder({ playlistId, folderId: id }));
     onClose();
   };

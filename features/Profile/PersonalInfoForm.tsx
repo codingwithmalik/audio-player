@@ -12,9 +12,9 @@ import {
   setAccountSaving,
   setAccountError,
 } from "@/features/Profile/accountSlice";
-import { updateUser } from "@/features/Auth/authSlice";
 import CustomSelect from "@/features/Profile/CustomSelect";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 const COUNTRIES = [
   "Pakistan",
@@ -99,7 +99,8 @@ function joinIsoDate(day: string, month: string, year: string): string | null {
 
 export default function PersonalInfoForm() {
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.auth.user);
+  const session = useSession();
+  const user = session.data?.user;
   const personalInfo = useAppSelector(selectPersonalInfo);
   const isSaving = useAppSelector(selectIsAccountSaving);
   const error = useAppSelector(selectAccountError);

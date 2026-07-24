@@ -1,32 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { useAppDispatch } from "@/globalHooks";
-// import { signOut } from "next-auth/react";
-import { logout } from "@/features/Auth/authSlice";
+import { signOut } from "next-auth/react";
 import ConfirmDialog from "@/features/Common/ConfirmDialog"; // adjust to actual path
 import { LogOut } from "lucide-react";
 
 export default function SecurityPrivacySection() {
-  const dispatch = useAppDispatch();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   async function handleSignOutEverywhere() {
     // ─── MOCK: replace with a real "revoke all sessions" API call ───
-    dispatch(logout());
-    // await signOut({ callbackUrl: "/login" });
+    await signOut({ callbackUrl: "/login" });
   }
 
   async function handleDeleteAccount() {
     // ─── MOCK: replace with a real account-deletion API call ───
-    dispatch(logout());
-    // await signOut({ callbackUrl: "/login" });
+    await signOut({ callbackUrl: "/login" });
   }
 
   async function handleLogout() {
     // ─── MOCK: replace with a real account-deletion API call ───
-    dispatch(logout());
-    // await signOut({ callbackUrl: "/login" });
+    await signOut({ callbackUrl: "/login" });
   }
 
   return (

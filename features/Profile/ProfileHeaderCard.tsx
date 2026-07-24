@@ -2,7 +2,7 @@
 "use client";
 
 import Image from "next/image";
-import { useAppSelector } from "@/globalHooks";
+import { useSession } from "next-auth/react";
 
 // Deterministic color per user so the same person always gets the same
 // avatar color across sessions, rather than a random one on every render.
@@ -27,7 +27,8 @@ export default function ProfileHeaderCard({
 }: {
   playlistCount: number;
 }) {
-  const user = useAppSelector((state) => state.auth.user);
+  const { data: session } = useSession();
+  const user = session?.user;
 
   if (!user) return null;
 

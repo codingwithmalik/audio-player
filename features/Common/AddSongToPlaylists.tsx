@@ -17,8 +17,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import BottomSheet from "@/features/Common/BottomSheet";
 import PlaylistMosaicCover from "@/features/Playlist/playlistMosaicCover";
 import type { RootState } from "@/store/store";
-import { selectisAuthenticated } from "../Auth/authSlice";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 // ─── Menu content ─────────────────────────────────────────────────────────────
 
@@ -33,7 +33,9 @@ function MenuContent({
 }) {
   const dispatch = useAppDispatch();
   const playlists = useAppSelector(selectPlaylists);
-  const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "local";
+
   const [query, setQuery] = useState("");
 
   // ── Pending changes — deferred until Done ────────────────────────────────
@@ -262,12 +264,12 @@ export default function AddToPlaylistMenu({
   setHoveredFalse?: () => void;
 }) {
   const isMobile = useIsMobile();
+  const isAuthenticated = status === "authenticated";
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const playlists = useAppSelector(selectPlaylists);
-  const isAuthenticated = useAppSelector(selectisAuthenticated);
   const router = useRouter();
   const isInAnything = playlists.some((p) =>
     p.songs.some((s) => s.songId === songId),

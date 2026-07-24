@@ -11,6 +11,8 @@ import {
 import { addFolder, selectFolderCount } from "@/features/Folder/folderSlice";
 import { useRouter } from "next/navigation";
 import BottomSheet from "@/features/Common/BottomSheet";
+import { useSession } from "next-auth/react";
+
 // ─── Options config ───────────────────────────────────────────────────────────
 
 const OPTIONS = [
@@ -77,7 +79,8 @@ export default function CreateButton() {
   }, [open]);
 
   // Get Number for the playlist and folders
-  const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const folderCount = useAppSelector(selectFolderCount);
   const playlistCount = useAppSelector(selectPlaylistCount);
 
@@ -85,29 +88,30 @@ export default function CreateButton() {
   // ── Dispatch ──────────────────────────────────────────────────────────────
   const handleSelect = (type: "playlist" | "folder") => {
     const now = new Date().toISOString();
-    if (type === "playlist") {
-      const action = dispatch(
-        addPlaylist({
-          title: "New Playlist " + (playlistCount + 1),
-          ownerId: userId,
-        }),
-      );
-      router.push(`/playlist/${action.payload.id}`);
-    } else {
-      const folderId = crypto.randomUUID();
-      dispatch(
-        addFolder({
-          id: folderId,
-          type: "folder",
-          title: "New Folder " + (folderCount + 1),
-          playlistIds: [],
-          ownerId: userId,
-          createdAt: now,
-          updatedAt: now,
-        }),
-        router.push(`/folder/${folderId}`),
-      );
-    }
+    if (userId)
+      if (type === "playlist") {
+        const action = dispatch(
+          addPlaylist({
+            title: "New Playlist " + (playlistCount + 1),
+            ownerId: userId,
+          }),
+        );
+        router.push(`/playlist/${action.payload.id}`);
+      } else {
+        const folderId = crypto.randomUUID();
+        dispatch(
+          addFolder({
+            id: folderId,
+            type: "folder",
+            title: "New Folder " + (folderCount + 1),
+            playlistIds: [],
+            ownerId: userId,
+            createdAt: now,
+            updatedAt: now,
+          }),
+          router.push(`/folder/${folderId}`),
+        );
+      }
 
     console.log("Item added");
     setOpen(false);
@@ -124,7 +128,9 @@ export default function CreateButton() {
         className="bg-white/10 hover:bg-white/20 transition rounded-full p-2 lg:px-4 flex items-center gap-2 text-sm font-medium"
       >
         <Plus ref={plusRef} size={18} />
-        <span className="hidden xl:block max-md:block">{open ? "Cancel" : "Create"}</span>
+        <span className="hidden xl:block max-md:block">
+          {open ? "Cancel" : "Create"}
+        </span>
       </button>
 
       {/* Dropdown */}

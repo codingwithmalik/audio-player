@@ -14,6 +14,7 @@ import { addToManualQueue } from "@/features/RightSidebar/Queue/queueSlice";
 import type { RootState } from "@/store/store";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
 import { RefObject } from "react";
+import { useSession } from "next-auth/react";
 
 export default function SongMoreOptions({
   songId,
@@ -35,7 +36,9 @@ export default function SongMoreOptions({
   const isLiked = useAppSelector((state: RootState) =>
     selectIsLiked(state, songId),
   );
-  const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
+
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   const currentPlaylist = useAppSelector((state: RootState) =>
     playlistId ? state.playlists.entities[playlistId] : null,
@@ -52,12 +55,13 @@ export default function SongMoreOptions({
 
   const handleCreatePlaylist = () => {
     const newPlaylistId = crypto.randomUUID();
-    dispatch(
-      addPlaylist({
-        title: "New Playlist " + (playlists.length + 1),
-        ownerId: userId,
-      }),
-    );
+    if (userId)
+      dispatch(
+        addPlaylist({
+          title: "New Playlist " + (playlists.length + 1),
+          ownerId: userId,
+        }),
+      );
     handleAddToPlaylist(newPlaylistId);
   };
 

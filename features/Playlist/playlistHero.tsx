@@ -2,8 +2,7 @@
 
 import PlaylistMosaicCover from "./playlistMosaicCover";
 import { Playlist } from "@/types/playlist";
-import { selectUsernameById } from "@/features/Auth/authSlice";
-import { useAppSelector } from "@/globalHooks";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 interface PlaylistHeroProps {
@@ -28,7 +27,9 @@ export default function PlaylistHero({
   isLikedPlaylist = false,
 }: PlaylistHeroProps) {
   const ownerId = playlist?.ownerId;
-  const ownerName = useAppSelector((s) => selectUsernameById(s, ownerId ?? ""));
+  const { data: session } = useSession();
+  const ownerName =
+    session?.user?.id === ownerId ? session.user.username : "Unknown";
   return (
     <div
       className="relative w-full"

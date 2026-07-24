@@ -13,6 +13,7 @@ import {
 import ConfirmDialog from "@/features/Common/ConfirmDialog";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
 import { RootState } from "@/store/store";
+import { useSession } from "next-auth/react";
 
 export default function FolderMoreOptions({
   folderId,
@@ -31,8 +32,8 @@ export default function FolderMoreOptions({
   const dispatch = useAppDispatch();
   const playlists = useAppSelector(selectPlaylists);
   const songsById = useAppSelector((state: RootState) => state.songs.entities);
-
-  const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleAddToFolder = (playlistId: string) => {
@@ -41,13 +42,15 @@ export default function FolderMoreOptions({
   };
 
   const handleCreatePlaylist = () => {
-    const action = dispatch(
-      addPlaylist({
-        title: "New Playlist " + (playlists.length + 1),
-        ownerId: userId,
-      }),
-    );
-    handleAddToFolder(action.payload.id);
+    if (userId) {
+      const action = dispatch(
+        addPlaylist({
+          title: "New Playlist " + (playlists.length + 1),
+          ownerId: userId,
+        }),
+      );
+      handleAddToFolder(action.payload.id);
+    }
     onClose();
   };
 

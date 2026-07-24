@@ -20,6 +20,7 @@ import SongCover from "@/features/Common/SongCover";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "@/store/store";
+import { useSession } from "next-auth/react";
 
 export default function LocalFilesSection({ onBack }: { onBack?: () => void }) {
   const dispatch = useAppDispatch();
@@ -30,7 +31,8 @@ export default function LocalFilesSection({ onBack }: { onBack?: () => void }) {
       return songIds.map((id) => entities[id]).filter(Boolean);
     }),
   );
-  const userId = useAppSelector((state) => state.auth.user?.id ?? "local");
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "Local";
 
   const filesInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);

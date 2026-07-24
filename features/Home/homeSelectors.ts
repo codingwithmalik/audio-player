@@ -17,27 +17,23 @@ const TOP_GENRES_LIMIT = 5;
 export const SHELF_LIMITS: Record<string, number> = {
   "your-playlists": 8,
   "jump-back-in": 8,
-  "recents": 8,
+  recents: 8,
   "made-for-you": 10,
   "new-releases": 10,
 };
 
 const FULL_LIMITS: Record<string, number> = Object.fromEntries(
-  Object.entries(SHELF_LIMITS).map(([id, limit]) => [id, limit * 2])
+  Object.entries(SHELF_LIMITS).map(([id, limit]) => [id, limit * 2]),
 );
-
 
 export const selectHomeSections = createSelector(
   [
     (state: RootState) => state.playlists.entities,
     (state: RootState) => state.songs.entities,
     (state: RootState) => state.history.recentSongIds,
-    (state: RootState) => state.auth.user?.id,
   ],
-  (playlistsById, songsById, recentSongIds, userId): HomeSection[] => {
-    const ownedPlaylists = Object.values(playlistsById).filter(
-      (p) => p.ownerId === userId
-    );
+  (playlistsById, songsById, recentSongIds): HomeSection[] => {
+    const ownedPlaylists = Object.values(playlistsById);
 
     // ── Your playlists: all owned, accessedAt (fallback createdAt) desc ──
     const yourPlaylists = [...ownedPlaylists]
@@ -55,23 +51,40 @@ export const selectHomeSections = createSelector(
     const recentPlaylists = ownedPlaylists
       .filter((p) => !!p.accessedAt)
       .sort(
-        (a, b) => new Date(b.accessedAt!).getTime() - new Date(a.accessedAt!).getTime()
+        (a, b) =>
+          new Date(b.accessedAt!).getTime() - new Date(a.accessedAt!).getTime(),
       )
       .slice(0, FULL_LIMITS["recents"]);
 
     // ── Made for you: genre-based recommendation, falls back to popular ──
     const historyEntries = recentSongIds.map((songId) => ({ songId }));
-    const topGenres = getTopGenresFromHistory(historyEntries, songsById, TOP_GENRES_LIMIT);
+    const topGenres = getTopGenresFromHistory(
+      historyEntries,
+      songsById,
+      TOP_GENRES_LIMIT,
+    );
     const excludeIds = new Set(recentSongIds);
 
-    let madeForYouSongs = getRecommendedSongs(songsById, topGenres, excludeIds, FULL_LIMITS["made-for-you"]);
+    let madeForYouSongs = getRecommendedSongs(
+      songsById,
+      topGenres,
+      excludeIds,
+      FULL_LIMITS["made-for-you"],
+    );
     if (madeForYouSongs.length === 0) {
-      madeForYouSongs = getPopularSongs(songsById, excludeIds, FULL_LIMITS["made-for-you"]);
+      madeForYouSongs = getPopularSongs(
+        songsById,
+        excludeIds,
+        FULL_LIMITS["made-for-you"],
+      );
     }
 
     // ── New releases: all songs, createdAt desc ──
     const newReleases = Object.values(songsById)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
       .slice(0, FULL_LIMITS["new-releases"]);
 
     return [
@@ -111,5 +124,5 @@ export const selectHomeSections = createSelector(
         itemIds: newReleases.map((s) => s.id),
       },
     ];
-  }
+  },
 );

@@ -7,13 +7,13 @@ import { Folder } from "@/types/folder";
 import { FolderClosed, ChevronRight } from "lucide-react";
 import { useAppSelector } from "@/globalHooks";
 import { selectPlaylistById } from "@/features/Playlist/playlistSlice";
-import { selectSongsByIds } from "@/features/Songs/songsSlice";
+// import { selectSongsByIds } from "@/features/Songs/songsSlice";
 import PlaylistMosaicCover from "@/features/Playlist/playlistMosaicCover";
 import { selectQueueSourceId } from "@/features/RightSidebar/Queue/queueSlice";
 import { selectIsPlaying } from "@/slices/playerSlice";
 import EqBars from "@/features/Common/EQBars";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-
+import { useGetSongsByIdsQuery } from "@/features/Songs/songsApi";
 type Props = {
   item: Folder | Playlist;
   depth?: number;
@@ -35,7 +35,10 @@ export default function LibraryItem({
   const id = isPlaylist ? item.id : "";
   const playlist = useAppSelector((s) => selectPlaylistById(s, id));
   const songIds = playlist?.songs.map((s) => s.songId) ?? [];
-  const songs = useAppSelector((s) => selectSongsByIds(s, songIds));
+  // const songs = useAppSelector((s) => selectSongsByIds(s, songIds));
+  const { data: songs = [] } = useGetSongsByIdsQuery(songIds, {
+    skip: songIds.length === 0,
+  });
   const songCovers = songs.slice(0, 4).map((s) => s.coverImage);
   const songCoversStrings = songCovers.filter((c): c is string => Boolean(c));
   const queueSourceId = useAppSelector(selectQueueSourceId);
@@ -54,7 +57,12 @@ export default function LibraryItem({
   // navigate as if it were a normal click.
   const hasDraggedRef = useRef(false);
 
-  const { attributes, listeners, setNodeRef: setDragRef, isDragging } = useDraggable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setDragRef,
+    isDragging,
+  } = useDraggable({
     id: item.id,
     disabled: !canDrag,
   });
@@ -79,7 +87,10 @@ export default function LibraryItem({
   const showAsHoveredTarget = isFolder && isOver;
 
   return (
-    <div style={{ paddingLeft: depth * 24 }} className="flex items-center gap-1">
+    <div
+      style={{ paddingLeft: depth * 24 }}
+      className="flex items-center gap-1"
+    >
       <div
         ref={(node) => {
           if (canDrag) setDragRef(node);

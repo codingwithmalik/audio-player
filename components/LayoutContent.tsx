@@ -20,10 +20,8 @@ import useGlobalKeyboardShortcuts from "@/hooks/useGlobalKeyboardShortcuts";
 import { useSession } from "next-auth/react";
 import { upsertFolders } from "@/features/Folder/folderSlice";
 import { folders, playlists } from "@/lib/mockData";
-// import { upsertSongs } from "@/features/Songs/songsSlice";
 import { upsertPlaylists } from "@/features/Playlist/playlistSlice";
 import { useDispatch } from "react-redux";
-import { useGetSongsQuery } from "@/features/Songs/songsApi";
 
 const LayoutContent = ({
   children,
@@ -37,8 +35,6 @@ const LayoutContent = ({
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
 
-  // dispatch(upsertSongs(songs));
-    useGetSongsQuery();
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(upsertFolders(folders));

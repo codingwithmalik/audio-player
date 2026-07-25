@@ -46,6 +46,7 @@ const songsSlice = createSlice({
      */
     upsertSongs(state, action: PayloadAction<Song[]>) {
       for (const song of action.payload) {
+        if (!song.id) continue; // guards against malformed entities from stale schema state
         state.entities[song.id] = song;
         state.fetchStatus[song.id] = "done";
       }

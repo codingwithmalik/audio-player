@@ -15,4 +15,12 @@ const SongSchema = new Schema(
   { timestamps: true },
 );
 SongSchema.index({ title: "text", artists: "text" });
+SongSchema.set("toJSON", {
+  transform: (_doc, ret) => {
+    ret.id = ret._id.toString();
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  },
+});
 export default models.Song || model("Song", SongSchema);

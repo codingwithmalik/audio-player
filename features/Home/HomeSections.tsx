@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
@@ -12,7 +12,6 @@ import ShelfRow, { ShelfItem } from "@/features/Home/ShelfRow";
 import ShelfTile from "@/features/Home/ShelfTile";
 import PlaylistShortcutTile from "@/features/Home/PlaylistShortcutTile";
 import { selectPlaylistSongCovers } from "@/features/Playlist/playlistSlice";
-import { store } from "@/store/store";
 import {
   setQueue,
   setCurrentIndex,
@@ -21,25 +20,18 @@ import { setSong } from "@/slices/playerSlice";
 import type { RootState } from "@/store/store";
 import type { Playlist } from "@/types/playlist";
 import type { Song } from "@/types/song";
-import { useSession } from "next-auth/react";
+import { useGetSongsQuery } from "../Songs/songsApi";
 
 export default function HomeSections() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
 
   const [activeTab, setActiveTab] = useState<string>("home");
-  const [sections, setSections] = useState<
-    ReturnType<typeof selectHomeSections>
-  >([]);
   const playlistsById = useAppSelector((s: RootState) => s.playlists.entities);
   const songsById = useAppSelector((s: RootState) => s.songs.entities);
+  useGetSongsQuery();
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSections(selectHomeSections(store.getState()));
-  }, [userId]);
+  const sections = useAppSelector(selectHomeSections);
 
   const handlePlaylistClick = (playlistId: string) => {
     router.push(`/playlist/${playlistId}`);

@@ -8,8 +8,10 @@ export async function GET(req: NextRequest) {
   const genre = searchParams.get("genre") || undefined;
   const skip = Number(searchParams.get("skip") || 0);
   const limit = Number(searchParams.get("limit") || 20);
+  const ids = searchParams.get("ids");
 
   const filter: any = {};
+  if (ids) filter._id = { $in: ids.split(",") };
   if (language) filter.language = language.toLowerCase();
   if (genre) filter.genres = genre.toLowerCase();
 

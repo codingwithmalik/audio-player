@@ -1,21 +1,22 @@
 "use client";
 
 import { useParams, useSearchParams } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/globalHooks";
-import {
-  selectSongsByGenre,
-  selectSongsByLanguage,
-} from "@/features/Genre/genreSelectors";
+import { useAppDispatch } from "@/globalHooks";
+// import {
+// selectSongsByGenre,
+// selectSongsByLanguage,
+// } from "@/features/Genre/genreSelectors";
 import {
   setQueue,
   setCurrentIndex,
 } from "@/features/RightSidebar/Queue/queueSlice";
 import { setSong } from "@/slices/playerSlice";
 import ShelfTile from "@/features/Home/ShelfTile";
-import type { RootState } from "@/store/store";
+// import type { RootState } from "@/store/store";
 import type { ShelfItem } from "@/features/Home/ShelfRow";
 import "overlayscrollbars/overlayscrollbars.css";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import { useGetSongsQuery } from "@/features/Songs/songsApi";
 
 export default function GenreDetailPage() {
   const params = useParams<{ ID: string }>();
@@ -25,10 +26,13 @@ export default function GenreDetailPage() {
   const value = decodeURIComponent(params.ID);
   const type = searchParams.get("type") === "language" ? "language" : "genre";
 
-  const songs = useAppSelector((s: RootState) =>
-    type === "genre"
-      ? selectSongsByGenre(s, value)
-      : selectSongsByLanguage(s, value),
+  // const songs = useAppSelector((s: RootState) =>
+  // type === "genre"
+  // ? selectSongsByGenre(s, value)
+  // : selectSongsByLanguage(s, value),
+  // );
+  const { data: songs = [] } = useGetSongsQuery(
+    type === "genre" ? { genre: value } : { language: value },
   );
 
   const handleSongClick = (allIds: string[], clickedId: string) => {

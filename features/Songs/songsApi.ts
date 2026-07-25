@@ -32,7 +32,16 @@ export const songsApi = createApi({
       },
       providesTags: ["Song"],
     }),
-
+    getSongsByIds: builder.query<Song[], string[]>({
+      query: (ids) => ({ url: "/songs", params: { ids: ids.join(",") } }),
+      async onQueryStarted(_ids, { queryFulfilled, dispatch }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(upsertSongs(data));
+        } catch {}
+      },
+      providesTags: ["Song"],
+    }),
     getSongById: builder.query<Song, string>({
       query: (id) => `/songs/${id}`,
       async onQueryStarted(_id, { queryFulfilled, dispatch }) {
@@ -92,6 +101,7 @@ export const songsApi = createApi({
 
 export const {
   useGetSongsQuery,
+  useGetSongsByIdsQuery,
   useGetSongByIdQuery,
   useCreateSongMutation,
   useUpdateSongMutation,

@@ -29,4 +29,12 @@ const PlaylistSchema = new Schema(
 // Supports both "user's top-level playlists" and "playlists inside a folder" queries
 PlaylistSchema.index({ ownerId: 1, folderId: 1 });
 
+PlaylistSchema.set("toJSON", {
+  transform: (_doc, ret) => {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  },
+});
 export default models.Playlist || model("Playlist", PlaylistSchema);

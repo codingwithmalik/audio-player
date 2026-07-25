@@ -37,5 +37,13 @@ const UserProfileSchema = new Schema(
   },
   { timestamps: true, _id: false },
 );
+UserProfileSchema.set("toJSON", {
+  transform: (_doc, ret) => {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  },
+});
 
 export default models.UserProfile || model("UserProfile", UserProfileSchema);

@@ -17,7 +17,7 @@ import {
   selectFilteredSongs,
   resetPlaylistUI,
 } from "@/features/Playlist/playlistSlice";
-import { selectSongsByIds } from "@/features/Songs/songsSlice";
+// import { selectSongsByIds } from "@/features/Songs/songsSlice";
 import PlaylistView from "./playlistView";
 import {
   setSong,
@@ -32,6 +32,7 @@ import {
   selectQueueSourceType,
 } from "../RightSidebar/Queue/queueSlice";
 import { closeRightSidebarPanel } from "@/slices/rightSidebarSlice";
+import { useGetSongsByIdsQuery } from "@/features/Songs/songsApi";
 
 export default function PlaylistPage({ id }: { id: string }) {
   // console.log("Playlist found : "+id)
@@ -43,14 +44,17 @@ export default function PlaylistPage({ id }: { id: string }) {
     // Reset search/sort/view when navigating to a new playlist
     return () => {
       dispatch(resetPlaylistUI());
-      dispatch(closeRightSidebarPanel())
+      dispatch(closeRightSidebarPanel());
     };
   }, [id, dispatch]);
 
   // ── Read entities from store ────────────────────────────────────────────────
   const playlist = useAppSelector((s) => selectPlaylistById(s, id));
   const songIds = playlist?.songs.map((s) => s.songId) ?? [];
-  const songs = useAppSelector((s) => selectSongsByIds(s, songIds));
+  // const songs = useAppSelector((s) => selectSongsByIds(s, songIds));
+  const { data: songs = [] } = useGetSongsByIdsQuery(songIds, {
+    skip: songIds.length === 0,
+  });
   const currentSongId = useAppSelector(selectCurrentSongId);
   const sourceId = useAppSelector(selectQueueSourceId);
   const sourceType = useAppSelector(selectQueueSourceType);

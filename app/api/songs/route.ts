@@ -10,10 +10,21 @@ export async function GET(req: NextRequest) {
   const limit = Number(searchParams.get("limit") || 20);
   const ids = searchParams.get("ids");
 
+    // Dedicated path: fetching specific songs by id needs no pagination,
+  // and must preserve the caller's requested order (e.g. playlist song order).
+  if (ids) {
+    try {
+      const songs = await songService.getSongsByIds(ids.split(","));
+      return NextResponse.json(songs);
+    } catch (err: any) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+  }
+
   const filter: any = {};
-  if (ids) filter._id = { $in: ids.split(",") };
   if (language) filter.language = language.toLowerCase();
   if (genre) filter.genres = genre.toLowerCase();
+
 
   try {
     const songs = await songService.listSongs(filter, { skip, limit });

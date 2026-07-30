@@ -14,7 +14,6 @@ import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
   selectPlaylists,
-  addPlaylist,
   setPlaylistFolder,
   selectPlaylistById,
   addSongsToPlaylist,
@@ -28,6 +27,14 @@ import { addManyToManualQueue } from "../RightSidebar/Queue/queueSlice";
 import { RefObject } from "react";
 import { RootState } from "@/store/store";
 import { useSession } from "next-auth/react";
+import {
+  useAddSongToPlaylistMutation,
+  useCreatePlaylistMutation,
+  useDeletePlaylistMutation,
+  useGetPlaylistsQuery,
+  useMovePlaylistMutation,
+} from "./playlistsApi";
+import { toast } from "sonner";
 
 export default function PlaylistMoreOptions({
   onEditDetails,
@@ -46,6 +53,11 @@ export default function PlaylistMoreOptions({
   variant?: "dropdown" | "sheet";
   anchorRef?: RefObject<HTMLButtonElement | null>;
 }) {
+  const [movePlaylist] = useMovePlaylistMutation();
+  const [deletePlaylist] = useDeletePlaylistMutation();
+  const [addSongsMutation] = useAddSongToPlaylistMutation();
+  const [createPlaylistMutation] = useCreatePlaylistMutation();
+  useGetPlaylistsQuery()
   const router = useRouter();
   const dispatch = useAppDispatch();
   const playlists = useAppSelector(selectPlaylists);
@@ -63,10 +75,12 @@ export default function PlaylistMoreOptions({
   // ── Actions ───────────────────────────────────────────────────────────────
   const handleRemoveFromFolder = () => {
     dispatch(setPlaylistFolder({ playlistId, folderId: null }));
+    movePlaylist({ id: playlistId, folderId: null });
   };
 
   const handleAddToFolder = (folderId: string) => {
     dispatch(setPlaylistFolder({ playlistId, folderId }));
+    movePlaylist({ id: playlistId, folderId });
     onClose();
   };
 
@@ -89,21 +103,24 @@ export default function PlaylistMoreOptions({
 
   const handleAddToPlaylist = (targetPlaylistId: string) => {
     if (!sourcePlaylist) return;
+    const songIds = sourcePlaylist.songs.map((s) => s.songId);
     dispatch(
       addSongsToPlaylist({ targetPlaylistId, songs: sourcePlaylist.songs }),
     );
+    addSongsMutation({ playlistId: targetPlaylistId, songIds });
     onClose();
   };
 
-  const handleCreatePlaylist = () => {
+  const handleCreatePlaylist = async () => {
     if (userId) {
-      const action = dispatch(
-        addPlaylist({
+      try {
+        const playlist = await createPlaylistMutation({
           title: "New Playlist " + (playlists.length + 1),
-          ownerId: userId,
-        }),
-      );
-      handleAddToPlaylist(action.payload.id);
+        }).unwrap();
+        handleAddToPlaylist(playlist.id);
+      } catch (err) {
+        toast.error("Failed to create playlist");
+      }
     }
   };
 
@@ -242,6 +259,7 @@ export default function PlaylistMoreOptions({
               cancelLabel="Cancel"
               onConfirm={() => {
                 dispatch(softDeletePlaylist(playlistId));
+                deletePlaylist(playlistId);
                 handleRemoveFromFolder();
                 setConfirmOpen(false);
                 router.push("/");

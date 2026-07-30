@@ -24,18 +24,21 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { selectLibrarySettings } from "@/features/Profile/settingsSlice";
 import LocalFilesLibraryRow from "../LocalFiles/LocalFilesLibraryRow";
 import { useRouter } from "next/navigation";
+import { useGetPlaylistsQuery, useMovePlaylistMutation } from "@/features/Playlist/playlistsApi";
 
 export default function LibraryList({
   ShowLocalFiles,
 }: {
   ShowLocalFiles: () => void;
 }) {
+  useGetPlaylistsQuery()
   const router = useRouter();
   const dispatch = useAppDispatch();
   const items = useAppSelector(selectFilteredItems);
   const allPlaylists = useAppSelector((state) => state.playlists.entities);
   const filters = useAppSelector(selectFilters);
   const search = useAppSelector(selectSearch);
+  const [movePlaylist] = useMovePlaylistMutation();
 
   const { showDownloadedSongs } = useAppSelector(selectLibrarySettings);
   const isMobile = useIsMobile();
@@ -79,6 +82,7 @@ export default function LibraryList({
 
     const newFolderId = dropTargetId === "root" ? null : dropTargetId;
     dispatch(setPlaylistFolder({ playlistId, folderId: newFolderId }));
+    movePlaylist({ id: playlistId, folderId: newFolderId });
   }
 
   function handleDragCancel() {

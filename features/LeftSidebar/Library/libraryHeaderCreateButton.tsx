@@ -5,13 +5,14 @@ import { Plus, Music2, FolderClosed } from "lucide-react";
 import { gsap } from "gsap";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import {
-  addPlaylist,
   selectPlaylistCount,
 } from "@/features/Playlist/playlistSlice";
 import { addFolder, selectFolderCount } from "@/features/Folder/folderSlice";
 import { useRouter } from "next/navigation";
 import BottomSheet from "@/features/Common/BottomSheet";
 import { useSession } from "next-auth/react";
+import { useCreatePlaylistMutation } from "@/features/Playlist/playlistsApi";
+import { toast } from "sonner";
 
 // ─── Options config ───────────────────────────────────────────────────────────
 
@@ -83,20 +84,22 @@ export default function CreateButton() {
   const userId = session?.user?.id;
   const folderCount = useAppSelector(selectFolderCount);
   const playlistCount = useAppSelector(selectPlaylistCount);
+  const [createPlaylistMutation] = useCreatePlaylistMutation();
 
   // then in handleSelect:
   // ── Dispatch ──────────────────────────────────────────────────────────────
-  const handleSelect = (type: "playlist" | "folder") => {
+  const handleSelect = async (type: "playlist" | "folder") => {
     const now = new Date().toISOString();
     if (userId)
       if (type === "playlist") {
-        const action = dispatch(
-          addPlaylist({
+        try {
+          const playlist = await createPlaylistMutation({
             title: "New Playlist " + (playlistCount + 1),
-            ownerId: userId,
-          }),
-        );
-        router.push(`/playlist/${action.payload.id}`);
+          }).unwrap();
+          router.push(`/playlist/${playlist.id}`);
+        } catch (error) {
+          toast.error("Failed to create playlist");
+        }
       } else {
         const folderId = crypto.randomUUID();
         dispatch(

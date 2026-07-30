@@ -18,8 +18,10 @@ import {
   setQueue,
 } from "@/features/RightSidebar/Queue/queueSlice";
 import { setSong } from "@/slices/playerSlice";
+import { useGetPlaylistsQuery } from "@/features/Playlist/playlistsApi";
 
 export default function ProfilePage() {
+  useGetPlaylistsQuery();
   const playlists = useAppSelector(selectPlaylists);
   const playlistCount = useAppSelector(selectPlaylistCount);
   // Actually plays the playlist (queue + first song), distinct from navigating to it.

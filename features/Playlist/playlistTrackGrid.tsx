@@ -18,6 +18,7 @@ import {
   selectSortBy,
   selectSearchQuery,
 } from "@/features/Playlist/playlistSlice";
+import { useUpdatePlaylistMutation } from "@/features/Playlist/playlistsApi";
 
 const PlaylistTrackGrid = ({
   playlistId,
@@ -40,6 +41,7 @@ const PlaylistTrackGrid = ({
   const sortBy = useAppSelector(selectSortBy);
   const searchQuery = useAppSelector(selectSearchQuery);
   const isReorderEnabled = sortBy === "custom" && searchQuery.trim() === "";
+  const [updatePlaylist] = useUpdatePlaylistMutation();
 
   // Delay-based, not distance-based: a quick tap/double-click still plays
   // the song; only a genuine press-and-hold starts a drag. Same reasoning
@@ -47,7 +49,7 @@ const PlaylistTrackGrid = ({
   // (no separate handle for grid tiles).
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { delay: 100, tolerance: 8 },
+      activationConstraint: { delay: 200, tolerance: 8 },
     }),
   );
 
@@ -60,6 +62,10 @@ const PlaylistTrackGrid = ({
     if (fromIndex === -1 || toIndex === -1) return;
 
     dispatch(reorderPlaylistSongs({ playlistId, fromIndex, toIndex }));
+    const reordered = [...playlistSongs];
+    const [moved] = reordered.splice(fromIndex, 1);
+    reordered.splice(toIndex, 0, moved);
+    updatePlaylist({ id: playlistId, data: { songs: reordered } });
   }
 
   return (

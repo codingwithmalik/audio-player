@@ -6,7 +6,6 @@ import {
   selectPlaylists,
   addSongToPlaylist,
   removeSongFromPlaylist,
-  addPlaylist,
   selectLikedPlaylistId,
   selectIsLiked,
 } from "@/features/Playlist/playlistSlice";
@@ -15,6 +14,14 @@ import type { RootState } from "@/store/store";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
 import { RefObject } from "react";
 import { useSession } from "next-auth/react";
+import {
+  useAddSongToPlaylistMutation,
+  useCreatePlaylistMutation,
+  useGetPlaylistsQuery,
+  useRemoveSongFromPlaylistMutation,
+} from "@/features/Playlist/playlistsApi";
+import { toast } from "sonner";
+import { selectSongById } from "../Songs/songsSlice";
 
 export default function SongMoreOptions({
   songId,
@@ -29,17 +36,26 @@ export default function SongMoreOptions({
   variant?: "dropdown" | "sheet";
   anchorRef: RefObject<HTMLButtonElement | null>;
 }) {
-  const dispatch = useAppDispatch();
-  const playlists = useAppSelector(selectPlaylists);
-  const likedPlaylistId = useAppSelector(selectLikedPlaylistId);
-  const songsById = useAppSelector((state: RootState) => state.songs.entities);
-  const isLiked = useAppSelector((state: RootState) =>
-    selectIsLiked(state, songId),
-  );
-
   const { data: session } = useSession();
-  const userId = session?.user?.id;
+  const userId = session?.user.id;
+  //new playlist api mutations
+  const [addSongMutation] = useAddSongToPlaylistMutation();
+  const [removeSongMutation] = useRemoveSongFromPlaylistMutation();
+  const [createPlaylistMutation] = useCreatePlaylistMutation();
 
+  const dispatch = useAppDispatch();
+  useGetPlaylistsQuery()
+  const playlists = useAppSelector(selectPlaylists);
+  const likedPlaylistId = useAppSelector((state: RootState) =>
+    selectLikedPlaylistId(state, userId ?? "local"),
+  );
+  const songsById = useAppSelector((state: RootState) => state.songs.entities);
+  const song = useAppSelector((state: RootState) =>
+    selectSongById(state, songId),
+  );
+  const isLiked = useAppSelector((state: RootState) =>
+    selectIsLiked(state, songId, userId ?? "local"),
+  );
   const currentPlaylist = useAppSelector((state: RootState) =>
     playlistId ? state.playlists.entities[playlistId] : null,
   );
@@ -50,19 +66,21 @@ export default function SongMoreOptions({
   // ── Actions ───────────────────────────────────────────────────────────────
   const handleAddToPlaylist = (targetPlaylistId: string) => {
     dispatch(addSongToPlaylist({ playlistId: targetPlaylistId, songId }));
+    addSongMutation({ playlistId: targetPlaylistId, songIds:[songId] });
     onClose();
   };
 
-  const handleCreatePlaylist = () => {
-    const newPlaylistId = crypto.randomUUID();
+  const handleCreatePlaylist = async () => {
     if (userId)
-      dispatch(
-        addPlaylist({
-          title: "New Playlist " + (playlists.length + 1),
-          ownerId: userId,
-        }),
-      );
-    handleAddToPlaylist(newPlaylistId);
+      try {
+        const playlist = await createPlaylistMutation({
+          title: song?.title ?? "New Playlist " + playlists.length + 1,
+          coverImage: song?.coverImage,
+        }).unwrap();
+        handleAddToPlaylist(playlist.id);
+      } catch (err) {
+        toast.error("Failed to create playlist");
+      }
   };
 
   // ── Options ───────────────────────────────────────────────────────────────
@@ -107,6 +125,7 @@ export default function SongMoreOptions({
             action: () => {
               if (!playlistId) return;
               dispatch(removeSongFromPlaylist({ playlistId, songId }));
+              removeSongMutation({ playlistId, songId });
               onClose();
             },
           } as MoreOption,
@@ -124,9 +143,12 @@ export default function SongMoreOptions({
           dispatch(
             removeSongFromPlaylist({ playlistId: likedPlaylistId, songId }),
           );
+          removeSongMutation({ playlistId: likedPlaylistId, songId });
         } else {
           dispatch(addSongToPlaylist({ playlistId: likedPlaylistId, songId }));
+          addSongMutation({ playlistId: likedPlaylistId, songIds:[songId] });
         }
+
         onClose();
       },
     },

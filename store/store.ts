@@ -20,6 +20,8 @@ import localfilesSlice from "@/features/LeftSidebar/LocalFiles/localFilesSlice";
 import { toastMiddleware } from "@/middlewares/toastMiddleware";
 //New Api integrations
 import { songsApi } from "@/features/Songs/songsApi";
+import { playlistsApi } from "@/features/Playlist/playlistsApi";
+
 export const store = configureStore({
   reducer: {
     player: playerSlice,
@@ -36,6 +38,7 @@ export const store = configureStore({
     localFiles: localfilesSlice,
     //New Api integrations
     [songsApi.reducerPath]: songsApi.reducer,
+    [playlistsApi.reducerPath]: playlistsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -46,7 +49,8 @@ export const store = configureStore({
       .prepend(privateSessionMiddleware.middleware)
       .prepend(toastMiddleware.middleware)
       //New Api integrations
-      .concat(songsApi.middleware),
+      .concat(songsApi.middleware)
+      .concat(playlistsApi.middleware),
 });
 
 setupListeners(store.dispatch);

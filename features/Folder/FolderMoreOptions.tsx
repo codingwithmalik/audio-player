@@ -7,13 +7,18 @@ import { useRouter } from "next/navigation";
 import { removeFolder } from "@/features/Folder/folderSlice";
 import {
   selectPlaylists,
-  addPlaylist,
   setPlaylistFolder,
 } from "@/features/Playlist/playlistSlice";
 import ConfirmDialog from "@/features/Common/ConfirmDialog";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
 import { RootState } from "@/store/store";
 import { useSession } from "next-auth/react";
+import {
+  useCreatePlaylistMutation,
+  useGetPlaylistsQuery,
+  useMovePlaylistMutation,
+} from "../Playlist/playlistsApi";
+import { toast } from "sonner";
 
 export default function FolderMoreOptions({
   folderId,
@@ -30,26 +35,31 @@ export default function FolderMoreOptions({
 }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  useGetPlaylistsQuery();
   const playlists = useAppSelector(selectPlaylists);
   const songsById = useAppSelector((state: RootState) => state.songs.entities);
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [movePlaylist] = useMovePlaylistMutation();
+  const [createPlaylistMutation] = useCreatePlaylistMutation();
 
   const handleAddToFolder = (playlistId: string) => {
     dispatch(setPlaylistFolder({ playlistId, folderId }));
+    movePlaylist({ id: playlistId, folderId });
     onClose();
   };
 
-  const handleCreatePlaylist = () => {
+  const handleCreatePlaylist = async () => {
     if (userId) {
-      const action = dispatch(
-        addPlaylist({
+      try {
+        const playlist = await createPlaylistMutation({
           title: "New Playlist " + (playlists.length + 1),
-          ownerId: userId,
-        }),
-      );
-      handleAddToFolder(action.payload.id);
+        }).unwrap();
+        handleAddToFolder(playlist.id);
+      } catch (error) {
+        toast.error("Failed to create playlist");
+      }
     }
     onClose();
   };

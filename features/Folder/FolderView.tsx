@@ -14,13 +14,14 @@ import FolderPlaylistList from "./FolderPlaylistList";
 import type { RootState } from "@/store/store";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { closeRightSidebarPanel } from "@/slices/rightSidebarSlice";
+import { useGetPlaylistsQuery } from "../Playlist/playlistsApi";
 
 export default function FolderView({ folderId }: { folderId: string }) {
   const dispatch = useAppDispatch();
   const folder = useAppSelector((state: RootState) =>
     selectFolderById(state, folderId),
   );
-
+  useGetPlaylistsQuery({ folderId });
   const playlists = useAppSelector((state: RootState) =>
     (folder?.playlistIds ?? [])
       .map((id) => selectPlaylistById(state, id))

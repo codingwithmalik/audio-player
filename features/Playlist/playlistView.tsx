@@ -17,16 +17,14 @@ import PlaylistActions from "./playlistActions";
 import PlaylistTrackList from "./playlistTrackList";
 import PlaylistEditModal from "./playlistEditModal";
 import PlaylistTrackGrid from "./playlistTrackGrid";
-import { useAppSelector, useAppDispatch } from "@/globalHooks";
+import { useAppSelector } from "@/globalHooks";
 
 import { Song } from "@/types/song";
 import { Playlist } from "@/types/playlist";
-import {
-  selectViewMode,
-  updatePlaylistMeta,
-} from "@/features/Playlist/playlistSlice";
+import { selectViewMode } from "@/features/Playlist/playlistSlice";
 import { selectCurrentSongId } from "@/slices/playerSlice";
-// import { useAccentColor } from "@/hooks/UseAccentColor";
+import { useUpdatePlaylistMutation } from "./playlistsApi";
+import { toast } from "sonner";
 
 interface PlaylistViewProps {
   playlist: Playlist;
@@ -47,14 +45,15 @@ export default function PlaylistView({
   isCurrentPlaylist,
   onPlaySong,
 }: PlaylistViewProps) {
-  const dispatch = useAppDispatch();
+  const [updatePlaylist] = useUpdatePlaylistMutation();
   const viewMode = useAppSelector(selectViewMode);
   const containerRef = useRef<HTMLDivElement>(null);
+  const coverFileInputRef = useRef<HTMLInputElement>(null);
+
   const currentSongId = useAppSelector(selectCurrentSongId) ?? "";
   const songCovers = songs.slice(0, 4).map((s) => s.coverImage);
   const songCoversStrings = songCovers.filter((c): c is string => Boolean(c));
   const isLikedPlaylist = playlist.id.startsWith("liked-");
-  // const accentColor = useAccentColor(playlist?.coverImage, songCovers);
   const accentColor = "#1a0a2e";
 
   // ── Local UI state ──────────────────────────────────────────────────────────
@@ -112,17 +111,69 @@ export default function PlaylistView({
   const handleSaveDetails = useCallback(
     (data: { title: string; description: string }) => {
       if (!playlist) return;
-      dispatch(updatePlaylistMeta({ id: playlist.id, ...data }));
-      // TODO: persist to MongoDB when backend is ready
+      updatePlaylist({ id: playlist.id, data });
     },
-    [dispatch, playlist],
+    [playlist, updatePlaylist],
   );
 
+  async function uploadCover(file: File): Promise<{ url: string }> {
+    const signRes = await fetch("/api/upload/sign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ folder: "covers" }),
+    });
+    const { signature, timestamp, cloudName, apiKey, folder } =
+      await signRes.json();
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", apiKey);
+    formData.append("timestamp", String(timestamp));
+    formData.append("signature", signature);
+    formData.append("folder", folder);
+
+    const uploadRes = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+    const data = await uploadRes.json();
+    return { url: data.secure_url };
+  }
+
+  const handleCoverFile = useCallback(
+    async (file: File) => {
+      try {
+        const { url } = await uploadCover(file);
+        await updatePlaylist({
+          id: playlist.id,
+          data: { coverImage: url },
+        }).unwrap();
+      } catch {
+        toast.error("Failed to update cover");
+      }
+    },
+    [playlist.id, updatePlaylist],
+  );
+
+  // handleEditCover now just opens the native picker
   const handleEditCover = useCallback(() => {
-    // TODO: open Cloudinary upload widget
+    coverFileInputRef.current?.click();
     setIsEditModalOpen(true);
-    console.log("edit cover");
   }, []);
+
+  // new handler — fires once the user actually picks a file
+  const handleCoverFileSelected = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      e.target.value = ""; // reset so re-picking the same file still fires onChange next time
+      if (!file) return;
+      await handleCoverFile(file);
+    },
+    [handleCoverFile],
+  );
 
   return (
     <div
@@ -194,6 +245,13 @@ export default function PlaylistView({
           onEditCover={handleEditCover}
         />
       )}
+      <input
+        ref={coverFileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleCoverFileSelected}
+      />
     </div>
   );
 }

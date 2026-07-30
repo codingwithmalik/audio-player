@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, } from "react";
 import Header from "../components/header";
 import Player from "@/features/Player/player";
 import Rightsidebar from "@/components/rightsidebar";
@@ -12,35 +12,23 @@ import {
   selectIsNowPlayingOpen,
 } from "@/slices/playerSlice";
 import { useAppSelector } from "@/globalHooks";
-import RightSidebarPanelOverlay from "@/features/RightSidebar/RightSidebarPanelOverlay";
-import { usePanelWidths } from "@/hooks/usePanelWidths";
-import ResizeHandle from "@/features/Common/ResizeHandle";
 import { selectRightSidebarPanel } from "@/slices/rightSidebarSlice";
+import { usePanelWidths } from "@/hooks/usePanelWidths";
+import RightSidebarPanelOverlay from "@/features/RightSidebar/RightSidebarPanelOverlay";
 import useGlobalKeyboardShortcuts from "@/hooks/useGlobalKeyboardShortcuts";
+import ResizeHandle from "@/features/Common/ResizeHandle";
 import { useSession } from "next-auth/react";
-import { upsertFolders } from "@/features/Folder/folderSlice";
-import { folders, playlists } from "@/lib/mockData";
-import { upsertPlaylists } from "@/features/Playlist/playlistSlice";
-import { useDispatch } from "react-redux";
 
 const LayoutContent = ({
   children,
 }: Readonly<{ children: React.ReactNode }>) => {
   useGlobalKeyboardShortcuts();
-  const dispatch = useDispatch();
   const isNowPlayingOpen = useAppSelector(selectIsNowPlayingOpen);
   const currentSong = useAppSelector(selectCurrentSong);
   const rightPanel = useAppSelector(selectRightSidebarPanel);
-  // const isAuthenticated = useAppSelector(selectisAuthenticated);
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(upsertFolders(folders));
-      dispatch(upsertPlaylists(playlists));
-    }
-  }, [dispatch, isAuthenticated]);
   const { leftWidth, rightWidth, adjustLeftWidth, adjustRightWidth } =
     usePanelWidths();
 

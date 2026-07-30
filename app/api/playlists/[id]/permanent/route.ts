@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUserId } from "@/lib/auth/requireUserId";
 import { playlistService } from "@/services/playlistService";
 
-export async function POST(
+export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -10,19 +10,9 @@ export async function POST(
   const userId = await requireUserId();
   if (!userId)
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-
-  const body = await req.json();
-  const songIds = body.songIds ?? (body.songId ? [body.songId] : []);
-  if (songIds.length === 0) {
-    return NextResponse.json(
-      { error: "songId or songIds is required" },
-      { status: 400 },
-    );
-  }
-
   try {
-    const playlist = await playlistService.addSongs(userId, id, songIds);
-    return NextResponse.json(playlist);
+    await playlistService.permanentlyDelete(userId, id);
+    return NextResponse.json({ message: "Deleted permanently" });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }

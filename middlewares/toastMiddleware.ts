@@ -2,7 +2,6 @@ import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { toast } from "sonner";
 import type { RootState } from "@/store/store";
 import {
-  addPlaylist,
   softDeletePlaylist,
   restorePlaylist,
   removePlaylist,
@@ -13,11 +12,12 @@ import {
 } from "@/features/Playlist/playlistSlice";
 import { addFolder, removeFolder } from "@/features/Folder/folderSlice";
 import { setPersonalInfo } from "@/features/Profile/accountSlice";
+import { playlistsApi } from "@/features/Playlist/playlistsApi";
 
 export const toastMiddleware = createListenerMiddleware();
 
 toastMiddleware.startListening({
-  actionCreator: addPlaylist,
+  matcher: playlistsApi.endpoints.createPlaylist.matchFulfilled,
   effect: (action) => {
     toast.success(`Created "${action.payload.title}"`);
   },

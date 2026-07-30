@@ -14,7 +14,7 @@ import { useOverlayScrollbars } from "overlayscrollbars-react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import { closeRightSidebarPanel } from "@/slices/rightSidebarSlice";
 import {
-  addPlaylist,
+  selectPlaylistCount,
   selectPlaylists,
   setPlaylistFolder,
 } from "@/features/Playlist/playlistSlice";
@@ -23,13 +23,22 @@ import SongCover from "@/features/Common/SongCover";
 import type { RootState } from "@/store/store";
 import type { Playlist } from "@/types/playlist";
 import { useSession } from "next-auth/react";
+import {
+  useCreatePlaylistMutation,
+  useGetPlaylistsQuery,
+  useMovePlaylistMutation,
+} from "@/features/Playlist/playlistsApi";
+import { toast } from "sonner";
 
 type TabType = "playlists" | "otherFolders";
 
 export default function AddToFolderPanel({ folderId }: { folderId: string }) {
+  const [movePlaylist] = useMovePlaylistMutation();
+  const [createPlaylistMutation] = useCreatePlaylistMutation();
   const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<TabType>("playlists");
   const [searchQuery, setSearchQuery] = useState("");
+  const playlistCount = useAppSelector(selectPlaylistCount);
 
   const targetFolder = useAppSelector((state: RootState) =>
     selectFolderById(state, folderId),
@@ -37,6 +46,7 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
 
   const { data: session } = useSession();
   const currentUserId = session?.user?.id ?? "local";
+  useGetPlaylistsQuery();
   const allPlaylists = useAppSelector(selectPlaylists);
 
   // Scope to the current user's own playlists, and exclude the special
@@ -79,17 +89,23 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
   const togglePlaylist = (playlist: Playlist) => {
     if (playlist.folderId === folderId) {
       dispatch(setPlaylistFolder({ playlistId: playlist.id, folderId: null }));
+      movePlaylist({ id: playlist.id, folderId });
     } else {
       dispatch(setPlaylistFolder({ playlistId: playlist.id, folderId }));
+      movePlaylist({ id: playlist.id, folderId });
     }
   };
 
-  const handleCreatePlaylist = () => {
+  const handleCreatePlaylist = async () => {
     if (!currentUserId) return;
-    const action = dispatch(
-      addPlaylist({ title: "New Playlist", ownerId: currentUserId }),
-    );
-    dispatch(setPlaylistFolder({ playlistId: action.payload.id, folderId }));
+    try {
+      const playlist = await createPlaylistMutation({
+        title: "New Playlist " + (playlistCount + 1),
+      }).unwrap();
+      togglePlaylist(playlist);
+    } catch (error) {
+      toast.error("Failed to create playlist");
+    }
   };
 
   // Tabs scrolling logic

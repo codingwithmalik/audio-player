@@ -4,13 +4,12 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import { useAppDispatch, useAppSelector } from "@/globalHooks";
-import {
-  selectDeletedPlaylists,
-  restorePlaylist,
-  removePlaylist,
-} from "@/features/Playlist/playlistSlice";
 import ConfirmDialog from "@/features/Common/ConfirmDialog"; // adjust to actual path
+import {
+  useGetTrashQuery,
+  usePermanentlyDeletePlaylistMutation,
+  useRestorePlaylistMutation,
+} from "@/features/Playlist/playlistsApi";
 
 const TRASH_RETENTION_DAYS = 90; // kept in sync with playlistsSlice's own constant
 
@@ -27,10 +26,13 @@ function formatDate(iso: string) {
 }
 
 export default function RecoverPlaylistsPage() {
+  const deletedPlaylists = useGetTrashQuery().data ?? [];
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const deletedPlaylists = useAppSelector(selectDeletedPlaylists);
-  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(
+    null,
+  );
+  const [restorePlaylistMutation] = useRestorePlaylistMutation();
+  const [permanentlyDeletePlaylist] = usePermanentlyDeletePlaylistMutation();
 
   return (
     <OverlayScrollbarsComponent
@@ -49,12 +51,15 @@ export default function RecoverPlaylistsPage() {
         <div>
           <h1 className="text-3xl font-extrabold mb-2">Recover playlists</h1>
           <p className="text-sm text-white/60">
-            If you deleted a playlist within the last {TRASH_RETENTION_DAYS} days, you can get it back.
+            If you deleted a playlist within the last {TRASH_RETENTION_DAYS}{" "}
+            days, you can get it back.
           </p>
         </div>
 
         {deletedPlaylists.length === 0 ? (
-          <p className="text-sm text-white/50">Nothing in your trash right now.</p>
+          <p className="text-sm text-white/50">
+            Nothing in your trash right now.
+          </p>
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -69,13 +74,21 @@ export default function RecoverPlaylistsPage() {
             <tbody>
               {deletedPlaylists.map((playlist) => (
                 <tr key={playlist.id} className="border-b border-white/5">
-                  <td className="py-3 text-white/70">{formatDate(playlist.deletedAt!)}</td>
+                  <td className="py-3 text-white/70">
+                    {formatDate(playlist.deletedAt!)}
+                  </td>
                   <td className="py-3">{playlist.title}</td>
-                  <td className="py-3 text-white/70">{playlist.songs.length}</td>
-                  <td className="py-3 text-white/70">{daysRemaining(playlist.deletedAt!)} days</td>
+                  <td className="py-3 text-white/70">
+                    {playlist.songs.length}
+                  </td>
+                  <td className="py-3 text-white/70">
+                    {daysRemaining(playlist.deletedAt!)} days
+                  </td>
                   <td className="py-3 flex gap-2 justify-end">
                     <button
-                      onClick={() => dispatch(restorePlaylist(playlist.id))}
+                      onClick={() => {
+                        restorePlaylistMutation(playlist.id);
+                      }}
                       className="px-4 py-1.5 rounded-full border border-white/30 text-xs font-semibold hover:bg-white/10"
                     >
                       Restore
@@ -101,7 +114,7 @@ export default function RecoverPlaylistsPage() {
           description="This can't be undone."
           confirmLabel="Delete forever"
           onConfirm={() => {
-            dispatch(removePlaylist(confirmingDeleteId));
+            permanentlyDeletePlaylist(confirmingDeleteId);
             setConfirmingDeleteId(null);
           }}
           onCancel={() => setConfirmingDeleteId(null)}

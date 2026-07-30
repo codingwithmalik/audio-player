@@ -21,16 +21,17 @@ import type { RootState } from "@/store/store";
 import type { Playlist } from "@/types/playlist";
 import type { Song } from "@/types/song";
 import { useGetSongsQuery } from "../Songs/songsApi";
+import { useGetPlaylistsQuery } from "../Playlist/playlistsApi";
 
 export default function HomeSections() {
+  useGetSongsQuery();
+  useGetPlaylistsQuery()
   const router = useRouter();
   const dispatch = useAppDispatch();
 
   const [activeTab, setActiveTab] = useState<string>("home");
   const playlistsById = useAppSelector((s: RootState) => s.playlists.entities);
   const songsById = useAppSelector((s: RootState) => s.songs.entities);
-  useGetSongsQuery();
-
   const sections = useAppSelector(selectHomeSections);
 
   const handlePlaylistClick = (playlistId: string) => {

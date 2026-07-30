@@ -6,8 +6,6 @@ import { Playlist } from "@/types/playlist";
 import { Folder } from "@/types/folder";
 import { FolderClosed, ChevronRight } from "lucide-react";
 import { useAppSelector } from "@/globalHooks";
-import { selectPlaylistById } from "@/features/Playlist/playlistSlice";
-// import { selectSongsByIds } from "@/features/Songs/songsSlice";
 import PlaylistMosaicCover from "@/features/Playlist/playlistMosaicCover";
 import { selectQueueSourceId } from "@/features/RightSidebar/Queue/queueSlice";
 import { selectIsPlaying } from "@/slices/playerSlice";
@@ -30,17 +28,16 @@ export default function LibraryItem({
   onToggleExpand,
 }: Props) {
   const router = useRouter();
-  const isFolder = item.type === "folder";
-  const isPlaylist = item.type === "playlist";
-  const id = isPlaylist ? item.id : "";
-  const playlist = useAppSelector((s) => selectPlaylistById(s, id));
-  const songIds = playlist?.songs.map((s) => s.songId) ?? [];
-  // const songs = useAppSelector((s) => selectSongsByIds(s, songIds));
+  const isFolder = !("songs" in item);
+  const isPlaylist = "songs" in item;
+  const songIds = isPlaylist ? item.songs.map((s) => s.songId) : [];
   const { data: songs = [] } = useGetSongsByIdsQuery(songIds, {
     skip: songIds.length === 0,
   });
-  const songCovers = songs.slice(0, 4).map((s) => s.coverImage);
-  const songCoversStrings = songCovers.filter((c): c is string => Boolean(c));
+  const songCoversStrings = songs
+    .slice(0, 4)
+    .map((s) => s.coverImage)
+    .filter((c): c is string => Boolean(c));
   const queueSourceId = useAppSelector(selectQueueSourceId);
   const isPlaying = useAppSelector(selectIsPlaying);
   const isCurrent = queueSourceId === item.id;
@@ -124,7 +121,7 @@ export default function LibraryItem({
                     songCovers={songCoversStrings}
                     title={isPlaylist ? item.title : ""}
                     coverImage={item.coverImage}
-                    isLikedPlaylist={playlist.id.startsWith("liked-")}
+                    isLikedPlaylist={isLikedPlaylist}
                   />
                 </div>
               )}

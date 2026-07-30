@@ -33,7 +33,9 @@ export const selectHomeSections = createSelector(
     (state: RootState) => state.history.recentSongIds,
   ],
   (playlistsById, songsById, recentSongIds): HomeSection[] => {
-    const ownedPlaylists = Object.values(playlistsById);
+    const ownedPlaylists = Object.values(playlistsById).filter(
+      (p) => !p.deletedAt,
+    );
 
     // ── Your playlists: all owned, accessedAt (fallback createdAt) desc ──
     const yourPlaylists = [...ownedPlaylists]

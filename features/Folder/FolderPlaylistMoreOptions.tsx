@@ -11,6 +11,10 @@ import {
   softDeletePlaylist,
 } from "@/features/Playlist/playlistSlice";
 import { useSession } from "next-auth/react";
+import {
+  useDeletePlaylistMutation,
+  useMovePlaylistMutation,
+} from "../Playlist/playlistsApi";
 
 export default function FolderPlaylistMoreOptions({
   playlistId,
@@ -26,6 +30,9 @@ export default function FolderPlaylistMoreOptions({
   anchorRef: React.RefObject<HTMLButtonElement | null>;
 }) {
   const dispatch = useAppDispatch();
+  const [movePlaylist] = useMovePlaylistMutation();
+  const [deletePlaylist] = useDeletePlaylistMutation();
+
   // const router = useRouter();
   const folders = useAppSelector(selectFolders);
   const { data: session } = useSession();
@@ -35,11 +42,13 @@ export default function FolderPlaylistMoreOptions({
   // ── Actions ───────────────────────────────────────────────────────────────
   const handleRemoveFromFolder = () => {
     dispatch(setPlaylistFolder({ playlistId, folderId: null }));
+    movePlaylist({ id: playlistId, folderId: null });
     onClose();
   };
 
   const handleMoveToFolder = (folderId: string) => {
     dispatch(setPlaylistFolder({ playlistId, folderId }));
+    movePlaylist({ id: playlistId, folderId });
     onClose();
   };
 
@@ -58,7 +67,7 @@ export default function FolderPlaylistMoreOptions({
           updatedAt: now,
         }),
       );
-    dispatch(setPlaylistFolder({ playlistId, folderId: id }));
+    handleMoveToFolder(id);
     onClose();
   };
 
@@ -127,6 +136,7 @@ export default function FolderPlaylistMoreOptions({
             cancelLabel="Cancel"
             onConfirm={() => {
               dispatch(softDeletePlaylist(playlistId));
+              deletePlaylist(playlistId);
               setConfirmOpen(false);
               onClose();
               // No router.push — stay on folder page, list updates automatically

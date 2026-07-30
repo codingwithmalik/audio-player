@@ -357,14 +357,22 @@ export const selectViewMode = (state: RootState) => state.playlists.viewMode;
 export const selectPlaylistCount = (state: RootState) =>
   Object.values(state.playlists.entities).length;
 
-export const selectIsLiked = (state: RootState, songId: string): boolean => {
-  const likedPlaylist = state.playlists.entities[`liked-`];
+export const selectIsLiked = (
+  state: RootState,
+  songId: string,
+  userId: string,
+): boolean => {
+  const likedPlaylist = state.playlists.entities[`liked-${userId}`];
   if (!likedPlaylist) return false;
   return likedPlaylist.songs.some((s) => s.songId === songId);
 };
-export const selectLikedPlaylistId = (state: RootState): string | null => {
-  const likedPlaylist = state.playlists.entities[`liked-`];
-  return likedPlaylist.id;
+
+export const selectLikedPlaylistId = (
+  state: RootState,
+  userId: string,
+): string | null => {
+  const likedPlaylist = state.playlists.entities[`liked-${userId}`];
+  return likedPlaylist?.id ?? null;
 };
 export const selectDeletedPlaylists = createSelector(
   [(state: RootState) => state.playlists.entities],

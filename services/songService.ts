@@ -22,6 +22,13 @@ export const songService = {
     if (!song) throw new Error("Song not found");
     return song;
   },
+  // songService.ts — new method
+  async getSongsByIds(ids: string[]) {
+    await connectDB();
+    const songs = await songRepository.findMany({ _id: { $in: ids } });
+    const byId = new Map(songs.map((s) => [s.toJSON().id, s.toJSON()]));
+    return ids.map((id) => byId.get(id)).filter(Boolean);
+  },
 
   async listSongs(
     filter: any = {},

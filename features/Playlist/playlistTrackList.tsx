@@ -26,6 +26,7 @@ import {
 } from "@/features/Playlist/playlistSlice";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { memo } from "react";
+import { useUpdatePlaylistMutation } from "@/features/Playlist/playlistsApi";
 
 interface PlaylistTrackListProps {
   playlistId: string;
@@ -49,6 +50,7 @@ export default function PlaylistTrackList({
   const dispatch = useAppDispatch();
   const sortBy = useAppSelector(selectSortBy);
   const searchQuery = useAppSelector(selectSearchQuery);
+  const [updatePlaylist] = useUpdatePlaylistMutation();
 
   // Reordering only makes sense when the visible order matches the real
   // playlist order — i.e. no search filter, and not sorted by title/artist/etc.
@@ -56,7 +58,7 @@ export default function PlaylistTrackList({
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { delay: 100, tolerance: 8 },
+      activationConstraint: { delay: 200, tolerance: 8 },
     }),
   );
 
@@ -69,6 +71,11 @@ export default function PlaylistTrackList({
     if (fromIndex === -1 || toIndex === -1) return;
 
     dispatch(reorderPlaylistSongs({ playlistId, fromIndex, toIndex }));
+
+    const reordered = [...playlistSongs];
+    const [moved] = reordered.splice(fromIndex, 1);
+    reordered.splice(toIndex, 0, moved);
+    updatePlaylist({ id: playlistId, data: { songs: reordered } });
   }
 
   return (

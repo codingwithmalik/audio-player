@@ -28,6 +28,12 @@ import {
   getRecommendedSongs,
   getPopularSongs,
 } from "@/utils/recommendationUtils";
+import {
+  useAddSongToPlaylistMutation,
+  useGetPlaylistsQuery,
+  useRemoveSongFromPlaylistMutation,
+} from "@/features/Playlist/playlistsApi";
+import { useSession } from "next-auth/react";
 
 type TabType = "recentlyPlayed" | "liked" | "suggested";
 
@@ -39,10 +45,16 @@ export default function AddToPlaylistPanel({
   const TOP_GENRES_LIMIT = 5;
   const SUGGESTED_LIMIT = 40;
 
+  const [addSongMutation] = useAddSongToPlaylistMutation();
+  const [removeSongMutation] = useRemoveSongFromPlaylistMutation();
+
+  const { data: session } = useSession();
+  const userId = session?.user.id;
+
   const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<TabType>("suggested");
   const [searchQuery, setSearchQuery] = useState("");
-
+  useGetPlaylistsQuery();
   const targetPlaylist = useAppSelector((state: RootState) =>
     selectPlaylistById(state, playlistId),
   );
@@ -51,7 +63,9 @@ export default function AddToPlaylistPanel({
   }, [targetPlaylist]);
 
   const recentIds = useAppSelector(selectRecentSongIds);
-  const likedPlaylistId = useAppSelector(selectLikedPlaylistId);
+  const likedPlaylistId = useAppSelector((state: RootState) =>
+    selectLikedPlaylistId(state, userId ?? "local"),
+  );
   const likedPlaylist = useAppSelector((state: RootState) =>
     likedPlaylistId ? selectPlaylistById(state, likedPlaylistId) : null,
   );
@@ -119,7 +133,7 @@ export default function AddToPlaylistPanel({
   }, []);
 
   // Determine which IDs to show based on active tab
-const baseSongs = useMemo(() => {
+  const baseSongs = useMemo(() => {
     switch (activeTab) {
       case "recentlyPlayed":
         return recentIds
@@ -169,8 +183,10 @@ const baseSongs = useMemo(() => {
   const toggleSong = (songId: string) => {
     if (targetSongIds.has(songId)) {
       dispatch(removeSongFromPlaylist({ playlistId, songId }));
+      removeSongMutation({ playlistId, songId });
     } else {
       dispatch(addSongToPlaylist({ playlistId, songId }));
+      addSongMutation({ playlistId, songIds: [songId] });
     }
   };
 

@@ -3,6 +3,7 @@ import { setSong } from "@/slices/playerSlice";
 import { incrementPlayCount } from "@/features/Songs/songsSlice";
 import { touchPlaylist } from "@/features/Playlist/playlistSlice";
 import type { RootState } from "@/store/store";
+import { playlistsApi } from "@/features/Playlist/playlistsApi";
 
 export const playTrackingMiddleware = createListenerMiddleware();
 
@@ -17,6 +18,12 @@ playTrackingMiddleware.startListening({
 
     if (sourceType === "playlist" && sourceId) {
       listenerApi.dispatch(touchPlaylist(sourceId));
+      listenerApi.dispatch(
+        playlistsApi.endpoints.updatePlaylist.initiate({
+          id: sourceId,
+          data: { accessedAt: new Date().toISOString() },
+        }),
+      );
     }
   },
 });

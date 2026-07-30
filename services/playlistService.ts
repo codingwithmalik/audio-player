@@ -80,6 +80,15 @@ export const playlistService = {
     return playlistRepository.updateById(id, { deletedAt: new Date() });
   },
 
+  // playlistService.ts
+  async permanentlyDelete(userId: string, id: string) {
+    await connectDB();
+    const playlist = await playlistRepository.findById(id);
+    if (!playlist) throw new Error("Playlist not found");
+    if (playlist.ownerId !== userId) throw new Error("Not authorized");
+    await playlistRepository.deleteById(id);
+  },
+
   async restorePlaylist(userId: string, id: string) {
     await connectDB();
     const playlist = await playlistRepository.findById(id);
@@ -108,16 +117,21 @@ export const playlistService = {
     return stillValid;
   },
 
-  async addSong(userId: string, playlistId: string, songId: string) {
+  async addSongs(userId: string, playlistId: string, songIds: string[]) {
     await connectDB();
     const playlist = await playlistRepository.findById(playlistId);
     if (!playlist) throw new Error("Playlist not found");
     if (playlist.ownerId !== userId) throw new Error("Not authorized");
 
-    const alreadyIn = playlist.songs.some((s: any) => s.songId === songId);
-    if (alreadyIn) return playlist;
+    const existingIds = new Set(playlist.songs.map((s: any) => s.songId));
+    const now = new Date();
 
-    playlist.songs.push({ songId, addedAt: new Date() });
+    for (const songId of songIds) {
+      if (existingIds.has(songId)) continue;
+      playlist.songs.push({ songId, addedAt: now });
+      existingIds.add(songId);
+    }
+
     playlist.accessedAt = new Date();
     await playlist.save();
     return playlist;

@@ -12,6 +12,7 @@ import {
 } from "@/slices/playerSlice";
 import { Song } from "@/types/song";
 import EqBars from "../Common/EQBars";
+import { useGetSongByIdQuery } from "../Songs/songsApi";
 
 // ─── Cover Art ────────────────────────────────────────────────────────────────
 
@@ -26,6 +27,7 @@ const CoverArt = ({
   isBuffering: boolean;
   size: "sm" | "md";
 }) => {
+  useGetSongByIdQuery(song.id)
   const [imgError, setImgError] = useState(false);
   const showImage = !!song.coverImage && !imgError;
 

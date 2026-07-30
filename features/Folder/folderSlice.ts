@@ -75,28 +75,6 @@ const foldersSlice = createSlice({
       folder.updatedAt = new Date().toISOString();
     },
 
-    addPlaylistToFolder(
-      state,
-      action: PayloadAction<{ folderId: string; playlistId: string }>,
-    ) {
-      const folder = state.entities[action.payload.folderId];
-      if (!folder) return;
-      if (folder.playlistIds.includes(action.payload.playlistId)) return;
-      folder.playlistIds.push(action.payload.playlistId);
-      folder.updatedAt = new Date().toISOString();
-    },
-
-    removePlaylistFromFolder(
-      state,
-      action: PayloadAction<{ folderId: string; playlistId: string }>,
-    ) {
-      const folder = state.entities[action.payload.folderId];
-      if (!folder) return;
-      folder.playlistIds = folder.playlistIds.filter(
-        (id) => id !== action.payload.playlistId,
-      );
-      folder.updatedAt = new Date().toISOString();
-    },
   },
 });
 
@@ -109,8 +87,6 @@ export const {
   addFolder,
   removeFolder,
   updateFolderMeta,
-  addPlaylistToFolder,
-  removePlaylistFromFolder,
 } = foldersSlice.actions;
 
 // ─── Base selectors ───────────────────────────────────────────────────────────

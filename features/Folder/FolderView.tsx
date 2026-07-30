@@ -6,7 +6,6 @@ import {
   selectFolderById,
   updateFolderMeta,
 } from "@/features/Folder/folderSlice";
-import { selectPlaylistById } from "@/features/Playlist/playlistSlice";
 import { gsap } from "gsap";
 import FolderHero from "./FolderHero";
 import FolderActions from "./FolderActions";
@@ -15,18 +14,16 @@ import type { RootState } from "@/store/store";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { closeRightSidebarPanel } from "@/slices/rightSidebarSlice";
 import { useGetPlaylistsQuery } from "../Playlist/playlistsApi";
+import { useGetFolderQuery, useRenameFolderMutation } from "./foldersApi";
 
 export default function FolderView({ folderId }: { folderId: string }) {
+  const [renameFolder] = useRenameFolderMutation();
   const dispatch = useAppDispatch();
+  useGetFolderQuery(folderId);
   const folder = useAppSelector((state: RootState) =>
     selectFolderById(state, folderId),
   );
-  useGetPlaylistsQuery({ folderId });
-  const playlists = useAppSelector((state: RootState) =>
-    (folder?.playlistIds ?? [])
-      .map((id) => selectPlaylistById(state, id))
-      .filter(Boolean),
-  ) as NonNullable<ReturnType<typeof selectPlaylistById>>[];
+  const playlists = useGetPlaylistsQuery({ folderId })?.data ?? [];
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [isRenaming, setIsRenaming] = useState(false);
@@ -64,6 +61,7 @@ export default function FolderView({ folderId }: { folderId: string }) {
   const handleRename = (newTitle: string) => {
     if (!newTitle.trim()) return;
     dispatch(updateFolderMeta({ id: folderId, title: newTitle.trim() }));
+    renameFolder({ id: folderId, title: newTitle.trim() });
     setIsRenaming(false);
   };
 

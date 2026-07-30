@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import ConfirmDialog from "@/features/Common/ConfirmDialog";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
-import { selectFolders, addFolder } from "@/features/Folder/folderSlice";
+import { selectFolders } from "@/features/Folder/folderSlice";
 import {
   setPlaylistFolder,
   softDeletePlaylist,
@@ -15,6 +15,8 @@ import {
   useDeletePlaylistMutation,
   useMovePlaylistMutation,
 } from "../Playlist/playlistsApi";
+import { toast } from "sonner";
+import { useCreateFolderMutation, useGetFoldersQuery } from "./foldersApi";
 
 export default function FolderPlaylistMoreOptions({
   playlistId,
@@ -32,8 +34,9 @@ export default function FolderPlaylistMoreOptions({
   const dispatch = useAppDispatch();
   const [movePlaylist] = useMovePlaylistMutation();
   const [deletePlaylist] = useDeletePlaylistMutation();
+  const [createFolder] = useCreateFolderMutation();
 
-  // const router = useRouter();
+  useGetFoldersQuery();
   const folders = useAppSelector(selectFolders);
   const { data: session } = useSession();
   const userId = session?.user?.id;
@@ -52,22 +55,16 @@ export default function FolderPlaylistMoreOptions({
     onClose();
   };
 
-  const handleCreateFolder = () => {
-    const id = crypto.randomUUID();
-    const now = new Date().toISOString();
+  const handleCreateFolder = async () => {
     if (userId)
-      dispatch(
-        addFolder({
-          id,
-          type: "folder",
-          title: `New Folder ${folders.length + 1}`,
-          playlistIds: [playlistId],
-          ownerId: userId,
-          createdAt: now,
-          updatedAt: now,
-        }),
-      );
-    handleMoveToFolder(id);
+      try {
+        const folder = await createFolder({
+          title: "New Folder " + (folders.length + 1),
+        }).unwrap();
+        handleMoveToFolder(folder.id);
+      } catch  {
+        toast.error("Failed to create folder");
+      }
     onClose();
   };
 

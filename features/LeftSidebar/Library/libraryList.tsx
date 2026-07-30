@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import LibraryItem from "./libraryItem";
 import { Playlist } from "@/types/playlist";
 import { Folder } from "@/types/folder";
@@ -24,18 +24,36 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { selectLibrarySettings } from "@/features/Profile/settingsSlice";
 import LocalFilesLibraryRow from "../LocalFiles/LocalFilesLibraryRow";
 import { useRouter } from "next/navigation";
-import { useGetPlaylistsQuery, useMovePlaylistMutation } from "@/features/Playlist/playlistsApi";
+import {
+  useGetPlaylistsQuery,
+  useMovePlaylistMutation,
+} from "@/features/Playlist/playlistsApi";
+import { useGetFoldersQuery } from "@/features/Folder/foldersApi";
 
 export default function LibraryList({
   ShowLocalFiles,
 }: {
   ShowLocalFiles: () => void;
 }) {
-  useGetPlaylistsQuery()
+  useGetPlaylistsQuery();
+  useGetFoldersQuery();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const items = useAppSelector(selectFilteredItems);
+
   const allPlaylists = useAppSelector((state) => state.playlists.entities);
+  // after allPlaylists is read, before the return:
+  const playlistsByFolderId = useMemo(() => {
+    const grouped: Record<string, Playlist[]> = {};
+    for (const playlist of Object.values(allPlaylists)) {
+      if (!playlist.folderId) continue;
+      (grouped[playlist.folderId] ??= []).push({
+        ...playlist,
+        type: "playlist" as const,
+      });
+    }
+    return grouped;
+  }, [allPlaylists]);
   const filters = useAppSelector(selectFilters);
   const search = useAppSelector(selectSearch);
   const [movePlaylist] = useMovePlaylistMutation();
@@ -141,18 +159,18 @@ export default function LibraryList({
                   />
                   {isExpanded && (
                     <div className="flex flex-col gap-1">
-                      {(item as Folder).playlistIds.map((playlistId) => {
-                        const nestedPlaylist = allPlaylists[playlistId];
-                        if (!nestedPlaylist) return null;
-                        return (
-                          <LibraryItem
-                            key={nestedPlaylist.id}
-                            item={nestedPlaylist}
-                            depth={1}
-                            isAnyDragActive={activeId !== null}
-                          />
-                        );
-                      })}
+                      {(playlistsByFolderId[item.id] ?? []).map(
+                        (nestedPlaylist) => {
+                          return (
+                            <LibraryItem
+                              key={nestedPlaylist.id}
+                              item={nestedPlaylist}
+                              depth={1}
+                              isAnyDragActive={activeId !== null}
+                            />
+                          );
+                        },
+                      )}
                     </div>
                   )}
                 </div>

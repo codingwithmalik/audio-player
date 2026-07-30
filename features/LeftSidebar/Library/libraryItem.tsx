@@ -11,6 +11,8 @@ import { selectQueueSourceId } from "@/features/RightSidebar/Queue/queueSlice";
 import { selectIsPlaying } from "@/slices/playerSlice";
 import EqBars from "@/features/Common/EQBars";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
+import { selectPlaylistSongCovers } from "@/features/Playlist/playlistSlice";
+import { RootState } from "@/store/store";
 import { useGetSongsByIdsQuery } from "@/features/Songs/songsApi";
 type Props = {
   item: Folder | Playlist;
@@ -28,16 +30,16 @@ export default function LibraryItem({
   onToggleExpand,
 }: Props) {
   const router = useRouter();
-  const isFolder = !("songs" in item);
-  const isPlaylist = "songs" in item;
+  const isFolder = item.type === "folder";
+  const isPlaylist = item.type === "playlist";
   const songIds = isPlaylist ? item.songs.map((s) => s.songId) : [];
-  const { data: songs = [] } = useGetSongsByIdsQuery(songIds, {
+  useGetSongsByIdsQuery(songIds, {
     skip: songIds.length === 0,
   });
-  const songCoversStrings = songs
-    .slice(0, 4)
-    .map((s) => s.coverImage)
-    .filter((c): c is string => Boolean(c));
+  const EMPTY_COVERS: string[] = [];
+  const songCoversStrings = useAppSelector((state: RootState) =>
+    isPlaylist ? selectPlaylistSongCovers(state, item) : EMPTY_COVERS,
+  );
   const queueSourceId = useAppSelector(selectQueueSourceId);
   const isPlaying = useAppSelector(selectIsPlaying);
   const isCurrent = queueSourceId === item.id;
@@ -53,7 +55,14 @@ export default function LibraryItem({
   // still fires a native browser click on mouseup, which would otherwise
   // navigate as if it were a normal click.
   const hasDraggedRef = useRef(false);
-
+  // inside the component, alongside other selectors:
+  const folderPlaylistCount = useAppSelector((s) =>
+    isFolder
+      ? Object.values(s.playlists.entities).filter(
+          (p) => p.folderId === item.id,
+        ).length
+      : 0,
+  );
   const {
     attributes,
     listeners,
@@ -136,7 +145,7 @@ export default function LibraryItem({
             </h3>
             <p className="text-sm text-zinc-400">
               {isFolder
-                ? `Folder • ${item.playlistIds.length} playlists`
+                ? `Folder • ${folderPlaylistCount} playlists`
                 : `Playlist • ${item.songs.length} songs`}
             </p>
           </div>

@@ -1,7 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { historyListenerMiddleware } from "@/middlewares/historyMiddleware";
-import { folderSyncMiddleware } from "@/middlewares/folderSyncMiddleware";
 import { playTrackingMiddleware } from "@/middlewares/playCountMiddleware";
 import { shuffleSyncMiddleware } from "@/middlewares/shuffleSyncMiddleware";
 import { privateSessionMiddleware } from "@/middlewares/privateSessionMiddleware";
@@ -21,6 +20,7 @@ import { toastMiddleware } from "@/middlewares/toastMiddleware";
 //New Api integrations
 import { songsApi } from "@/features/Songs/songsApi";
 import { playlistsApi } from "@/features/Playlist/playlistsApi";
+import { foldersApi } from "@/features/Folder/foldersApi";
 
 export const store = configureStore({
   reducer: {
@@ -39,17 +39,17 @@ export const store = configureStore({
     //New Api integrations
     [songsApi.reducerPath]: songsApi.reducer,
     [playlistsApi.reducerPath]: playlistsApi.reducer,
+    [foldersApi.reducerPath]: foldersApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .prepend(historyListenerMiddleware.middleware)
-      .prepend(folderSyncMiddleware.middleware)
       .prepend(playTrackingMiddleware.middleware)
       .prepend(shuffleSyncMiddleware.middleware)
       .prepend(privateSessionMiddleware.middleware)
       .prepend(toastMiddleware.middleware)
       //New Api integrations
-      .concat(songsApi.middleware)
+      .concat(songsApi.middleware, foldersApi.middleware)
       .concat(playlistsApi.middleware),
 });
 

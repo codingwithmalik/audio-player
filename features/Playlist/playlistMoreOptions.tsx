@@ -17,10 +17,9 @@ import {
   setPlaylistFolder,
   selectPlaylistById,
   addSongsToPlaylist,
-  softDeletePlaylist,
 } from "./playlistSlice";
 import { useRouter } from "next/navigation";
-import { addFolder, selectFolders } from "@/features/Folder/folderSlice";
+import { selectFolders } from "@/features/Folder/folderSlice";
 import ConfirmDialog from "@/features/Common/ConfirmDialog";
 import MoreOptions, { MoreOption } from "@/features/Common/MoreOptions";
 import { addManyToManualQueue } from "../RightSidebar/Queue/queueSlice";
@@ -35,6 +34,10 @@ import {
   useMovePlaylistMutation,
 } from "./playlistsApi";
 import { toast } from "sonner";
+import {
+  useCreateFolderMutation,
+  useGetFoldersQuery,
+} from "../Folder/foldersApi";
 
 export default function PlaylistMoreOptions({
   onEditDetails,
@@ -57,12 +60,13 @@ export default function PlaylistMoreOptions({
   const [deletePlaylist] = useDeletePlaylistMutation();
   const [addSongsMutation] = useAddSongToPlaylistMutation();
   const [createPlaylistMutation] = useCreatePlaylistMutation();
-  useGetPlaylistsQuery()
+  const [createFolder] = useCreateFolderMutation();
+  useGetPlaylistsQuery();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const playlists = useAppSelector(selectPlaylists);
+  useGetFoldersQuery();
   const folders = useAppSelector(selectFolders);
-  const now = new Date().toISOString();
   const songsById = useAppSelector((state: RootState) => state.songs.entities);
 
   const { data: session } = useSession();
@@ -84,21 +88,17 @@ export default function PlaylistMoreOptions({
     onClose();
   };
 
-  const handleCreateFolder = () => {
-    const newFolderId = crypto.randomUUID();
-    if (userId)
-      dispatch(
-        addFolder({
-          id: newFolderId,
-          type: "folder",
+  const handleCreateFolder = async () => {
+    if (userId) {
+      try {
+        const folder = await createFolder({
           title: "New Folder " + (folders.length + 1),
-          playlistIds: [],
-          ownerId: userId,
-          createdAt: now,
-          updatedAt: now,
-        }),
-      );
-    handleAddToFolder(newFolderId);
+        }).unwrap();
+        handleAddToFolder(folder.id);
+      } catch {
+        toast.error("Failed to create folder");
+      }
+    }
   };
 
   const handleAddToPlaylist = (targetPlaylistId: string) => {
@@ -118,7 +118,7 @@ export default function PlaylistMoreOptions({
           title: "New Playlist " + (playlists.length + 1),
         }).unwrap();
         handleAddToPlaylist(playlist.id);
-      } catch (err) {
+      } catch {
         toast.error("Failed to create playlist");
       }
     }
@@ -258,7 +258,6 @@ export default function PlaylistMoreOptions({
               confirmLabel="Delete"
               cancelLabel="Cancel"
               onConfirm={() => {
-                dispatch(softDeletePlaylist(playlistId));
                 deletePlaylist(playlistId);
                 handleRemoveFromFolder();
                 setConfirmOpen(false);

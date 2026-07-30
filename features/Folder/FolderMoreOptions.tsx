@@ -19,6 +19,7 @@ import {
   useMovePlaylistMutation,
 } from "../Playlist/playlistsApi";
 import { toast } from "sonner";
+import { useDeleteFolderMutation } from "./foldersApi";
 
 export default function FolderMoreOptions({
   folderId,
@@ -43,7 +44,7 @@ export default function FolderMoreOptions({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [movePlaylist] = useMovePlaylistMutation();
   const [createPlaylistMutation] = useCreatePlaylistMutation();
-
+  const [deleteFolder] = useDeleteFolderMutation();
   const handleAddToFolder = (playlistId: string) => {
     dispatch(setPlaylistFolder({ playlistId, folderId }));
     movePlaylist({ id: playlistId, folderId });
@@ -57,7 +58,7 @@ export default function FolderMoreOptions({
           title: "New Playlist " + (playlists.length + 1),
         }).unwrap();
         handleAddToFolder(playlist.id);
-      } catch (error) {
+      } catch {
         toast.error("Failed to create playlist");
       }
     }
@@ -138,6 +139,7 @@ export default function FolderMoreOptions({
             cancelLabel="Cancel"
             onConfirm={() => {
               dispatch(removeFolder(folderId));
+              deleteFolder(folderId);
               setConfirmOpen(false);
               router.push("/");
               console.log("Folder deleted, navigate to home");

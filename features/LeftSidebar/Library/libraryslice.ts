@@ -69,8 +69,12 @@ export const selectFilteredItems = createSelector(
     const showFolders = filters.length === 0 || filters.includes("folders");
 
     let result: LibraryItem[] = [
-      ...(showPlaylists ? playlists : []),
-      ...(showFolders ? folders : []),
+      ...(showPlaylists
+        ? playlists.map((p) => ({ ...p, type: "playlist" as const }))
+        : []),
+      ...(showFolders
+        ? folders.map((f) => ({ ...f, type: "folder" as const }))
+        : []),
     ];
 
     if (search.trim()) {

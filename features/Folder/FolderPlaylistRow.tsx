@@ -1,16 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/globalHooks";
 import PlaylistMosaicCover from "@/features/Playlist/playlistMosaicCover";
-import { selectSongById } from "@/features/Songs/songsSlice";
 import type { Playlist } from "@/types/playlist";
-import type { RootState } from "@/store/store";
 import { MoreHorizontal } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import BottomSheet from "../Common/BottomSheet";
 import FolderPlaylistMoreOptions from "./FolderPlaylistMoreOptions";
 import { useRef, useState } from "react";
+import { useAppSelector } from "@/globalHooks";
+import { selectPlaylistSongCovers } from "../Playlist/playlistSlice";
+import { RootState } from "@/store/store";
+import { useGetSongsByIdsQuery } from "../Songs/songsApi";
 
 export default function FolderPlaylistRow({
   playlist,
@@ -18,13 +19,13 @@ export default function FolderPlaylistRow({
   playlist: Playlist;
 }) {
   const router = useRouter();
+  const songIds = playlist.songs.map((s) => s.songId).slice(0, 4);
+  useGetSongsByIdsQuery(songIds,{skip:songIds.length===0});
   const isMobile = useIsMobile();
   const [moreOpen, setMoreOpen] = useState(false);
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const songCovers = useAppSelector((state: RootState) =>
-    playlist.songs
-      .slice(0, 4)
-      .map((s) => selectSongById(state, s.songId)?.coverImage),
+    selectPlaylistSongCovers(state, playlist),
   );
   const [hovered, setHovered] = useState(false);
 

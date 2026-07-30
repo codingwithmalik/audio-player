@@ -16,10 +16,10 @@ import { closeRightSidebarPanel } from "@/slices/rightSidebarSlice";
 import {
   selectPlaylistCount,
   selectPlaylists,
+  selectPlaylistSongCovers,
   setPlaylistFolder,
 } from "@/features/Playlist/playlistSlice";
 import { selectFolderById } from "@/features/Folder/folderSlice";
-import SongCover from "@/features/Common/SongCover";
 import type { RootState } from "@/store/store";
 import type { Playlist } from "@/types/playlist";
 import { useSession } from "next-auth/react";
@@ -29,10 +29,14 @@ import {
   useMovePlaylistMutation,
 } from "@/features/Playlist/playlistsApi";
 import { toast } from "sonner";
+import { useGetFolderQuery } from "@/features/Folder/foldersApi";
+import PlaylistMosaicCover from "@/features/Playlist/playlistMosaicCover";
+import { useGetSongsByIdsQuery } from "@/features/Songs/songsApi";
 
 type TabType = "playlists" | "otherFolders";
 
 export default function AddToFolderPanel({ folderId }: { folderId: string }) {
+  useGetPlaylistsQuery();
   const [movePlaylist] = useMovePlaylistMutation();
   const [createPlaylistMutation] = useCreatePlaylistMutation();
   const dispatch = useAppDispatch();
@@ -40,14 +44,16 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
   const [searchQuery, setSearchQuery] = useState("");
   const playlistCount = useAppSelector(selectPlaylistCount);
 
+  useGetFolderQuery(folderId);
   const targetFolder = useAppSelector((state: RootState) =>
     selectFolderById(state, folderId),
   );
 
   const { data: session } = useSession();
   const currentUserId = session?.user?.id ?? "local";
-  useGetPlaylistsQuery();
-  const allPlaylists = useAppSelector(selectPlaylists);
+  const allPlaylists = useAppSelector(selectPlaylists).filter(
+    (p) => !p.id.startsWith("liked"),
+  );
 
   // Scope to the current user's own playlists, and exclude the special
   // "Liked Songs" playlist — that one isn't meant to be organized into folders.
@@ -89,7 +95,7 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
   const togglePlaylist = (playlist: Playlist) => {
     if (playlist.folderId === folderId) {
       dispatch(setPlaylistFolder({ playlistId: playlist.id, folderId: null }));
-      movePlaylist({ id: playlist.id, folderId });
+      movePlaylist({ id: playlist.id, folderId :null});
     } else {
       dispatch(setPlaylistFolder({ playlistId: playlist.id, folderId }));
       movePlaylist({ id: playlist.id, folderId });
@@ -103,7 +109,7 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
         title: "New Playlist " + (playlistCount + 1),
       }).unwrap();
       togglePlaylist(playlist);
-    } catch (error) {
+    } catch {
       toast.error("Failed to create playlist");
     }
   };
@@ -286,6 +292,15 @@ function PlaylistRow({
   isAdded: boolean;
   onToggle: () => void;
 }) {
+  const songIds = playlist.songs.map((s) => s.songId).slice(0, 4);
+  useGetSongsByIdsQuery(songIds, { skip: songIds.length === 0 });
+  if (playlist.folderId) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useGetFolderQuery(playlist.folderId);
+  }
+  const songCovers = useAppSelector((state: RootState) =>
+    selectPlaylistSongCovers(state, playlist),
+  );
   const currentFolder = useAppSelector((state: RootState) =>
     playlist.folderId ? selectFolderById(state, playlist.folderId) : null,
   );
@@ -296,8 +311,13 @@ function PlaylistRow({
         className="flex min-w-0 flex-1 cursor-pointer items-center gap-3"
         onClick={onToggle}
       >
-        <div className="shrink-0 overflow-hidden rounded-sm">
-          <SongCover src={playlist.coverImage} alt={playlist.title} size={48} />
+        <div className="shrink-0 w-14 h-14 sm:w-12 sm:h-12 overflow-hidden rounded-sm">
+          <PlaylistMosaicCover
+            songCovers={songCovers}
+            title={playlist.title}
+            coverImage={playlist.coverImage}
+            key={playlist.id}
+          />
         </div>
         <div className="flex min-w-0 flex-1 flex-col justify-center">
           <p className="truncate text-[15px] font-medium text-white">

@@ -3,6 +3,7 @@
 import { FolderClosed } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 import type { Folder } from "@/types/folder";
+import { useAppSelector } from "@/globalHooks";
 
 export default function FolderHero({
   folder,
@@ -17,6 +18,12 @@ export default function FolderHero({
   onRenameConfirm: (title: string) => void;
   onRenameCancel: () => void;
 }) {
+  const folderPlaylistCount = useAppSelector(
+    (s) =>
+      Object.values(s.playlists.entities).filter(
+        (p) => p.folderId === folder.id,
+      ).length,
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState(folder.title);
 
@@ -76,9 +83,9 @@ export default function FolderHero({
           )}
 
           <p className="text-sm text-zinc-400">
-            {folder.playlistIds.length === 0
+            {folderPlaylistCount === 0
               ? "No playlists yet"
-              : `${folder.playlistIds.length} ${folder.playlistIds.length === 1 ? "playlist" : "playlists"}`}
+              : `${folderPlaylistCount} ${folderPlaylistCount === 1 ? "playlist" : "playlists"}`}
           </p>
         </div>
       </div>

@@ -3,16 +3,15 @@
 import { useRef, useEffect, useState } from "react";
 import { Plus, Music2, FolderClosed } from "lucide-react";
 import { gsap } from "gsap";
-import { useAppDispatch, useAppSelector } from "@/globalHooks";
-import {
-  selectPlaylistCount,
-} from "@/features/Playlist/playlistSlice";
-import { addFolder, selectFolderCount } from "@/features/Folder/folderSlice";
+import { useAppSelector } from "@/globalHooks";
+import { selectPlaylistCount } from "@/features/Playlist/playlistSlice";
+import { selectFolderCount } from "@/features/Folder/folderSlice";
 import { useRouter } from "next/navigation";
 import BottomSheet from "@/features/Common/BottomSheet";
 import { useSession } from "next-auth/react";
 import { useCreatePlaylistMutation } from "@/features/Playlist/playlistsApi";
 import { toast } from "sonner";
+import { useCreateFolderMutation } from "@/features/Folder/foldersApi";
 
 // ─── Options config ───────────────────────────────────────────────────────────
 
@@ -37,7 +36,6 @@ const OPTIONS = [
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CreateButton() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
@@ -85,11 +83,11 @@ export default function CreateButton() {
   const folderCount = useAppSelector(selectFolderCount);
   const playlistCount = useAppSelector(selectPlaylistCount);
   const [createPlaylistMutation] = useCreatePlaylistMutation();
+  const [createFolder] = useCreateFolderMutation();
 
   // then in handleSelect:
   // ── Dispatch ──────────────────────────────────────────────────────────────
   const handleSelect = async (type: "playlist" | "folder") => {
-    const now = new Date().toISOString();
     if (userId)
       if (type === "playlist") {
         try {
@@ -97,23 +95,18 @@ export default function CreateButton() {
             title: "New Playlist " + (playlistCount + 1),
           }).unwrap();
           router.push(`/playlist/${playlist.id}`);
-        } catch (error) {
+        } catch {
           toast.error("Failed to create playlist");
         }
       } else {
-        const folderId = crypto.randomUUID();
-        dispatch(
-          addFolder({
-            id: folderId,
-            type: "folder",
+        try {
+          const folder = await createFolder({
             title: "New Folder " + (folderCount + 1),
-            playlistIds: [],
-            ownerId: userId,
-            createdAt: now,
-            updatedAt: now,
-          }),
-          router.push(`/folder/${folderId}`),
-        );
+          }).unwrap();
+          router.push(`/folder/${folder.id}`);
+        } catch {
+          toast.error("Failed to create folder");
+        }
       }
 
     console.log("Item added");

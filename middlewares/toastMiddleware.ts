@@ -10,9 +10,10 @@ import {
   removeSongFromPlaylist,
   updatePlaylistMeta,
 } from "@/features/Playlist/playlistSlice";
-import { addFolder, removeFolder } from "@/features/Folder/folderSlice";
+import { removeFolder } from "@/features/Folder/folderSlice";
 import { setPersonalInfo } from "@/features/Profile/accountSlice";
 import { playlistsApi } from "@/features/Playlist/playlistsApi";
+import { foldersApi } from "@/features/Folder/foldersApi";
 
 export const toastMiddleware = createListenerMiddleware();
 
@@ -89,7 +90,7 @@ toastMiddleware.startListening({
 });
 
 toastMiddleware.startListening({
-  actionCreator: addFolder,
+  matcher: foldersApi.endpoints.createFolder.matchFulfilled,
   effect: (action) => {
     toast.success(`Created folder "${action.payload.title}"`);
   },

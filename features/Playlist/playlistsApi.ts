@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { removePlaylist, upsertPlaylists } from "./playlistSlice";
+import { removePlaylist, softDeletePlaylist, upsertPlaylists } from "./playlistSlice";
 import { Playlist } from "@/types/playlist";
 
 export const playlistsApi = createApi({
@@ -75,7 +75,7 @@ export const playlistsApi = createApi({
       async onQueryStarted(id, { queryFulfilled, dispatch }) {
         try {
           await queryFulfilled;
-          dispatch(removePlaylist(id));
+          dispatch(softDeletePlaylist(id));
         } catch {}
       },
       invalidatesTags: ["Playlist"],

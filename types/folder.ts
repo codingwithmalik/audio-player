@@ -5,8 +5,6 @@ export interface Folder {
 
   title: string;
 
-  playlistIds: string[];
-
   ownerId: string;
 
   createdAt: string;

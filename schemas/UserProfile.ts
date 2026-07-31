@@ -5,12 +5,8 @@ const UserProfileSchema = new Schema(
     _id: { type: String, required: true },
     username: { type: String, required: true, unique: true },
     coverImage: { type: String },
-
-    // Only present for credentials-based accounts. OAuth/Email accounts
-    // store their email on the adapter's own `users` collection instead —
-    // sparse index so multiple OAuth-only docs (no email here) don't collide.
     email: { type: String, unique: true, sparse: true },
-    password: { type: String }, // hashed, only set for credentials accounts
+    password: { type: String },
 
     personalInfo: {
       gender: { type: String, default: null },
@@ -19,6 +15,22 @@ const UserProfileSchema = new Schema(
     },
 
     settings: {
+      playback: {
+        crossfadeSeconds: { type: Number, default: 0 },
+        gaplessPlayback: { type: Boolean, default: true },
+        automix: { type: Boolean, default: true },
+        audioNormalization: { type: Boolean, default: true },
+        monoAudio: { type: Boolean, default: false },
+        autoplaySimilar: { type: Boolean, default: true },
+        equalizer: {
+          enabled: { type: Boolean, default: false },
+          preset: { type: String, default: "flat" },
+          bands: { type: [Number], default: [0, 0, 0, 0, 0, 0] },
+        },
+      },
+      audioQuality: {
+        streamingQuality: { type: String, default: "automatic" },
+      },
       library: {
         showDownloadedSongs: { type: Boolean, default: false },
       },
@@ -34,6 +46,7 @@ const UserProfileSchema = new Schema(
     },
 
     history: { type: [String], default: [] },
+    recentSearches: { type: [String], default: [] }, // song ids, most-recent-first — mirrors `history` shape exactly
   },
   { timestamps: true, _id: false },
 );

@@ -1,4 +1,4 @@
-import { createSlice,  PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/store/store";
 import type { SearchState } from "@/types/search";
 
@@ -18,6 +18,10 @@ const searchSlice = createSlice({
     },
     clearQuery(state) {
       state.query = "";
+    },
+
+    setRecentSearches(state, action: PayloadAction<string[]>) {
+      state.recentSearches = action.payload;
     },
     /** Called when a song played via search actually gets played — not on every keystroke. */
     songSearchedAndPlayed(state, action: PayloadAction<string>) {
@@ -42,6 +46,7 @@ const searchSlice = createSlice({
 export const {
   setQuery,
   clearQuery,
+  setRecentSearches,
   songSearchedAndPlayed,
   removeRecentSearch,
   clearRecentSearches,

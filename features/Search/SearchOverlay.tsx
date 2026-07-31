@@ -7,10 +7,7 @@ import {
   removeRecentSearch,
   clearRecentSearches,
 } from "@/features/Search/searchSlice";
-import {
-  selectSearchResults,
-  selectRecentSearchSongs,
-} from "@/features/Search/searchSelectors";
+import { selectRecentSearchSongs } from "@/features/Search/searchSelectors";
 import {
   setQueue,
   setCurrentIndex,
@@ -18,7 +15,13 @@ import {
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { setSong } from "@/slices/playerSlice";
 import SearchResultRow from "./SearchResultRow";
-import type { RootState } from "@/store/store";
+import {
+  useGetRecentSearchesQuery,
+  useAddRecentSearchMutation,
+  useRemoveRecentSearchRemoteMutation,
+  useClearRecentSearchesRemoteMutation,
+  useSearchQuery,
+} from "@/features/Search/searchApi";
 
 interface SearchOverlayProps {
   variant: "dropdown" | "page";
@@ -29,12 +32,17 @@ export default function SearchOverlay({
   variant,
   className = "",
 }: SearchOverlayProps) {
+  useGetRecentSearchesQuery();
+  const [addRecentSearch] = useAddRecentSearchMutation();
+  const [removeRecentSearchRemote] = useRemoveRecentSearchRemoteMutation();
+  const [clearRecentSearchesRemote] = useClearRecentSearchesRemoteMutation();
   const dispatch = useAppDispatch();
   const query = useAppSelector(selectQuery);
   const recentSongs = useAppSelector(selectRecentSearchSongs);
-  const results = useAppSelector((s: RootState) =>
-    selectSearchResults(s, query),
-  );
+  const { data: searchData } = useSearchQuery(query, {
+    skip: query.trim().length === 0,
+  });
+  const results = searchData?.songs ?? [];
 
   const isEmpty = query.trim().length === 0;
   const list = isEmpty ? recentSongs : results;
@@ -50,6 +58,7 @@ export default function SearchOverlay({
     dispatch(setCurrentIndex(0));
     dispatch(setSong(songId));
     dispatch(songSearchedAndPlayed(songId));
+    addRecentSearch(songId);
   };
 
   return (
@@ -58,7 +67,10 @@ export default function SearchOverlay({
         <div className="flex items-center justify-between px-2 pt-2 pb-1">
           <h3 className="text-sm font-bold text-white">Recent searches</h3>
           <button
-            onClick={() => dispatch(clearRecentSearches())}
+            onClick={() => {
+              dispatch(clearRecentSearches());
+              clearRecentSearchesRemote();
+            }}
             className="text-xs text-zinc-400 hover:text-white hover:underline"
           >
             Clear all
@@ -90,7 +102,10 @@ export default function SearchOverlay({
                 onClick={() => handlePlay(song.id)}
                 onRemove={
                   isEmpty
-                    ? () => dispatch(removeRecentSearch(song.id))
+                    ? () => {
+                        dispatch(removeRecentSearch(song.id));
+                        removeRecentSearchRemote(song.id);
+                      }
                     : undefined
                 }
               />
@@ -106,7 +121,10 @@ export default function SearchOverlay({
               onClick={() => handlePlay(song.id)}
               onRemove={
                 isEmpty
-                  ? () => dispatch(removeRecentSearch(song.id))
+                  ? () => {
+                      dispatch(removeRecentSearch(song.id));
+                      removeRecentSearchRemote(song.id);
+                    }
                   : undefined
               }
             />

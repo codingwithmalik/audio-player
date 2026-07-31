@@ -23,6 +23,7 @@ import { playlistsApi } from "@/features/Playlist/playlistsApi";
 import { foldersApi } from "@/features/Folder/foldersApi";
 import { likedApi } from "@/features/Liked/likedApi";
 import { historyApi } from "@/features/History/historyApi";
+import { searchApi } from "@/features/Search/searchApi";
 
 export const store = configureStore({
   reducer: {
@@ -44,6 +45,7 @@ export const store = configureStore({
     [foldersApi.reducerPath]: foldersApi.reducer,
     [likedApi.reducerPath]: likedApi.reducer,
     [historyApi.reducerPath]: historyApi.reducer,
+    [searchApi.reducerPath]: searchApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -58,6 +60,7 @@ export const store = configureStore({
         foldersApi.middleware,
         likedApi.middleware,
         historyApi.middleware,
+        searchApi.middleware,
       )
       .concat(playlistsApi.middleware),
 });

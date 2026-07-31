@@ -45,4 +45,41 @@ export const profileService = {
     await profile.save();
     return profile;
   },
+  // userProfileService.ts (or wherever similar history methods live)
+  async addRecentSearch(userId: string, songId: string) {
+    await connectDB();
+    const profile = await UserProfile.findById(userId);
+    if (!profile) throw new Error("User not found");
+
+    profile.recentSearches = profile.recentSearches.filter(
+      (id: string) => id !== songId,
+    );
+    profile.recentSearches.unshift(songId);
+    if (profile.recentSearches.length > 20) profile.recentSearches.length = 20;
+
+    await profile.save();
+    return profile.recentSearches;
+  },
+
+  async removeRecentSearch(userId: string, songId: string) {
+    await connectDB();
+    const profile = await UserProfile.findById(userId);
+    if (!profile) throw new Error("User not found");
+    profile.recentSearches = profile.recentSearches.filter(
+      (id: string) => id !== songId,
+    );
+    await profile.save();
+    return profile.recentSearches;
+  },
+
+  async clearRecentSearches(userId: string) {
+    await connectDB();
+    await UserProfile.findByIdAndUpdate(userId, { recentSearches: [] });
+  },
+
+  async getRecentSearches(userId: string) {
+    await connectDB();
+    const profile = await UserProfile.findById(userId);
+    return profile?.recentSearches ?? [];
+  },
 };

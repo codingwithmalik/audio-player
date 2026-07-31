@@ -34,6 +34,8 @@ import {
   useRemoveSongFromPlaylistMutation,
 } from "@/features/Playlist/playlistsApi";
 import { useSession } from "next-auth/react";
+import { useGetLikedQuery } from "@/features/Liked/likedApi";
+import { useGetHistoryQuery } from "@/features/History/historyApi";
 
 type TabType = "recentlyPlayed" | "liked" | "suggested";
 
@@ -50,11 +52,13 @@ export default function AddToPlaylistPanel({
 
   const { data: session } = useSession();
   const userId = session?.user.id;
+  useGetPlaylistsQuery();
+  useGetLikedQuery();
+  useGetHistoryQuery();
 
   const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<TabType>("suggested");
   const [searchQuery, setSearchQuery] = useState("");
-  useGetPlaylistsQuery();
   const targetPlaylist = useAppSelector((state: RootState) =>
     selectPlaylistById(state, playlistId),
   );

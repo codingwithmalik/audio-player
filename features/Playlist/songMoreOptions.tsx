@@ -22,6 +22,10 @@ import {
 } from "@/features/Playlist/playlistsApi";
 import { toast } from "sonner";
 import { selectSongById } from "../Songs/songsSlice";
+import {
+  useGetLikedQuery,
+  useToggleLikedMutation,
+} from "@/features/Liked/likedApi"; // adjust path to wherever it lives
 
 export default function SongMoreOptions({
   songId,
@@ -38,13 +42,15 @@ export default function SongMoreOptions({
 }) {
   const { data: session } = useSession();
   const userId = session?.user.id;
+  useGetPlaylistsQuery();
+  useGetLikedQuery();
   //new playlist api mutations
   const [addSongMutation] = useAddSongToPlaylistMutation();
   const [removeSongMutation] = useRemoveSongFromPlaylistMutation();
   const [createPlaylistMutation] = useCreatePlaylistMutation();
+  const [toggleLiked] = useToggleLikedMutation();
 
   const dispatch = useAppDispatch();
-  useGetPlaylistsQuery()
   const playlists = useAppSelector(selectPlaylists);
   const likedPlaylistId = useAppSelector((state: RootState) =>
     selectLikedPlaylistId(state, userId ?? "local"),
@@ -66,7 +72,7 @@ export default function SongMoreOptions({
   // ── Actions ───────────────────────────────────────────────────────────────
   const handleAddToPlaylist = (targetPlaylistId: string) => {
     dispatch(addSongToPlaylist({ playlistId: targetPlaylistId, songId }));
-    addSongMutation({ playlistId: targetPlaylistId, songIds:[songId] });
+    addSongMutation({ playlistId: targetPlaylistId, songIds: [songId] });
     onClose();
   };
 
@@ -78,7 +84,7 @@ export default function SongMoreOptions({
           coverImage: song?.coverImage,
         }).unwrap();
         handleAddToPlaylist(playlist.id);
-      } catch (err) {
+      } catch {
         toast.error("Failed to create playlist");
       }
   };
@@ -139,16 +145,7 @@ export default function SongMoreOptions({
       separatorAbove: true,
       action: () => {
         if (!likedPlaylistId) return;
-        if (isLiked) {
-          dispatch(
-            removeSongFromPlaylist({ playlistId: likedPlaylistId, songId }),
-          );
-          removeSongMutation({ playlistId: likedPlaylistId, songId });
-        } else {
-          dispatch(addSongToPlaylist({ playlistId: likedPlaylistId, songId }));
-          addSongMutation({ playlistId: likedPlaylistId, songIds:[songId] });
-        }
-
+        toggleLiked(songId);
         onClose();
       },
     },

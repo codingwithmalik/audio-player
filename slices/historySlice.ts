@@ -15,6 +15,9 @@ const historySlice = createSlice({
   name: "history",
   initialState,
   reducers: {
+    setHistory: (state, action: PayloadAction<string[]>) => {
+      state.recentSongIds = action.payload;
+    },
     songPlayed: (state, action: PayloadAction<string>) => {
       const songId = action.payload;
       // Dedupe: if it's already in history, drop the old entry first
@@ -31,7 +34,7 @@ const historySlice = createSlice({
   },
 });
 
-export const { songPlayed, clearHistory } = historySlice.actions;
+export const { setHistory, songPlayed, clearHistory } = historySlice.actions;
 
 export const selectRecentSongIds = (state: RootState) =>
   state.history.recentSongIds;

@@ -21,6 +21,8 @@ import { toastMiddleware } from "@/middlewares/toastMiddleware";
 import { songsApi } from "@/features/Songs/songsApi";
 import { playlistsApi } from "@/features/Playlist/playlistsApi";
 import { foldersApi } from "@/features/Folder/foldersApi";
+import { likedApi } from "@/features/Liked/likedApi";
+import { historyApi } from "@/features/History/historyApi";
 
 export const store = configureStore({
   reducer: {
@@ -40,6 +42,8 @@ export const store = configureStore({
     [songsApi.reducerPath]: songsApi.reducer,
     [playlistsApi.reducerPath]: playlistsApi.reducer,
     [foldersApi.reducerPath]: foldersApi.reducer,
+    [likedApi.reducerPath]: likedApi.reducer,
+    [historyApi.reducerPath]: historyApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -49,7 +53,12 @@ export const store = configureStore({
       .prepend(privateSessionMiddleware.middleware)
       .prepend(toastMiddleware.middleware)
       //New Api integrations
-      .concat(songsApi.middleware, foldersApi.middleware)
+      .concat(
+        songsApi.middleware,
+        foldersApi.middleware,
+        likedApi.middleware,
+        historyApi.middleware,
+      )
       .concat(playlistsApi.middleware),
 });
 

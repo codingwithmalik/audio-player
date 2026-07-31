@@ -11,7 +11,6 @@ import {
   updatePlaylistMeta,
 } from "@/features/Playlist/playlistSlice";
 import { removeFolder } from "@/features/Folder/folderSlice";
-import { setPersonalInfo } from "@/features/Profile/accountSlice";
 import { playlistsApi } from "@/features/Playlist/playlistsApi";
 import { foldersApi } from "@/features/Folder/foldersApi";
 
@@ -105,9 +104,3 @@ toastMiddleware.startListening({
   },
 });
 
-toastMiddleware.startListening({
-  actionCreator: setPersonalInfo,
-  effect: () => {
-    toast.success("Profile updated");
-  },
-});

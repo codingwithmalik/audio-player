@@ -1,20 +1,23 @@
 // features/Profile/PersonalInfoForm.tsx
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Camera } from "lucide-react";
+import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import {
   selectPersonalInfo,
   selectIsAccountSaving,
   selectAccountError,
-  setPersonalInfo,
   setAccountSaving,
   setAccountError,
 } from "@/features/Profile/accountSlice";
 import CustomSelect from "@/features/Profile/CustomSelect";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import {
+  useUpdateProfileMutation,
+  useGetProfileQuery,
+} from "@/features/Profile/profileApi";
 
 const COUNTRIES = [
   "Pakistan",
@@ -98,65 +101,111 @@ function joinIsoDate(day: string, month: string, year: string): string | null {
 }
 
 export default function PersonalInfoForm() {
+  const user = useGetProfileQuery().data; // hydration on mount — currently missing entirely
+  const [updateProfile] = useUpdateProfileMutation();
   const dispatch = useAppDispatch();
-  const session = useSession();
-  const user = session.data?.user;
+  // const session = useSession();
+  // const user = session.data?.user;
   const personalInfo = useAppSelector(selectPersonalInfo);
   const isSaving = useAppSelector(selectIsAccountSaving);
   const error = useAppSelector(selectAccountError);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [draft, setDraft] = useState({
-    username: user?.username ?? "",
-    image: user?.image ?? "",
-    ...personalInfo,
+    username: "",
+    image: "",
+    gender: null as string | null,
+    country: null as string | null,
   });
+  const [date, setDate] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
 
-  const initialDate = splitIsoDate(personalInfo.dateOfBirth);
-  const [date, setDate] = useState(initialDate.day);
-  const [month, setMonth] = useState(initialDate.month);
-  const [year, setYear] = useState(initialDate.year);
+  useEffect(() => {
+    if (!user) return; // haven't hydrated yet
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDraft({
+      username: user.username ?? "",
+      image: user.coverImage ?? "",
+      gender: personalInfo.gender,
+      country: personalInfo.country,
+    });
+    const reset = splitIsoDate(personalInfo.dateOfBirth);
+    setDate(reset.day);
+    setMonth(reset.month);
+    setYear(reset.year);
+  }, [user, personalInfo]);
 
   const isDirty =
     draft.username !== user?.username ||
-    draft.image !== (user?.image ?? "") ||
+    draft.image !== (user?.coverImage ?? "") ||
     draft.gender !== personalInfo.gender ||
     draft.country !== personalInfo.country ||
     joinIsoDate(date, month, year) !== personalInfo.dateOfBirth;
 
-  function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+  async function uploadCover(file: File): Promise<{ url: string }> {
+    const signRes = await fetch("/api/upload/sign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ folder: "profile-covers" }), // your sign route already supports this folder name
+    });
+    const { signature, timestamp, cloudName, apiKey, folder } =
+      await signRes.json();
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", apiKey);
+    formData.append("timestamp", String(timestamp));
+    formData.append("signature", signature);
+    formData.append("folder", folder);
+
+    const uploadRes = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+    const data = await uploadRes.json();
+    return { url: data.secure_url };
+  }
+
+  async function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const objectUrl = URL.createObjectURL(file);
-    setDraft((prev) => ({ ...prev, image: objectUrl }));
+    try {
+      const { url } = await uploadCover(file);
+      setDraft((prev) => ({ ...prev, image: url }));
+    } catch {
+      dispatch(setAccountError("Failed to upload image"));
+    }
   }
 
   async function handleSave() {
     dispatch(setAccountSaving(true));
     dispatch(setAccountError(null));
-
-    // ─── MOCK: replace with real API calls once backend exists ───
-    // await fetch("/api/account", { method: "PATCH", body: JSON.stringify({...}) })
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    // ──────────────────────────────────────────────────────────
-
-    dispatch(
-      updateUser({ username: draft.username, image: draft.image || undefined }),
-    );
-    dispatch(
-      setPersonalInfo({
-        gender: draft.gender,
-        country: draft.country,
-        dateOfBirth: joinIsoDate(date, month, year),
-      }),
-    );
+    try {
+      await updateProfile({
+        username: draft.username,
+        coverImage: draft.image || undefined,
+        personalInfo: {
+          gender: draft.gender,
+          country: draft.country,
+          dateOfBirth: joinIsoDate(date, month, year),
+        },
+      }).unwrap();
+      toast.success("Profile updated");
+    } catch (err: any) {
+      dispatch(setAccountError(err.message ?? "Failed to save"));
+    }
     dispatch(setAccountSaving(false));
   }
 
   function handleCancel() {
     setDraft({
       username: user?.username ?? "",
-      image: user?.image ?? "",
+      image: user?.coverImage ?? "",
       ...personalInfo,
     });
     const reset = splitIsoDate(personalInfo.dateOfBirth);

@@ -4,15 +4,18 @@ function escapeRegex(str: string) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 export const searchService = {
-  async search(query: string) {
+  async search(query: string, { skip = 0, limit = 20 } = {}) {
     await connectDB();
-    if (!query?.trim()) return { songs: [] };
+    if (!query?.trim()) return { songs: [], hasMore: false };
 
     const regex = new RegExp(escapeRegex(query.trim()), "i");
-    const songs = await Song.find({
-      $or: [{ title: regex }, { artists: regex }],
-    }).limit(20);
+    const filter = { $or: [{ title: regex }, { artists: regex }] };
 
-    return { songs };
+    const songs = await Song.find(filter)
+      .skip(skip)
+      .limit(limit + 1); // fetch one extra to detect "more"
+    const hasMore = songs.length > limit;
+
+    return { songs: songs.slice(0, limit), hasMore };
   },
 };

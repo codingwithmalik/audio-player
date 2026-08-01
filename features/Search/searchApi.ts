@@ -8,9 +8,23 @@ export const searchApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
   tagTypes: ["RecentSearches"],
   endpoints: (builder) => ({
-    search: builder.query<{ songs: Song[] }, string>({
-      query: (q) => ({ url: "/search", params: { q } }),
-      async onQueryStarted(_q, { queryFulfilled, dispatch }) {
+    search: builder.query<
+      { songs: Song[]; hasMore: boolean },
+      { q: string; skip?: number }
+    >({
+      query: ({ q, skip = 0 }) => ({
+        url: "/search",
+        params: { q, skip, limit: 20 },
+      }),
+      serializeQueryArgs: ({ queryArgs }) => queryArgs.q, // cache key is just the search term, ignoring skip
+      merge: (currentCache, newData, { arg }) => {
+        if (arg.skip === 0) return newData; // fresh search — replace, don't append
+        currentCache.songs.push(...newData.songs);
+        currentCache.hasMore = newData.hasMore;
+      },
+      forceRefetch: ({ currentArg, previousArg }) =>
+        currentArg?.skip !== previousArg?.skip,
+      async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled;
           dispatch(upsertSongs(data.songs));

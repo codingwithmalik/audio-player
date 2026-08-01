@@ -14,7 +14,6 @@ const SongSchema = new Schema(
   },
   { timestamps: true },
 );
-SongSchema.index({ title: "text", artists: "text" });
 SongSchema.set("toJSON", {
   transform: (_doc, ret) => {
     ret.id = ret._id.toString();

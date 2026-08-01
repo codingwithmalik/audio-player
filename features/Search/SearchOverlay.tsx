@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/globalHooks";
 import {
   selectQuery,
@@ -39,15 +40,42 @@ export default function SearchOverlay({
   const dispatch = useAppDispatch();
   const query = useAppSelector(selectQuery);
   const recentSongs = useAppSelector(selectRecentSearchSongs);
-  const { data: searchData } = useSearchQuery(query, {
-    skip: query.trim().length === 0,
-  });
+  const [skip, setSkip] = useState(0);
+  const { data: searchData, isFetching } = useSearchQuery(
+    { q: query, skip },
+    { skip: query.trim().length === 0 },
+  );
   const results = searchData?.songs ?? [];
+  const hasMore = searchData?.hasMore ?? false;
 
   const isEmpty = query.trim().length === 0;
   const list = isEmpty ? recentSongs : results;
-  const cap = isEmpty ? 100 : 50;
-  const displayed = list.slice(0, cap);
+  const displayed = isEmpty ? recentSongs.slice(0, 100) : results; // no artificial cap on real search anymore
+
+  // Reset pagination whenever the search term itself changes
+  useEffect(() => {
+    setSkip(0);
+  }, [query]);
+
+  // Sentinel element ref — when it scrolls into view, load the next page
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || isEmpty || !hasMore || isFetching) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setSkip((s) => s + 20);
+        }
+      },
+      { root: null, rootMargin: "200px" }, // root: null works even inside OverlayScrollbars' internal viewport
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, isFetching, isEmpty]);
 
   const handlePlay = (songId: string) => {
     const ids = list.map((s) => s.id);
@@ -110,6 +138,7 @@ export default function SearchOverlay({
                 }
               />
             ))}
+            {!isEmpty && hasMore && <div ref={sentinelRef} className="h-4" />}
           </div>
         </OverlayScrollbarsComponent>
       ) : (
@@ -129,6 +158,7 @@ export default function SearchOverlay({
               }
             />
           ))}
+          {!isEmpty && hasMore && <div ref={sentinelRef} className="h-4" />}
         </div>
       )}
     </div>

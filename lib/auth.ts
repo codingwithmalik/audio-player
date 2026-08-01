@@ -126,6 +126,7 @@ export const authOptions: NextAuthOptions = {
 
   pages: {
     verifyRequest: "/verify-request",
+    signIn: "/login",
     error: "/login", // OAuth errors land here instead of NextAuth's default page
   },
 };

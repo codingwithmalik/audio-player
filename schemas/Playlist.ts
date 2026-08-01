@@ -30,7 +30,7 @@ const PlaylistSchema = new Schema(
 PlaylistSchema.index({ ownerId: 1, folderId: 1 });
 
 PlaylistSchema.set("toJSON", {
-  transform: (_doc, ret) => {
+  transform: (_doc, ret: Record<string, any>) => {
     ret.id = ret._id;
     delete ret._id;
     delete ret.__v;

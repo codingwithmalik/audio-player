@@ -15,7 +15,7 @@ const SongSchema = new Schema(
   { timestamps: true },
 );
 SongSchema.set("toJSON", {
-  transform: (_doc, ret) => {
+  transform: (_doc, ret: Record<string, any>) => {
     ret.id = ret._id.toString();
     delete ret._id;
     delete ret.__v;

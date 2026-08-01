@@ -6,9 +6,11 @@ import {
   setShowDownloadedSongs,
 } from "@/features/Profile/settingsSlice";
 import ToggleRow from "@/features/Profile/ToggleRow";
+import { useUpdateSettingsMutation } from "@/features/Profile/settingsApi";
 
 export default function LibrarySettingsPage() {
   const dispatch = useAppDispatch();
+  const [updateSettings] = useUpdateSettingsMutation();
   const { showDownloadedSongs } = useAppSelector(selectLibrarySettings);
 
   return (
@@ -16,7 +18,10 @@ export default function LibrarySettingsPage() {
       <ToggleRow
         label="Show downloaded songs"
         checked={showDownloadedSongs}
-        onChange={(v) => dispatch(setShowDownloadedSongs(v))}
+        onChange={(v) => {
+          dispatch(setShowDownloadedSongs(v));
+          updateSettings({ library: { showDownloadedSongs: v } });
+        }}
       />
     </div>
   );

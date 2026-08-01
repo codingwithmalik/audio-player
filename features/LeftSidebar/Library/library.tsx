@@ -11,6 +11,7 @@ import LocalFilesSection from "../LocalFiles/LocalFilesSection";
 import { useSession } from "next-auth/react";
 
 import LibraryTeaser from "./libraryTeaser";
+import { useGetSettingsQuery } from "@/features/Profile/settingsApi";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,6 +22,7 @@ type Props = {
 export default function Library({ scrollable = false }: Props) {
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
+  useGetSettingsQuery(); // Fetch settings on page load
   const asideRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [showLocalFiles, setShowLocalFiles] = useState(false);

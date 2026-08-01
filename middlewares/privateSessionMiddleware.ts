@@ -1,5 +1,9 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit";
-import { activatePrivateSession, endPrivateSession } from "@/features/Profile/settingsSlice";
+import {
+  activatePrivateSession,
+  endPrivateSession,
+} from "@/features/Profile/settingsSlice";
+import { settingsApi } from "@/features/Profile/settingsApi";
 
 export const privateSessionMiddleware = createListenerMiddleware();
 
@@ -14,5 +18,10 @@ privateSessionMiddleware.startListening({
 
     await listenerApi.delay(SESSION_DURATION_MS);
     listenerApi.dispatch(endPrivateSession());
+    listenerApi.dispatch(
+      settingsApi.endpoints.updateSettings.initiate({
+        privacy: { privateSession: { active: false, expiresAt: null } },
+      }),
+    );
   },
 });

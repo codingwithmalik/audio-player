@@ -6,12 +6,14 @@ import {
   setStreamingQuality,
 } from "@/features/Profile/settingsSlice";
 import type { AudioQualityLevel } from "@/features/Profile/types";
+import { useUpdateSettingsMutation } from "../settingsApi";
 
 const LEVELS: AudioQualityLevel[] = ["automatic", "low", "normal", "high"];
 
 export default function AudioQualityPage() {
   const dispatch = useAppDispatch();
   const { streamingQuality } = useAppSelector(selectAudioQualitySettings);
+  const [updateSettings] = useUpdateSettingsMutation();
 
   return (
     <div className="pl-6 max-w-lg">
@@ -19,7 +21,10 @@ export default function AudioQualityPage() {
         {LEVELS.map((level) => (
           <button
             key={level}
-            onClick={() => dispatch(setStreamingQuality(level))}
+            onClick={() => {
+              dispatch(setStreamingQuality(level));
+              updateSettings({ audioQuality: { streamingQuality: level } });
+            }}
             className="flex items-center justify-between py-3 px-2 rounded hover:bg-white/5 text-left"
           >
             <span className="text-sm capitalize">{level}</span>

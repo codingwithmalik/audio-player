@@ -2,7 +2,11 @@
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/store/store";
-import type { Settings, AudioQualityLevel, PlaybackSettings } from "./types";
+import type {
+  Settings,
+  AudioQualityLevel,
+  PlaybackSettings,
+} from "./types";
 
 const initialState: Settings = {
   playback: {
@@ -39,6 +43,10 @@ const settingsSlice = createSlice({
   name: "settings",
   initialState,
   reducers: {
+    // settingsSlice.ts
+    hydrateSettings(state, action: PayloadAction<Settings>) {
+      return action.payload; // full replace — server response is the whole Settings shape
+    },
     // ── Playback ──
     setCrossfadeSeconds(state, action: PayloadAction<number>) {
       state.playback.crossfadeSeconds = action.payload;
@@ -96,12 +104,11 @@ const settingsSlice = createSlice({
     },
 
     // ── Privacy ──
-    activatePrivateSession(state) {
-      const expiry = new Date();
-      expiry.setHours(expiry.getHours() + 6);
+    activatePrivateSession(state , action: PayloadAction<{ expiresAt: string }>) {
+
       state.privacy.privateSession = {
         active: true,
-        expiresAt: expiry.toISOString(),
+        expiresAt: action.payload.expiresAt,
       };
     },
     endPrivateSession(state) {
@@ -111,6 +118,7 @@ const settingsSlice = createSlice({
 });
 
 export const {
+  hydrateSettings,
   setCrossfadeSeconds,
   setPlaybackToggle,
   setEqualizerEnabled,

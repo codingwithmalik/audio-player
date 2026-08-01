@@ -1,4 +1,5 @@
 "use client";
+import { useRef } from "react";
 
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import {
@@ -10,16 +11,49 @@ import {
   resetEqualizer,
 } from "@/features/Profile/settingsSlice";
 import ToggleRow from "@/features/Profile/ToggleRow";
+import { useUpdateSettingsMutation } from "../settingsApi";
 
 const BAND_LABELS = ["60Hz", "150Hz", "400Hz", "1KHz", "2.4KHz", "15KHz"];
 
 export default function PlaybackSettingsPage() {
   const dispatch = useAppDispatch();
   const playback = useAppSelector(selectPlaybackSettings);
+  const [updateSettings] = useUpdateSettingsMutation();
+
+  const DEBOUNCE_MS = 1000;
+  const crossfadeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const equalizerDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
+  function handleCrossfadeChange(value: number) {
+    dispatch(setCrossfadeSeconds(value));
+
+    if (crossfadeDebounceRef.current)
+      clearTimeout(crossfadeDebounceRef.current);
+    crossfadeDebounceRef.current = setTimeout(() => {
+      updateSettings({ playback: { crossfadeSeconds: value } });
+    }, DEBOUNCE_MS);
+  }
+
+  function handleEqualizerBandChange(index: number, value: number) {
+    dispatch(setEqualizerBand({ index, value }));
+
+    if (equalizerDebounceRef.current)
+      clearTimeout(equalizerDebounceRef.current);
+    equalizerDebounceRef.current = setTimeout(() => {
+      const newBands = [...playback.equalizer.bands];
+      newBands[index] = value;
+      updateSettings({
+        playback: { equalizer: { ...playback.equalizer, bands: newBands } },
+      });
+    }, DEBOUNCE_MS);
+  }
 
   return (
     <div className="p-6 max-w-lg">
-
       <div className="mb-6">
         <p className="text-sm font-medium mb-2">
           Crossfade — {playback.crossfadeSeconds}s
@@ -30,9 +64,10 @@ export default function PlaybackSettingsPage() {
           max={12}
           step={1}
           value={playback.crossfadeSeconds}
-          onChange={(e) =>
-            dispatch(setCrossfadeSeconds(Number(e.target.value)))
-          }
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            handleCrossfadeChange(value);
+          }}
           className="w-full accent-purple-500"
         />
       </div>
@@ -40,47 +75,57 @@ export default function PlaybackSettingsPage() {
       <ToggleRow
         label="Gapless playback"
         checked={playback.gaplessPlayback}
-        onChange={(v) =>
-          dispatch(setPlaybackToggle({ key: "gaplessPlayback", value: v }))
-        }
+        onChange={(v) => {
+          dispatch(setPlaybackToggle({ key: "gaplessPlayback", value: v }));
+          updateSettings({ playback: { gaplessPlayback: v } });
+        }}
       />
       <ToggleRow
         label="Automix"
         description="Allow seamless transitions between songs on selected playlists."
         checked={playback.automix}
-        onChange={(v) =>
-          dispatch(setPlaybackToggle({ key: "automix", value: v }))
-        }
+        onChange={(v) => {
+          dispatch(setPlaybackToggle({ key: "automix", value: v }));
+          updateSettings({ playback: { automix: v } });
+        }}
       />
       <ToggleRow
         label="Enable audio normalization"
         checked={playback.audioNormalization}
-        onChange={(v) =>
-          dispatch(setPlaybackToggle({ key: "audioNormalization", value: v }))
-        }
+        onChange={(v) => {
+          dispatch(setPlaybackToggle({ key: "audioNormalization", value: v }));
+          updateSettings({ playback: { audioNormalization: v } });
+        }}
       />
       <ToggleRow
         label="Mono audio"
         description="Makes the left and right speakers play the same audio."
         checked={playback.monoAudio}
-        onChange={(v) =>
-          dispatch(setPlaybackToggle({ key: "monoAudio", value: v }))
-        }
+        onChange={(v) => {
+          dispatch(setPlaybackToggle({ key: "monoAudio", value: v }));
+          updateSettings({ playback: { monoAudio: v } });
+        }}
       />
       <ToggleRow
         label="Autoplay similar content"
         description="Enjoy nonstop listening. We'll play something similar when your audio ends."
         checked={playback.autoplaySimilar}
-        onChange={(v) =>
-          dispatch(setPlaybackToggle({ key: "autoplaySimilar", value: v }))
-        }
+        onChange={(v) => {
+          dispatch(setPlaybackToggle({ key: "autoplaySimilar", value: v }));
+          updateSettings({ playback: { autoplaySimilar: v } });
+        }}
       />
 
       <div className="mt-6">
         <ToggleRow
           label="Equalizer"
           checked={playback.equalizer.enabled}
-          onChange={(v) => dispatch(setEqualizerEnabled(v))}
+          onChange={(v) => {
+            dispatch(setEqualizerEnabled(v));
+            updateSettings({
+              playback: { equalizer: { ...playback.equalizer, enabled: v } },
+            });
+          }}
         />
 
         {playback.equalizer.enabled && (
@@ -90,7 +135,18 @@ export default function PlaybackSettingsPage() {
                 Preset: {playback.equalizer.preset}
               </span>
               <button
-                onClick={() => dispatch(resetEqualizer())}
+                onClick={() => {
+                  dispatch(resetEqualizer());
+                  updateSettings({
+                    playback: {
+                      equalizer: {
+                        enabled: false,
+                        preset: "flat",
+                        bands: [0, 0, 0, 0, 0, 0],
+                      },
+                    },
+                  });
+                }}
                 className="text-xs text-white/60 hover:text-white underline"
               >
                 Reset
@@ -102,9 +158,7 @@ export default function PlaybackSettingsPage() {
                   key={index}
                   label={BAND_LABELS[index] ?? `Band ${index + 1}`}
                   value={value}
-                  onChange={(v) =>
-                    dispatch(setEqualizerBand({ index, value: v }))
-                  }
+                  onChange={(v) => handleEqualizerBandChange(index, v)}
                 />
               ))}
             </div>

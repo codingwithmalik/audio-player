@@ -17,6 +17,7 @@ import LibrarySection from "@/features/Profile/Settings/LibrarySection";
 import StorageSection from "@/features/Profile/Settings/StorageSection";
 import PrivacySection from "@/features/Profile/Settings/PrivacySection";
 import AboutSection from "@/features/Profile/Settings/AboutSection";
+import { useGetSettingsQuery } from "@/features/Profile/settingsApi";
 
 const SECTIONS = [
   {
@@ -52,6 +53,7 @@ const SECTIONS = [
 ] as const;
 
 export default function SettingsPage() {
+  useGetSettingsQuery(); // Fetch settings on page load
   return (
     <OverlayScrollbarsComponent
       options={{ scrollbars: { autoHide: "scroll" } }}

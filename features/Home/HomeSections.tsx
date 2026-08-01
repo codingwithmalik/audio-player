@@ -22,10 +22,14 @@ import type { Playlist } from "@/types/playlist";
 import type { Song } from "@/types/song";
 import { useGetSongsQuery } from "../Songs/songsApi";
 import { useGetPlaylistsQuery } from "../Playlist/playlistsApi";
+import { useGetRecommendationsQuery } from "@/features/recommendation/recommendationsApi";
 
 export default function HomeSections() {
   useGetSongsQuery();
-  useGetPlaylistsQuery()
+  useGetPlaylistsQuery();
+  const { data: madeForYouData } = useGetRecommendationsQuery({
+    type: "madeForYou",
+  });
   const router = useRouter();
   const dispatch = useAppDispatch();
 
@@ -62,6 +66,20 @@ export default function HomeSections() {
   };
 
   const buildItems = (section: (typeof sections)[number]): ShelfItem[] => {
+    if (section.id === "made-for-you") {
+      return (madeForYouData?.songs ?? []).map((song) => ({
+        kind: "song" as const,
+        id: song.id,
+        title: song.title,
+        subtitle: song.artists[0],
+        coverImage: song.coverImage,
+        onClick: () =>
+          handleSongClick(
+            (madeForYouData?.songs ?? []).map((s) => s.id),
+            song.id,
+          ),
+      }));
+    }
     if (section.itemType === "playlist") {
       return section.itemIds
         .map((id) => playlistsById[id])

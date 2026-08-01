@@ -1,18 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "@/store/store";
 import type { HomeSection } from "./homeTypes";
-import {
-  getTopGenresFromHistory,
-  getRecommendedSongs,
-  getPopularSongs,
-} from "@/utils/recommendationUtils";
-
-// const YOUR_PLAYLISTS_LIMIT = 8;
-// const JUMP_BACK_IN_LIMIT = 8;
-// const RECENTS_LIMIT = 8;
-// const MADE_FOR_YOU_LIMIT = 10;
-// const NEW_RELEASES_LIMIT = 10;
-const TOP_GENRES_LIMIT = 5;
 
 export const SHELF_LIMITS: Record<string, number> = {
   "your-playlists": 8,
@@ -59,27 +47,27 @@ export const selectHomeSections = createSelector(
       .slice(0, FULL_LIMITS["recents"]);
 
     // ── Made for you: genre-based recommendation, falls back to popular ──
-    const historyEntries = recentSongIds.map((songId) => ({ songId }));
-    const topGenres = getTopGenresFromHistory(
-      historyEntries,
-      songsById,
-      TOP_GENRES_LIMIT,
-    );
-    const excludeIds = new Set(recentSongIds);
+    // const historyEntries = recentSongIds.map((songId) => ({ songId }));
+    // const topGenres = getTopGenresFromHistory(
+    //   historyEntries,
+    //   songsById,
+    //   TOP_GENRES_LIMIT,
+    // );
+    // const excludeIds = new Set(recentSongIds);
 
-    let madeForYouSongs = getRecommendedSongs(
-      songsById,
-      topGenres,
-      excludeIds,
-      FULL_LIMITS["made-for-you"],
-    );
-    if (madeForYouSongs.length === 0) {
-      madeForYouSongs = getPopularSongs(
-        songsById,
-        excludeIds,
-        FULL_LIMITS["made-for-you"],
-      );
-    }
+    // let madeForYouSongs = getRecommendedSongs(
+    //   songsById,
+    //   topGenres,
+    //   excludeIds,
+    //   FULL_LIMITS["made-for-you"],
+    // );
+    // if (madeForYouSongs.length === 0) {
+    //   madeForYouSongs = getPopularSongs(
+    //     songsById,
+    //     excludeIds,
+    //     FULL_LIMITS["made-for-you"],
+    //   );
+    // }
 
     // ── New releases: all songs, createdAt desc ──
     const newReleases = Object.values(songsById)
@@ -116,7 +104,7 @@ export const selectHomeSections = createSelector(
         title: "Made For You",
         source: "madeForYou",
         itemType: "song",
-        itemIds: madeForYouSongs.map((s) => s.id),
+        itemIds: [], // filled in by recommendations API
       },
       {
         id: "new-releases",

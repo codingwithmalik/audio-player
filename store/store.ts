@@ -26,6 +26,7 @@ import { historyApi } from "@/features/History/historyApi";
 import { searchApi } from "@/features/Search/searchApi";
 import { profileApi } from "@/features/Profile/profileApi";
 import { settingsApi } from "@/features/Profile/settingsApi";
+import { recommendationsApi } from "@/features/recommendation/recommendationsApi";
 
 export const store = configureStore({
   reducer: {
@@ -50,6 +51,7 @@ export const store = configureStore({
     [searchApi.reducerPath]: searchApi.reducer,
     [profileApi.reducerPath]: profileApi.reducer,
     [settingsApi.reducerPath]: settingsApi.reducer,
+    [recommendationsApi.reducerPath]: recommendationsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -67,6 +69,7 @@ export const store = configureStore({
         searchApi.middleware,
         profileApi.middleware,
         settingsApi.middleware,
+        recommendationsApi.middleware,
       )
       .concat(playlistsApi.middleware),
 });

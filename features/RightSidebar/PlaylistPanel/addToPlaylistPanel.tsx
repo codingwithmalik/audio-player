@@ -23,11 +23,11 @@ import { selectRecentSongIds } from "@/slices/historySlice";
 import SongCover from "@/features/Common/SongCover";
 import type { RootState } from "@/store/store";
 import type { Song } from "@/types/song";
-import {
-  getTopGenresFromHistory,
-  getRecommendedSongs,
-  getPopularSongs,
-} from "@/utils/recommendationUtils";
+// import {
+//   getTopGenresFromHistory,
+//   getRecommendedSongs,
+//   getPopularSongs,
+// } from "@/utils/recommendationUtils";
 import {
   useAddSongToPlaylistMutation,
   useGetPlaylistsQuery,
@@ -36,6 +36,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useGetLikedQuery } from "@/features/Liked/likedApi";
 import { useGetHistoryQuery } from "@/features/History/historyApi";
+import { useGetRecommendationsQuery } from "@/features/recommendation/recommendationsApi";
 
 type TabType = "recentlyPlayed" | "liked" | "suggested";
 
@@ -44,8 +45,8 @@ export default function AddToPlaylistPanel({
 }: {
   playlistId: string;
 }) {
-  const TOP_GENRES_LIMIT = 5;
-  const SUGGESTED_LIMIT = 40;
+  // const TOP_GENRES_LIMIT = 5;
+  // const SUGGESTED_LIMIT = 40;
 
   const [addSongMutation] = useAddSongToPlaylistMutation();
   const [removeSongMutation] = useRemoveSongFromPlaylistMutation();
@@ -55,6 +56,19 @@ export default function AddToPlaylistPanel({
   useGetPlaylistsQuery();
   useGetLikedQuery();
   useGetHistoryQuery();
+  const [excludeIds, setExcludeIds] = useState<string[]>([]);
+  const { data: suggestedSongsData } = useGetRecommendationsQuery({
+    type: "madeForYou",
+    excludeIds,
+  });
+  const { data: trendingSongsData } = useGetRecommendationsQuery({
+    type: "trending",
+    excludeIds,
+  });
+  const { data: popularSongsData } = useGetRecommendationsQuery({
+    type: "popular",
+    excludeIds,
+  });
 
   const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<TabType>("suggested");
@@ -80,61 +94,81 @@ export default function AddToPlaylistPanel({
 
   // added update of working suggested songs rather that showing all songs
   const songsById = useAppSelector((state: RootState) => state.songs.entities);
-  const [suggestedSongs, setSuggestedSongs] = useState<Song[]>([]);
-  const seenSuggestedIdsRef = useRef<Set<string>>(new Set());
 
-  const generateSuggestions = () => {
-    const playlistSongIds = targetPlaylist?.songs.map((s) => s.songId) ?? [];
-    const excludeIds = new Set([
-      ...targetSongIds,
-      ...seenSuggestedIdsRef.current,
-    ]);
-
-    // 1st choice: genres derived from the playlist's own songs
-    const playlistGenreSource = playlistSongIds.map((songId) => ({ songId }));
-    const playlistGenres = getTopGenresFromHistory(
-      playlistGenreSource,
-      songsById,
-      TOP_GENRES_LIMIT,
+  const suggestedSongs = useMemo(() => {
+    let recs = (suggestedSongsData?.songs ?? []).filter(
+      (s) => !targetSongIds.has(s.id),
     );
-
-    let recs = getRecommendedSongs(
-      songsById,
-      playlistGenres,
-      excludeIds,
-      SUGGESTED_LIMIT,
-    );
-
-    // 2nd choice: fall back to the user's overall history genres (empty/new playlist)
-    if (recs.length === 0) {
-      const historyEntries = recentIds.map((songId) => ({ songId }));
-      const historyGenres = getTopGenresFromHistory(
-        historyEntries,
-        songsById,
-        TOP_GENRES_LIMIT,
+    if (recs.length === 0)
+      recs = (trendingSongsData?.songs ?? []).filter(
+        (s) => !targetSongIds.has(s.id),
       );
-      recs = getRecommendedSongs(
-        songsById,
-        historyGenres,
-        excludeIds,
-        SUGGESTED_LIMIT,
+    if (recs.length === 0)
+      recs = (popularSongsData?.songs ?? []).filter(
+        (s) => !targetSongIds.has(s.id),
       );
-    }
+    return recs;
+  }, [suggestedSongsData, trendingSongsData, popularSongsData, targetSongIds]);
 
-    // 3rd choice: globally popular songs
-    if (recs.length === 0) {
-      recs = getPopularSongs(songsById, excludeIds, SUGGESTED_LIMIT);
-    }
-
-    recs.forEach((s) => seenSuggestedIdsRef.current.add(s.id));
-    setSuggestedSongs(recs);
+  const handleRefresh = () => {
+    setExcludeIds((prev) => [...prev, ...suggestedSongs.map((s) => s.id)]);
   };
+  // const [suggestedSongs, setSuggestedSongs] = useState<Song[]>([]);
+  // const seenSuggestedIdsRef = useRef<Set<string>>(new Set());
+
+  // const generateSuggestions = () => {
+  //   const playlistSongIds = targetPlaylist?.songs.map((s) => s.songId) ?? [];
+  // const excludeIds = new Set([
+  // ...targetSongIds,
+  // ...seenSuggestedIdsRef.current,
+  // ]);
+
+  //   // 1st choice: genres derived from the playlist's own songs
+  //   const playlistGenreSource = playlistSongIds.map((songId) => ({ songId }));
+  //   const playlistGenres = getTopGenresFromHistory(
+  //     playlistGenreSource,
+  //     songsById,
+  //     TOP_GENRES_LIMIT,
+  //   );
+
+  //   let recs = getRecommendedSongs(
+  //     songsById,
+  //     playlistGenres,
+  //     excludeIds,
+  //     SUGGESTED_LIMIT,
+  //   );
+  // let recs = suggestedSongsData?.songs ?? [];
+  // 2nd choice: fall back to the user's overall history genres (empty/new playlist)
+  // if (recs.length === 0) {
+  // const historyEntries = recentIds.map((songId) => ({ songId }));
+  // const historyGenres = getTopGenresFromHistory(
+  //   historyEntries,
+  //   songsById,
+  //   TOP_GENRES_LIMIT,
+  // );
+  // recs = getRecommendedSongs(
+  //   songsById,
+  //   historyGenres,
+  //   excludeIds,
+  //   SUGGESTED_LIMIT,
+  // );
+  // recs = trendingSongsData?.songs ?? [];
+  // }
+
+  // 3rd choice: globally popular songs
+  // if (recs.length === 0) {
+  // recs = getPopularSongs(songsById, excludeIds, SUGGESTED_LIMIT);
+  // recs = popularSongsData?.songs ?? [];
+  // }
+
+  // recs.forEach((s) => seenSuggestedIdsRef.current.add(s.id));
+  // setSuggestedSongs(recs);
+  // };
 
   // Runs exactly once per mount — panel closing/reopening remounts and resets everything.
-  useEffect(() => {
-    generateSuggestions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  // generateSuggestions();
+  // }, []);
 
   // Determine which IDs to show based on active tab
   const baseSongs = useMemo(() => {
@@ -306,7 +340,7 @@ export default function AddToPlaylistPanel({
       {activeTab === "suggested" && (
         <div className="flex shrink-0 items-center justify-end px-4 pb-2">
           <button
-            onClick={generateSuggestions}
+            onClick={handleRefresh}
             className="flex items-center gap-1.5 text-xs font-medium text-white/60 transition-colors hover:text-white"
           >
             <RefreshCw size={14} />

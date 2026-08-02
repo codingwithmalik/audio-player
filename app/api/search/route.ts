@@ -1,15 +1,14 @@
+// app/api/search/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { searchService } from "@/services/searchService";
+import { withErrorHandling } from "@/lib/apiHandler";
+import { searchQuerySchema } from "@/validation/searchSchemas";
 
-export async function GET(req: NextRequest) {
+export const GET = withErrorHandling(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
-  const q = searchParams.get("q") || "";
-  const skip = Number(searchParams.get("skip") || 0);
-  const limit = Number(searchParams.get("limit") || 20);
+  const { q, skip, limit } = searchQuerySchema.parse(
+    Object.fromEntries(searchParams),
+  );
 
-  try {
-    return NextResponse.json(await searchService.search(q, { skip, limit }));
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
+  return NextResponse.json(await searchService.search(q, { skip, limit }));
+});

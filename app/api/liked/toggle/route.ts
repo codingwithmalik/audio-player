@@ -1,20 +1,18 @@
+// app/api/liked/toggle/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { requireUserId } from "@/lib/auth/requireUserId";
 import { playlistService } from "@/services/playlistService";
+import { withErrorHandling } from "@/lib/apiHandler";
+import { AuthenticationError } from "@/lib/errors";
+import { toggleLikedSchema } from "@/validation/likedSchemas";
 
-export async function POST(req: NextRequest) {
+export const POST = withErrorHandling(async (req: NextRequest) => {
   const userId = await requireUserId();
-  if (!userId)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
 
-  const { songId } = await req.json();
-  if (!songId)
-    return NextResponse.json({ error: "songId is required" }, { status: 400 });
+  const body = await req.json();
+  const { songId } = toggleLikedSchema.parse(body);
 
-  try {
-    const result = await playlistService.toggleLikedSong(userId, songId);
-    return NextResponse.json(result);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
-  }
-}
+  const result = await playlistService.toggleLikedSong(userId, songId);
+  return NextResponse.json(result);
+});

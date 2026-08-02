@@ -1,16 +1,14 @@
+// app/api/liked/route.ts
 import { NextResponse } from "next/server";
 import { requireUserId } from "@/lib/auth/requireUserId";
 import { playlistService } from "@/services/playlistService";
+import { withErrorHandling } from "@/lib/apiHandler";
+import { AuthenticationError } from "@/lib/errors";
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   const userId = await requireUserId();
-  if (!userId)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
 
-  try {
-    const liked = await playlistService.ensureLikedPlaylist(userId);
-    return NextResponse.json(liked);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
+  const liked = await playlistService.ensureLikedPlaylist(userId);
+  return NextResponse.json(liked);
+});

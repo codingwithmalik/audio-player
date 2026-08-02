@@ -1,44 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUserId } from "@/lib/auth/requireUserId";
 import { historyService } from "@/services/historyService";
+import { withErrorHandling } from "@/lib/apiHandler";
+import { AuthenticationError } from "@/lib/errors";
+import { addToHistorySchema } from "@/validation/historySchemas";
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   const userId = await requireUserId();
-  if (!userId)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
+  return NextResponse.json(await historyService.getHistory(userId));
+});
 
-  try {
-    return NextResponse.json(await historyService.getHistory(userId));
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
-
-export async function POST(req: NextRequest) {
+export const POST = withErrorHandling(async (req: NextRequest) => {
   const userId = await requireUserId();
-  if (!userId)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
 
-  const { songId } = await req.json();
-  if (!songId)
-    return NextResponse.json({ error: "songId is required" }, { status: 400 });
+  const body = await req.json();
+  const { songId } = addToHistorySchema.parse(body);
 
-  try {
-    return NextResponse.json(await historyService.addToHistory(userId, songId));
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
-  }
-}
+  return NextResponse.json(await historyService.addToHistory(userId, songId));
+});
 
-export async function DELETE() {
+export const DELETE = withErrorHandling(async () => {
   const userId = await requireUserId();
-  if (!userId)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
 
-  try {
-    await historyService.clearHistory(userId);
-    return NextResponse.json({ message: "History cleared" });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
+  await historyService.clearHistory(userId);
+  return NextResponse.json({ message: "History cleared" });
+});

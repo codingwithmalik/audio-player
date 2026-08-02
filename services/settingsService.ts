@@ -1,30 +1,19 @@
-import { PlaybackSettings } from "@/features/Profile/types";
 import { connectDB } from "@/lib/db/connect";
 import UserProfile from "@/schemas/UserProfile";
+import { NotFoundError } from "@/lib/errors";
 
 export const settingsService = {
   async getSettings(userId: string) {
     await connectDB();
     const profile = await UserProfile.findById(userId);
-    if (!profile) throw new Error("Profile not found");
+    if (!profile) throw new NotFoundError("Profile not found");
     return profile.settings;
   },
 
-  async updateSettings(
-    userId: string,
-    data: {
-      playback?: Partial<PlaybackSettings>;
-      audioQuality?: { streamingQuality?: string };
-      library?: { showDownloadedSongs?: boolean };
-      storage?: { cacheSizeMb?: number };
-      privacy?: {
-        privateSession?: { active?: boolean; expiresAt?: string | null };
-      };
-    },
-  ) {
+  async updateSettings(userId: string, data: any) {
     await connectDB();
     const profile = await UserProfile.findById(userId);
-    if (!profile) throw new Error("Profile not found");
+    if (!profile) throw new NotFoundError("Profile not found");
 
     if (data.playback) {
       const { equalizer, ...rest } = data.playback;

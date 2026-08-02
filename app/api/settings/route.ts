@@ -1,30 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUserId } from "@/lib/auth/requireUserId";
 import { settingsService } from "@/services/settingsService";
+import { withErrorHandling } from "@/lib/apiHandler";
+import { AuthenticationError } from "@/lib/errors";
+import { updateSettingsSchema } from "@/validation/settingsSchemas";
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   const userId = await requireUserId();
-  if (!userId)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
+  return NextResponse.json(await settingsService.getSettings(userId));
+});
 
-  try {
-    return NextResponse.json(await settingsService.getSettings(userId));
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 404 });
-  }
-}
-
-export async function PATCH(req: NextRequest) {
+export const PATCH = withErrorHandling(async (req: NextRequest) => {
   const userId = await requireUserId();
-  if (!userId)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
 
   const body = await req.json();
-  try {
-    return NextResponse.json(
-      await settingsService.updateSettings(userId, body),
-    );
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
-  }
-}
+  const data = updateSettingsSchema.parse(body);
+
+  return NextResponse.json(await settingsService.updateSettings(userId, data));
+});

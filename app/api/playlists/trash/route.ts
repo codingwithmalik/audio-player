@@ -1,16 +1,14 @@
+// app/api/playlists/trash/route.ts
 import { NextResponse } from "next/server";
 import { requireUserId } from "@/lib/auth/requireUserId";
 import { playlistService } from "@/services/playlistService";
+import { withErrorHandling } from "@/lib/apiHandler";
+import { AuthenticationError } from "@/lib/errors";
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   const userId = await requireUserId();
-  if (!userId)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
 
-  try {
-    const trashed = await playlistService.listTrash(userId);
-    return NextResponse.json(trashed);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
+  const trashed = await playlistService.listTrash(userId);
+  return NextResponse.json(trashed);
+});

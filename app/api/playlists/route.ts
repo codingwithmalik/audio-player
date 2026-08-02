@@ -1,30 +1,37 @@
+// app/api/playlists/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { requireUserId } from "@/lib/auth/requireUserId";
 import { playlistService } from "@/services/playlistService";
+import { withErrorHandling } from "@/lib/apiHandler";
+import { AuthenticationError } from "@/lib/errors";
+import {
+  createPlaylistSchema,
+  listPlaylistsQuerySchema,
+} from "@/validation/playlistSchemas";
 
-export async function GET(req: NextRequest) {
+export const GET = withErrorHandling(async (req: NextRequest) => {
   const userId = await requireUserId();
-  if (!userId) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
 
-  const folderId = new URL(req.url).searchParams.get("folderId");
+  const { searchParams } = new URL(req.url);
+  const { folderId } = listPlaylistsQuerySchema.parse(
+    Object.fromEntries(searchParams),
+  );
 
-  try {
-    const playlists = await playlistService.listUserPlaylists(userId, folderId || null);
-    return NextResponse.json(playlists);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
+  const playlists = await playlistService.listUserPlaylists(
+    userId,
+    folderId || null,
+  );
+  return NextResponse.json(playlists);
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withErrorHandling(async (req: NextRequest) => {
   const userId = await requireUserId();
-  if (!userId) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
 
   const body = await req.json();
-  try {
-    const playlist = await playlistService.createPlaylist(userId, body);
-    return NextResponse.json(playlist, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
-  }
-}
+  const data = createPlaylistSchema.parse(body);
+
+  const playlist = await playlistService.createPlaylist(userId, data);
+  return NextResponse.json(playlist, { status: 201 });
+});

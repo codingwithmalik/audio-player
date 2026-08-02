@@ -2,6 +2,11 @@ import { connectDB } from "@/lib/db/connect";
 import { Types } from "mongoose";
 import Playlist from "@/schemas/Playlist";
 import { playlistRepository } from "@/repositories/playlistRepository";
+import {
+  NotFoundError,
+  AuthorizationError,
+  ValidationError,
+} from "@/lib/errors";
 
 const TRASH_RETENTION_DAYS = 90;
 
@@ -33,8 +38,6 @@ export const playlistService = {
     data: { title: string; description?: string; coverImage?: string },
   ) {
     await connectDB();
-    if (!data.title?.trim()) throw new Error("Title is required");
-
     return playlistRepository.create({
       _id: new Types.ObjectId().toString(),
       title: data.title,
@@ -49,7 +52,8 @@ export const playlistService = {
   async getPlaylist(id: string) {
     await connectDB();
     const playlist = await playlistRepository.findById(id);
-    if (!playlist || playlist.deletedAt) throw new Error("Playlist not found");
+    if (!playlist || playlist.deletedAt)
+      throw new NotFoundError("Playlist not found");
     return playlist;
   },
 
@@ -61,10 +65,10 @@ export const playlistService = {
   async updatePlaylist(userId: string, id: string, data: any) {
     await connectDB();
     const playlist = await playlistRepository.findById(id);
-    if (!playlist) throw new Error("Playlist not found");
-    if (playlist.ownerId !== userId) throw new Error("Not authorized");
+    if (!playlist) throw new NotFoundError("Playlist not found");
+    if (playlist.ownerId !== userId) throw new AuthorizationError();
     if (id.startsWith("liked-"))
-      throw new Error("Cannot modify the Liked Songs playlist");
+      throw new ValidationError("Cannot modify the Liked Songs playlist");
 
     return playlistRepository.updateById(id, data);
   },
@@ -72,28 +76,27 @@ export const playlistService = {
   async softDeletePlaylist(userId: string, id: string) {
     await connectDB();
     const playlist = await playlistRepository.findById(id);
-    if (!playlist) throw new Error("Playlist not found");
-    if (playlist.ownerId !== userId) throw new Error("Not authorized");
+    if (!playlist) throw new NotFoundError("Playlist not found");
+    if (playlist.ownerId !== userId) throw new AuthorizationError();
     if (id.startsWith("liked-"))
-      throw new Error("Cannot delete the Liked Songs playlist");
+      throw new ValidationError("Cannot delete the Liked Songs playlist");
 
     return playlistRepository.updateById(id, { deletedAt: new Date() });
   },
 
-  // playlistService.ts
   async permanentlyDelete(userId: string, id: string) {
     await connectDB();
     const playlist = await playlistRepository.findById(id);
-    if (!playlist) throw new Error("Playlist not found");
-    if (playlist.ownerId !== userId) throw new Error("Not authorized");
+    if (!playlist) throw new NotFoundError("Playlist not found");
+    if (playlist.ownerId !== userId) throw new AuthorizationError();
     await playlistRepository.deleteById(id);
   },
 
   async restorePlaylist(userId: string, id: string) {
     await connectDB();
     const playlist = await playlistRepository.findById(id);
-    if (!playlist) throw new Error("Playlist not found");
-    if (playlist.ownerId !== userId) throw new Error("Not authorized");
+    if (!playlist) throw new NotFoundError("Playlist not found");
+    if (playlist.ownerId !== userId) throw new AuthorizationError();
 
     return Playlist.findByIdAndUpdate(
       id,
@@ -109,7 +112,7 @@ export const playlistService = {
     const stillValid = [];
     for (const p of trashed) {
       if (isExpired(p.deletedAt)) {
-        await Playlist.findByIdAndDelete(p._id); // lazy cleanup past retention window
+        await Playlist.findByIdAndDelete(p._id);
       } else {
         stillValid.push(p);
       }
@@ -120,8 +123,8 @@ export const playlistService = {
   async addSongs(userId: string, playlistId: string, songIds: string[]) {
     await connectDB();
     const playlist = await playlistRepository.findById(playlistId);
-    if (!playlist) throw new Error("Playlist not found");
-    if (playlist.ownerId !== userId) throw new Error("Not authorized");
+    if (!playlist) throw new NotFoundError("Playlist not found");
+    if (playlist.ownerId !== userId) throw new AuthorizationError();
 
     const existingIds = new Set(playlist.songs.map((s: any) => s.songId));
     const now = new Date();
@@ -140,8 +143,8 @@ export const playlistService = {
   async removeSong(userId: string, playlistId: string, songId: string) {
     await connectDB();
     const playlist = await playlistRepository.findById(playlistId);
-    if (!playlist) throw new Error("Playlist not found");
-    if (playlist.ownerId !== userId) throw new Error("Not authorized");
+    if (!playlist) throw new NotFoundError("Playlist not found");
+    if (playlist.ownerId !== userId) throw new AuthorizationError();
 
     playlist.songs = playlist.songs.filter((s: any) => s.songId !== songId);
     await playlist.save();
@@ -155,10 +158,10 @@ export const playlistService = {
   ) {
     await connectDB();
     const playlist = await playlistRepository.findById(playlistId);
-    if (!playlist) throw new Error("Playlist not found");
-    if (playlist.ownerId !== userId) throw new Error("Not authorized");
+    if (!playlist) throw new NotFoundError("Playlist not found");
+    if (playlist.ownerId !== userId) throw new AuthorizationError();
     if (playlistId.startsWith("liked-"))
-      throw new Error("Cannot move Liked Songs into a folder");
+      throw new ValidationError("Cannot move Liked Songs into a folder");
 
     return playlistRepository.updateById(playlistId, { folderId });
   },

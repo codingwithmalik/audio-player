@@ -1,49 +1,41 @@
+// app/api/songs/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { requireUserId } from "@/lib/auth/requireUserId";
 import { songService } from "@/services/songService";
+import { withErrorHandling } from "@/lib/apiHandler";
+import { AuthenticationError } from "@/lib/errors";
+import {
+  createSongSchema,
+  listSongsQuerySchema,
+} from "@/validation/songSchemas";
 
-export async function GET(req: NextRequest) {
+export const GET = withErrorHandling(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
-  const language = searchParams.get("language") || undefined;
-  const genre = searchParams.get("genre") || undefined;
-  const skip = Number(searchParams.get("skip") || 0);
-  const limit = Number(searchParams.get("limit") || 20);
-  const ids = searchParams.get("ids");
+  const parsed = listSongsQuerySchema.parse(Object.fromEntries(searchParams));
 
-    // Dedicated path: fetching specific songs by id needs no pagination,
-  // and must preserve the caller's requested order (e.g. playlist song order).
-  if (ids) {
-    try {
-      const songs = await songService.getSongsByIds(ids.split(","));
-      return NextResponse.json(songs);
-    } catch (err: any) {
-      return NextResponse.json({ error: err.message }, { status: 500 });
-    }
+  if (parsed.ids) {
+    const songs = await songService.getSongsByIds(parsed.ids.split(","));
+    return NextResponse.json(songs);
   }
 
   const filter: any = {};
-  if (language) filter.language = language.toLowerCase();
-  if (genre) filter.genres = genre.toLowerCase();
+  if (parsed.language) filter.language = parsed.language.toLowerCase();
+  if (parsed.genre) filter.genres = parsed.genre.toLowerCase();
 
+  const songs = await songService.listSongs(filter, {
+    skip: parsed.skip,
+    limit: parsed.limit,
+  });
+  return NextResponse.json(songs);
+});
 
-  try {
-    const songs = await songService.listSongs(filter, { skip, limit });
-    return NextResponse.json(songs);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
-
-export async function POST(req: NextRequest) {
+export const POST = withErrorHandling(async (req: NextRequest) => {
   const userId = await requireUserId();
-  if (!userId)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
 
   const body = await req.json();
-  try {
-    const song = await songService.createSong(userId, body);
-    return NextResponse.json(song, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
-  }
-}
+  const data = createSongSchema.parse(body);
+
+  const song = await songService.createSong(userId, data);
+  return NextResponse.json(song, { status: 201 });
+});

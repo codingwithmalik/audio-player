@@ -1,28 +1,21 @@
 import { connectDB } from "@/lib/db/connect";
 import { songRepository } from "@/repositories/songRepository";
 import Playlist from "@/schemas/Playlist";
+import { NotFoundError, AuthorizationError } from "@/lib/errors";
 
 export const songService = {
   async createSong(userId: string, data: any) {
     await connectDB();
-    if (
-      !data.title ||
-      !data.artists?.length ||
-      !data.audioUrl ||
-      !data.duration
-    ) {
-      throw new Error("Missing required song fields");
-    }
     return songRepository.create({ ...data, uploadedBy: userId });
   },
 
   async getSong(id: string) {
     await connectDB();
     const song = await songRepository.findById(id);
-    if (!song) throw new Error("Song not found");
+    if (!song) throw new NotFoundError("Song not found");
     return song;
   },
-  // songService.ts — new method
+
   async getSongsByIds(ids: string[]) {
     await connectDB();
     const songs = await songRepository.findMany({ _id: { $in: ids } });
@@ -41,18 +34,17 @@ export const songService = {
   async updateSong(userId: string, id: string, data: any) {
     await connectDB();
     const song = await songRepository.findById(id);
-    if (!song) throw new Error("Song not found");
-    if (song.uploadedBy !== userId) throw new Error("Not authorized");
+    if (!song) throw new NotFoundError("Song not found");
+    if (song.uploadedBy !== userId) throw new AuthorizationError();
     return songRepository.updateById(id, data);
   },
 
   async deleteSong(userId: string, id: string) {
     await connectDB();
     const song = await songRepository.findById(id);
-    if (!song) throw new Error("Song not found");
-    if (song.uploadedBy !== userId) throw new Error("Not authorized");
+    if (!song) throw new NotFoundError("Song not found");
+    if (song.uploadedBy !== userId) throw new AuthorizationError();
 
-    // Prevent dangling references in playlists that included this song
     await Playlist.updateMany(
       { "songs.songId": id },
       { $pull: { songs: { songId: id } } },

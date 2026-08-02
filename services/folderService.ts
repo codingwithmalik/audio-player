@@ -1,19 +1,19 @@
 import { connectDB } from "@/lib/db/connect";
 import Playlist from "@/schemas/Playlist";
 import { folderRepository } from "@/repositories/folderRepository";
+import { NotFoundError, AuthorizationError } from "@/lib/errors";
 
 export const folderService = {
   async createFolder(userId: string, title: string) {
     await connectDB();
-    if (!title?.trim()) throw new Error("Title is required");
     return folderRepository.create({ title, ownerId: userId });
   },
 
   async getFolder(userId: string, id: string) {
     await connectDB();
     const folder = await folderRepository.findById(id);
-    if (!folder) throw new Error("Folder not found");
-    if (folder.ownerId !== userId) throw new Error("Not authorized");
+    if (!folder) throw new NotFoundError("Folder not found");
+    if (folder.ownerId !== userId) throw new AuthorizationError();
 
     const playlists = await Playlist.find({
       ownerId: userId,
@@ -31,9 +31,8 @@ export const folderService = {
   async renameFolder(userId: string, id: string, title: string) {
     await connectDB();
     const folder = await folderRepository.findById(id);
-    if (!folder) throw new Error("Folder not found");
-    if (folder.ownerId !== userId) throw new Error("Not authorized");
-    if (!title?.trim()) throw new Error("Title is required");
+    if (!folder) throw new NotFoundError("Folder not found");
+    if (folder.ownerId !== userId) throw new AuthorizationError();
 
     return folderRepository.updateById(id, { title });
   },
@@ -41,8 +40,8 @@ export const folderService = {
   async deleteFolder(userId: string, id: string) {
     await connectDB();
     const folder = await folderRepository.findById(id);
-    if (!folder) throw new Error("Folder not found");
-    if (folder.ownerId !== userId) throw new Error("Not authorized");
+    if (!folder) throw new NotFoundError("Folder not found");
+    if (folder.ownerId !== userId) throw new AuthorizationError();
 
     await Playlist.updateMany(
       { ownerId: userId, folderId: id },

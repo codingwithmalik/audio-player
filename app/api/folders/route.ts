@@ -1,30 +1,26 @@
+// app/api/folders/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { requireUserId } from "@/lib/auth/requireUserId";
 import { folderService } from "@/services/folderService";
+import { withErrorHandling } from "@/lib/apiHandler";
+import { AuthenticationError } from "@/lib/errors";
+import { createFolderSchema } from "@/validation/folderSchemas";
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   const userId = await requireUserId();
-  if (!userId)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
 
-  try {
-    const folders = await folderService.listFolders(userId);
-    return NextResponse.json(folders);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
+  const folders = await folderService.listFolders(userId);
+  return NextResponse.json(folders);
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withErrorHandling(async (req: NextRequest) => {
   const userId = await requireUserId();
-  if (!userId)
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!userId) throw new AuthenticationError();
 
-  const { title } = await req.json();
-  try {
-    const folder = await folderService.createFolder(userId, title);
-    return NextResponse.json(folder, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
-  }
-}
+  const body = await req.json();
+  const { title } = createFolderSchema.parse(body);
+
+  const folder = await folderService.createFolder(userId, title);
+  return NextResponse.json(folder, { status: 201 });
+});

@@ -1,21 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkEmailExists } from "@/utils/checkEmailExists";
+import { withErrorHandling } from "@/lib/apiHandler";
+import { ConflictError } from "@/lib/errors";
+import { checkEmailSchema } from "@/validation/authSchemas";
 
-export async function POST(req: NextRequest) {
-  const { email } = await req.json();
-
-  if (!email) {
-    return NextResponse.json({ error: "Email is required" }, { status: 400 });
-  }
+export const POST = withErrorHandling(async (req: NextRequest) => {
+  const body = await req.json();
+  const { email } = checkEmailSchema.parse(body);
 
   const { exists } = await checkEmailExists(email);
-
-  if (exists) {
-    return NextResponse.json(
-      { available: false, error: "An account with this email already exists." },
-      { status: 409 },
-    );
-  }
+  if (exists)
+    throw new ConflictError("An account with this email already exists.");
 
   return NextResponse.json({ available: true });
-}
+});

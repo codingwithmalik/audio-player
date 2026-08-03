@@ -4,32 +4,25 @@ import bcrypt from "bcryptjs";
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db/connect";
 import UserProfile from "@/schemas/UserProfile";
+import { withErrorHandling } from "@/lib/apiHandler";
+import {
+  AuthenticationError,
+  NotFoundError,
+  ValidationError,
+  AuthorizationError,
+} from "@/lib/errors";
+import { setPasswordSchema } from "@/validation/authSchemas";
 
-export async function POST(req: NextRequest) {
+export const POST = withErrorHandling(async (req: NextRequest) => {
   const session = await getServerSession(authOptions);
+  if (!session?.user?.id) throw new AuthenticationError();
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
-  const { newPassword, currentPassword } = await req.json();
-
-  if (!newPassword || newPassword.length < 8) {
-    return NextResponse.json(
-      { error: "Password must be at least 8 characters" },
-      { status: 400 },
-    );
-  }
+  const body = await req.json();
+  const { newPassword, currentPassword } = setPasswordSchema.parse(body);
 
   await connectDB();
   const user = await UserProfile.findById(session.user.id);
-
-  if (!user) {
-    return NextResponse.json(
-      { error: "Could not find your account" },
-      { status: 404 },
-    );
-  }
+  if (!user) throw new NotFoundError("Could not find your account");
 
   // A session established within the last 5 minutes means this request is
   // arriving right after a real sign-in event (magic link or Google) — that
@@ -42,27 +35,16 @@ export async function POST(req: NextRequest) {
   const isFreshSession = sessionAgeSeconds < FRESH_SESSION_WINDOW_SECONDS;
 
   if (user.password && !isFreshSession) {
-    if (!currentPassword) {
-      return NextResponse.json(
-        { error: "Current password is required" },
-        { status: 400 },
-      );
-    }
+    if (!currentPassword)
+      throw new ValidationError("Current password is required");
 
     const isValid = await bcrypt.compare(currentPassword, user.password);
-    if (!isValid) {
-      return NextResponse.json(
-        { error: "Current password is incorrect" },
-        { status: 403 },
-      );
-    }
+    if (!isValid) throw new AuthorizationError("Current password is incorrect");
   }
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   user.password = hashedPassword;
   await user.save();
 
-  return NextResponse.json({
-    message: "Password updated successfully.",
-  });
-}
+  return NextResponse.json({ message: "Password updated successfully." });
+});

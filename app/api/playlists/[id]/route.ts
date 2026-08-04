@@ -9,7 +9,11 @@ import { updatePlaylistSchema } from "@/validation/playlistSchemas";
 export const GET = withErrorHandling(
   async (req, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
-    const playlist = await playlistService.getPlaylist(id);
+    const userId = await requireUserId();
+
+    if (!userId) throw new AuthenticationError();
+
+    const playlist = await playlistService.getPlaylist(userId, id);
     return NextResponse.json(playlist);
   },
 );

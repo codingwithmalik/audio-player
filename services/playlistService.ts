@@ -49,11 +49,13 @@ export const playlistService = {
     });
   },
 
-  async getPlaylist(id: string) {
+  async getPlaylist(userId: string, id: string) {
     await connectDB();
     const playlist = await playlistRepository.findById(id);
     if (!playlist || playlist.deletedAt)
       throw new NotFoundError("Playlist not found");
+    if (playlist.ownerId !== userId) throw new AuthorizationError();
+
     return playlist;
   },
 

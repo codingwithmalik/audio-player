@@ -18,6 +18,7 @@ import {
   useUpdateProfileMutation,
   useGetProfileQuery,
 } from "@/features/Profile/profileApi";
+import { uploadCover } from "@/utils/mediaUpload";
 
 const COUNTRIES = [
   "Pakistan",
@@ -144,38 +145,11 @@ export default function PersonalInfoForm() {
     draft.country !== personalInfo.country ||
     joinIsoDate(date, month, year) !== personalInfo.dateOfBirth;
 
-  async function uploadCover(file: File): Promise<{ url: string }> {
-    const signRes = await fetch("/api/upload/sign", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ folder: "profile-covers" }), // your sign route already supports this folder name
-    });
-    const { signature, timestamp, cloudName, apiKey, folder } =
-      await signRes.json();
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("api_key", apiKey);
-    formData.append("timestamp", String(timestamp));
-    formData.append("signature", signature);
-    formData.append("folder", folder);
-
-    const uploadRes = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
-    const data = await uploadRes.json();
-    return { url: data.secure_url };
-  }
-
   async function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const { url } = await uploadCover(file);
+      const { url } = await uploadCover(file, "profile-covers");
       setDraft((prev) => ({ ...prev, image: url }));
     } catch {
       dispatch(setAccountError("Failed to upload image"));

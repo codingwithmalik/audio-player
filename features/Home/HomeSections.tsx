@@ -23,10 +23,12 @@ import type { Song } from "@/types/song";
 import { useGetSongsQuery } from "../Songs/songsApi";
 import { useGetPlaylistsQuery } from "../Playlist/playlistsApi";
 import { useGetRecommendationsQuery } from "@/features/recommendation/recommendationsApi";
+import { useGetHistoryQuery } from "../History/historyApi";
 
 export default function HomeSections() {
   useGetSongsQuery();
   useGetPlaylistsQuery();
+  useGetHistoryQuery();
   const { data: madeForYouData } = useGetRecommendationsQuery({
     type: "madeForYou",
   });

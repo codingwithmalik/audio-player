@@ -2,12 +2,17 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { toast } from "sonner";
 import { Music2, Image as ImageIcon, UploadCloud } from "lucide-react";
 import { useCreateSongMutation } from "@/features/Songs/songsApi";
 import Image from "next/image";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import {
+  uploadCover,
+  uploadAudio,
+  validateAudioFile,
+  validateImageFile,
+} from "@/utils/mediaUpload";
 
 function getAudioDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -20,39 +25,6 @@ function getAudioDuration(file: File): Promise<number> {
     audio.onerror = () => reject(new Error("Could not read audio file"));
     audio.src = URL.createObjectURL(file);
   });
-}
-
-async function uploadToCloudinary(
-  file: File,
-  folder: string,
-  resourceType: "video" | "image",
-  onProgress: (percent: number) => void,
-): Promise<string> {
-  const signRes = await fetch("/api/upload/sign", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ folder }),
-  });
-  const { signature, timestamp, cloudName, apiKey } = await signRes.json();
-
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("api_key", apiKey);
-  formData.append("timestamp", timestamp.toString());
-  formData.append("signature", signature);
-  formData.append("folder", folder);
-
-  const uploadRes = await axios.post(
-    `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
-    formData,
-    {
-      onUploadProgress: (e) => {
-        if (e.total) onProgress(Math.round((e.loaded / e.total) * 100));
-      },
-    },
-  );
-
-  return uploadRes.data.secure_url;
 }
 
 export default function UploadPage() {
@@ -78,8 +50,9 @@ export default function UploadPage() {
   function handleAudioPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("audio/")) {
-      toast.error("Please select an audio file");
+    const validationError = validateAudioFile(file);
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
     setAudioFile(file);
@@ -89,6 +62,11 @@ export default function UploadPage() {
   function handleCoverPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
     setCoverFile(file);
     setCoverPreview(URL.createObjectURL(file));
   }
@@ -106,25 +84,14 @@ export default function UploadPage() {
     }
 
     setIsUploading(true);
-
     try {
       const duration = await getAudioDuration(audioFile);
-
-      const audioUrl = await uploadToCloudinary(
-        audioFile,
-        "songs",
-        "video",
-        setAudioProgress,
-      );
+      const audioUrl = await uploadAudio(audioFile, setAudioProgress);
 
       let coverImageUrl: string | undefined;
       if (coverFile) {
-        coverImageUrl = await uploadToCloudinary(
-          coverFile,
-          "covers",
-          "image",
-          setCoverProgress,
-        );
+        const { url } = await uploadCover(coverFile, "covers");
+        coverImageUrl = url;
       }
 
       await createSong({

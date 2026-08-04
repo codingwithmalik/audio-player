@@ -25,6 +25,7 @@ import { selectViewMode } from "@/features/Playlist/playlistSlice";
 import { selectCurrentSongId } from "@/slices/playerSlice";
 import { useUpdatePlaylistMutation } from "./playlistsApi";
 import { toast } from "sonner";
+import { uploadCover } from "@/utils/mediaUpload";
 
 interface PlaylistViewProps {
   playlist: Playlist;
@@ -116,37 +117,11 @@ export default function PlaylistView({
     [playlist, updatePlaylist],
   );
 
-  async function uploadCover(file: File): Promise<{ url: string }> {
-    const signRes = await fetch("/api/upload/sign", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ folder: "covers" }),
-    });
-    const { signature, timestamp, cloudName, apiKey, folder } =
-      await signRes.json();
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("api_key", apiKey);
-    formData.append("timestamp", String(timestamp));
-    formData.append("signature", signature);
-    formData.append("folder", folder);
-
-    const uploadRes = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
-    const data = await uploadRes.json();
-    return { url: data.secure_url };
-  }
 
   const handleCoverFile = useCallback(
     async (file: File) => {
       try {
-        const { url } = await uploadCover(file);
+        const { url } = await uploadCover(file,"covers");
         await updatePlaylist({
           id: playlist.id,
           data: { coverImage: url },

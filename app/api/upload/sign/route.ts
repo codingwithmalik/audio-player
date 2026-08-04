@@ -10,10 +10,17 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   if (!userId) throw new AuthenticationError();
 
   const body = await req.json();
-  const { folder } = signUploadSchema.parse(body);
+  const { folder, resourceType } = signUploadSchema.parse(body);
 
   const timestamp = Math.round(Date.now() / 1000);
-  const paramsToSign = { timestamp, folder: folder || "audious" };
+  const paramsToSign: Record<string, any> = {
+    timestamp,
+    folder: folder || "audious",
+  };
+
+  if (resourceType === "image") {
+    paramsToSign.allowed_formats = "jpg,png,webp";
+  }
 
   const signature = cloudinary.utils.api_sign_request(
     paramsToSign,
@@ -26,5 +33,6 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.CLOUDINARY_API_KEY,
     folder: paramsToSign.folder,
+    allowedFormats: paramsToSign.allowed_formats,
   });
 });

@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { checkRateLimit, generalRateLimit } from "./lib/rateLimit";
 
 const PUBLIC_API_PATTERNS = [
   /^\/api\/auth\//,
@@ -34,6 +35,10 @@ export async function middleware(req: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
+     // Every authenticated API route gets a generous baseline limit
+    const rateLimitResponse = await checkRateLimit(req, generalRateLimit, token.id as string);
+    if (rateLimitResponse) return rateLimitResponse;
+
     return NextResponse.next();
   }
 

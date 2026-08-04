@@ -4,8 +4,11 @@ import { profileService } from "@/services/profileService";
 import { recommendationService } from "@/services/recommendationService";
 import { withErrorHandling } from "@/lib/apiHandler";
 import { recommendationsQuerySchema } from "@/validation/recommendationSchemas";
+import { checkRateLimit, generalRateLimit } from "@/lib/rateLimit";
 
 export const GET = withErrorHandling(async (req: NextRequest) => {
+    const rateLimitResponse = await checkRateLimit(req, generalRateLimit);
+  if (rateLimitResponse) return rateLimitResponse;
   const userId = await requireUserId();
   const { searchParams } = new URL(req.url);
   const { type, skip, limit, excludeIds } = recommendationsQuerySchema.parse(

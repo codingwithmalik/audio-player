@@ -82,6 +82,7 @@ export const authOptions: NextAuthOptions = {
         await connectDB();
         const profile = await UserProfile.findOne({ email: user.email });
         token.id = profile ? profile._id : user.id;
+        token.role = profile?.role ?? "user";
         token.iat = Math.floor(Date.now() / 1000); // freshness marker, reset on every real login
       }
       return token;
@@ -93,6 +94,7 @@ export const authOptions: NextAuthOptions = {
         const profile = await UserProfile.findById(token.id as string);
 
         session.user.id = token.id as string;
+        session.user.role = token.role as string;
         session.user.username = profile?.username ?? "";
         session.user.coverImage =
           profile?.coverImage || session.user.image || null;

@@ -26,7 +26,7 @@ import { historyApi } from "@/features/History/historyApi";
 import { searchApi } from "@/features/Search/searchApi";
 import { profileApi } from "@/features/Profile/profileApi";
 import { settingsApi } from "@/features/Profile/settingsApi";
-import { recommendationsApi } from "@/features/recommendation/recommendationsApi";
+import { recommendationsApi } from "@/features/Recommendation/recommendationsApi";
 
 export const store = configureStore({
   reducer: {

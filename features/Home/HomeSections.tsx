@@ -22,7 +22,7 @@ import type { Playlist } from "@/types/playlist";
 import type { Song } from "@/types/song";
 import { useGetSongsQuery } from "../Songs/songsApi";
 import { useGetPlaylistsQuery } from "../Playlist/playlistsApi";
-import { useGetRecommendationsQuery } from "@/features/recommendation/recommendationsApi";
+import { useGetRecommendationsQuery } from "@/features/Recommendation/recommendationsApi";
 import { useGetHistoryQuery } from "../History/historyApi";
 
 export default function HomeSections() {

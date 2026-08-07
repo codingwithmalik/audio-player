@@ -1,13 +1,14 @@
 // app/api/songs/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { requireUserId } from "@/lib/auth/requireUserId";
 import { songService } from "@/services/songService";
 import { withErrorHandling } from "@/lib/apiHandler";
-import { AuthenticationError } from "@/lib/errors";
+import { AuthenticationError, AuthorizationError } from "@/lib/errors";
 import {
   createSongSchema,
   listSongsQuerySchema,
 } from "@/validation/songSchemas";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const GET = withErrorHandling(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
@@ -30,12 +31,14 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
 });
 
 export const POST = withErrorHandling(async (req: NextRequest) => {
-  const userId = await requireUserId();
-  if (!userId) throw new AuthenticationError();
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) throw new AuthenticationError();
+  if (session.user.role !== "admin")
+    throw new AuthorizationError("Admin access required");
 
   const body = await req.json();
   const data = createSongSchema.parse(body);
 
-  const song = await songService.createSong(userId, data);
+  const song = await songService.createSong(session.user.id, data);
   return NextResponse.json(song, { status: 201 });
 });

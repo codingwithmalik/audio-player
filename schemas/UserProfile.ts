@@ -3,6 +3,7 @@ import { Schema, models, model } from "mongoose";
 const UserProfileSchema = new Schema(
   {
     _id: { type: String, required: true },
+    role: { type: String, enum: ["user", "admin"], default: "user" },
     username: { type: String, required: true, unique: true },
     coverImage: { type: String },
     email: { type: String, unique: true, sparse: true },

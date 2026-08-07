@@ -80,7 +80,7 @@ export const songsApi = createApi({
           dispatch(upsertSongs([data]));
         } catch {}
       },
-      invalidatesTags: (_result, _error, { id }) => [{ type: "Song", id }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Song", id }, "Song"],
     }),
 
     deleteSong: builder.mutation<{ message: string }, string>({

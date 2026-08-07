@@ -1,7 +1,7 @@
 import { connectDB } from "@/lib/db/connect";
 import { songRepository } from "@/repositories/songRepository";
 import Playlist from "@/schemas/Playlist";
-import { NotFoundError, AuthorizationError } from "@/lib/errors";
+import { NotFoundError, } from "@/lib/errors";
 
 export const songService = {
   async createSong(userId: string, data: any) {
@@ -35,7 +35,6 @@ export const songService = {
     await connectDB();
     const song = await songRepository.findById(id);
     if (!song) throw new NotFoundError("Song not found");
-    if (song.uploadedBy !== userId) throw new AuthorizationError();
     return songRepository.updateById(id, data);
   },
 
@@ -43,7 +42,6 @@ export const songService = {
     await connectDB();
     const song = await songRepository.findById(id);
     if (!song) throw new NotFoundError("Song not found");
-    if (song.uploadedBy !== userId) throw new AuthorizationError();
 
     await Playlist.updateMany(
       { "songs.songId": id },

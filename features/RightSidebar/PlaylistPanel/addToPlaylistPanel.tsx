@@ -36,7 +36,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useGetLikedQuery } from "@/features/Liked/likedApi";
 import { useGetHistoryQuery } from "@/features/History/historyApi";
-import { useGetRecommendationsQuery } from "@/features/recommendation/recommendationsApi";
+import { useGetRecommendationsQuery } from "@/features/Recommendation/recommendationsApi";
 
 type TabType = "recentlyPlayed" | "liked" | "suggested";
 

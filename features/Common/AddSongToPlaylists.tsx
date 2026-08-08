@@ -23,6 +23,10 @@ import {
   useRemoveSongFromPlaylistMutation,
 } from "../Playlist/playlistsApi";
 import { toast } from "sonner";
+// Managing Loading and Error states
+import gsap from "gsap";
+import PlaylistMenuRowSkeleton from "@/features/Common/Animations/PlaylistMenuRowSkeleton";
+import ErrorState from "@/features/Common/Animations/ErrorState";
 
 // ─── Menu content ─────────────────────────────────────────────────────────────
 
@@ -36,7 +40,11 @@ function MenuContent({
   setHoveredFalse?: () => void;
 }) {
   const dispatch = useAppDispatch();
-  useGetPlaylistsQuery();
+  const {
+    isLoading: playlistsLoading,
+    isError: playlistsError,
+    refetch: refetchPlaylists,
+  } = useGetPlaylistsQuery();
   const playlists = useAppSelector(selectPlaylists);
   const [addSongMutation] = useAddSongToPlaylistMutation();
   const [removeSongMutation] = useRemoveSongFromPlaylistMutation();
@@ -96,8 +104,8 @@ function MenuContent({
       }).unwrap();
 
       dispatch(addSongToPlaylist({ playlistId: playlist.id, songId }));
-      addSongMutation({ playlistId: playlist.id, songIds:[songId] });
-    } catch (err) {
+      addSongMutation({ playlistId: playlist.id, songIds: [songId] });
+    } catch {
       toast.error("Failed to create playlist");
     }
 
@@ -109,7 +117,7 @@ function MenuContent({
     Object.entries(pendingPlaylists).forEach(([playlistId, action]) => {
       if (action === "add") {
         dispatch(addSongToPlaylist({ playlistId, songId }));
-        addSongMutation({ playlistId, songIds:[songId] });
+        addSongMutation({ playlistId, songIds: [songId] });
       } else {
         dispatch(removeSongFromPlaylist({ playlistId, songId }));
         removeSongMutation({ playlistId, songId });
@@ -164,19 +172,33 @@ function MenuContent({
         {!query && <div className="border-t border-white/10 my-1" />}
 
         {/* Playlists */}
-        {filtered.map((p) => (
-          <PlaylistRow
-            key={p.id}
-            label={p.title}
-            isChecked={effectiveInPlaylist(p.id)}
-            onToggle={() => handleTogglePlaylist(p.id)}
-            playlistId={p.id}
+        {playlistsError ? (
+          <ErrorState
+            message="Couldn't load your playlists."
+            onRetry={refetchPlaylists}
+            compact
           />
-        ))}
-
-        {filtered.length === 0 && query && (
-          <p className="px-4 py-3 text-xs text-white/30">No playlists found</p>
+        ) : playlistsLoading ? (
+          <PlaylistMenuRowSkeleton />
+        ) : (
+          <>
+            {filtered.map((p) => (
+              <PlaylistRow
+                key={p.id}
+                label={p.title}
+                isChecked={effectiveInPlaylist(p.id)}
+                onToggle={() => handleTogglePlaylist(p.id)}
+                playlistId={p.id}
+              />
+            ))}
+            {filtered.length === 0 && query && (
+              <p className="px-4 py-3 text-xs text-white/30">
+                No playlists found
+              </p>
+            )}
+          </>
         )}
+
       </OverlayScrollbarsComponent>
 
       {/* Footer — Cancel always, Done only when changes exist */}
@@ -286,22 +308,55 @@ export default function AddToPlaylistMenu({
   );
 
   useLayoutEffect(() => {
-    if (!open || !triggerRef.current) return;
+    if (!open || !triggerRef.current || !menuRef.current) return;
 
-    const rect = triggerRef.current.getBoundingClientRect();
-    const menuWidth = 280;
-    const menuHeight = menuRef.current?.getBoundingClientRect().height || 420;
-    const spaceBelow = window.innerHeight - rect.bottom;
+    const updatePosition = () => {
+      if (!triggerRef.current || !menuRef.current) return;
+      const rect = triggerRef.current.getBoundingClientRect();
+      const menuWidth = 320;
+      const menuHeight = menuRef.current.getBoundingClientRect().height;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
 
-    const top =
-      spaceBelow >= menuHeight
-        ? rect.bottom + 8 // open below — enough space or more than above
-        : rect.top - menuHeight - 8; // open above — more space above
+      const openAbove = spaceBelow < menuHeight && spaceAbove > spaceBelow;
+      const top = openAbove ? rect.top - menuHeight - 8 : rect.bottom + 8;
 
-    setPos({
-      top: Math.max(8, top),
-      left: Math.min(rect.left, window.innerWidth - menuWidth - 8),
-    });
+      // Clamp against the real viewport every time — this is the actual fix.
+      // Before, this only ran once at open, so once the list grew (playlists
+      // loading in, search results changing) nothing corrected the position.
+      const maxTop = window.innerHeight - menuHeight - 8;
+      setPos({
+        top: Math.min(Math.max(8, top), Math.max(8, maxTop)),
+        left: Math.max(
+          8,
+          Math.min(rect.left, window.innerWidth - menuWidth ),
+        ),
+      });
+    };
+
+    updatePosition();
+
+    const observer = new ResizeObserver(updatePosition);
+    observer.observe(menuRef.current);
+    window.addEventListener("resize", updatePosition, true);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updatePosition, true);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [open]);
+
+  // Separate entrance animation — deliberately its own effect so it fires
+  // once on open, not on every reposition from the observer above.
+  useLayoutEffect(() => {
+    if (!open || !menuRef.current) return;
+    gsap.fromTo(
+      menuRef.current,
+      { opacity: 0, y: -4 },
+      { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" },
+    );
   }, [open]);
 
   const handleClose = () => setOpen(false);
@@ -358,7 +413,7 @@ export default function AddToPlaylistMenu({
                 position: "fixed",
                 top: pos.top,
                 left: pos.left,
-                width: 280,
+                width: 320,
                 zIndex: 9999,
               }}
               data-portal-menu

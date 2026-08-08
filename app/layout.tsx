@@ -4,7 +4,7 @@ import ReduxProvider from "@/providers/reduxprovider";
 import SessionProvider from "@/providers/sessionProvider";
 import { Poppins } from "next/font/google";
 import { Toaster } from "sonner";
-
+import SessionGateway from "@/components/SessionGateway";
 import "./globals.css";
 import PendingPasswordApplier from "@/components/PendingPasswordApplier";
 
@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   icons: { icon: "/logo.webp" },
 };
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -34,7 +36,8 @@ export default function RootLayout({
               position="top-center"
               toastOptions={{ unstyled: true }}
             />
-            {children}
+                <SessionGateway>{children}</SessionGateway>
+
           </ReduxProvider>
         </SessionProvider>
       </body>

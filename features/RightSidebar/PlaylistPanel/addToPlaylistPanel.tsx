@@ -37,6 +37,9 @@ import { useSession } from "next-auth/react";
 import { useGetLikedQuery } from "@/features/Liked/likedApi";
 import { useGetHistoryQuery } from "@/features/History/historyApi";
 import { useGetRecommendationsQuery } from "@/features/Recommendation/recommendationsApi";
+import SongRowSkeleton from "@/features/Common/Animations/SongRowSkeleton";
+import ErrorState from "@/features/Common/Animations/ErrorState";
+import { useGetSongsByIdsQuery } from "@/features/Songs/songsApi";
 
 type TabType = "recentlyPlayed" | "liked" | "suggested";
 
@@ -54,13 +57,23 @@ export default function AddToPlaylistPanel({
   const { data: session } = useSession();
   const userId = session?.user.id;
   useGetPlaylistsQuery();
-  useGetLikedQuery();
-  useGetHistoryQuery();
+  const {
+    isLoading: likedLoading,
+    isError: likedError,
+    refetch: refetchLiked,
+  } = useGetLikedQuery();
+  const {
+    isLoading: historyLoading,
+    isError: historyError,
+    refetch: refetchHistory,
+  } = useGetHistoryQuery();
   const [excludeIds, setExcludeIds] = useState<string[]>([]);
-  const { data: suggestedSongsData } = useGetRecommendationsQuery({
-    type: "madeForYou",
-    excludeIds,
-  });
+  const {
+    data: suggestedSongsData,
+    isLoading: suggestedLoading,
+    isError: suggestedError,
+    refetch: refetchSuggested,
+  } = useGetRecommendationsQuery({ type: "madeForYou", excludeIds });
   const { data: trendingSongsData } = useGetRecommendationsQuery({
     type: "trending",
     excludeIds,
@@ -92,6 +105,13 @@ export default function AddToPlaylistPanel({
     [likedPlaylist],
   );
 
+  useGetSongsByIdsQuery(recentIds, {
+    skip: activeTab !== "recentlyPlayed" || recentIds.length === 0,
+  });
+  useGetSongsByIdsQuery(likedIds, {
+    skip: activeTab !== "liked" || likedIds.length === 0,
+  });
+
   // added update of working suggested songs rather that showing all songs
   const songsById = useAppSelector((state: RootState) => state.songs.entities);
 
@@ -110,8 +130,38 @@ export default function AddToPlaylistPanel({
     return recs;
   }, [suggestedSongsData, trendingSongsData, popularSongsData, targetSongIds]);
 
+  const [tabLoading, setTabLoading] = useState<boolean>(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTabLoading(
+      activeTab === "recentlyPlayed"
+        ? historyLoading
+        : activeTab === "liked"
+          ? likedLoading
+          : suggestedLoading,
+    );
+  }, [
+    activeTab,
+    historyLoading,
+    likedLoading,
+    suggestedLoading,
+    suggestedSongs,
+  ]);
+  const tabError =
+    activeTab === "recentlyPlayed"
+      ? historyError
+      : activeTab === "liked"
+        ? likedError
+        : suggestedError;
+  const retryTab = () => {
+    if (activeTab === "recentlyPlayed") refetchHistory();
+    else if (activeTab === "liked") refetchLiked();
+    else refetchSuggested();
+  };
+
   const handleRefresh = () => {
     setExcludeIds((prev) => [...prev, ...suggestedSongs.map((s) => s.id)]);
+    setTabLoading(true);
   };
   // const [suggestedSongs, setSuggestedSongs] = useState<Song[]>([]);
   // const seenSuggestedIdsRef = useRef<Set<string>>(new Set());
@@ -355,19 +405,28 @@ export default function AddToPlaylistPanel({
         data-overlayscrollbars-initialize
       >
         <div className="flex flex-col gap-1 pb-6">
-          {displayedSongs.length === 0 && (
+          {tabError ? (
+            <ErrorState
+              message="Couldn't load these songs."
+              onRetry={retryTab}
+              compact
+            />
+          ) : tabLoading ? (
+            Array.from({ length: 6 }).map((_, i) => <SongRowSkeleton key={i} />)
+          ) : displayedSongs.length === 0 ? (
             <div className="mt-10 text-center text-sm text-white/40">
               No songs found.
             </div>
+          ) : (
+            displayedSongs.map((song) => (
+              <SongRow
+                key={song.id}
+                song={song}
+                isAdded={targetSongIds.has(song.id)}
+                onToggle={() => toggleSong(song.id)}
+              />
+            ))
           )}
-          {displayedSongs.map((song) => (
-            <SongRow
-              key={song.id}
-              song={song}
-              isAdded={targetSongIds.has(song.id)}
-              onToggle={() => toggleSong(song.id)}
-            />
-          ))}
         </div>
       </div>
     </div>

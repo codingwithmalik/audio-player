@@ -19,6 +19,8 @@ import {
   useGetProfileQuery,
 } from "@/features/Profile/profileApi";
 import { uploadCover } from "@/utils/mediaUpload";
+import PersonalInfoFormSkeleton from "./Animations/PersonalInfoFormSkeleton";
+import ErrorState from "@/features/Common/Animations/ErrorState";
 
 const COUNTRIES = [
   "Pakistan",
@@ -102,7 +104,12 @@ function joinIsoDate(day: string, month: string, year: string): string | null {
 }
 
 export default function PersonalInfoForm() {
-  const user = useGetProfileQuery().data; // hydration on mount — currently missing entirely
+  const {
+    data: user,
+    isLoading: userLoading,
+    isError: userError,
+    refetch: refetchUser,
+  } = useGetProfileQuery();
   const [updateProfile] = useUpdateProfileMutation();
   const dispatch = useAppDispatch();
   // const session = useSession();
@@ -186,6 +193,15 @@ export default function PersonalInfoForm() {
     setDate(reset.day);
     setMonth(reset.month);
     setYear(reset.year);
+  }
+
+  if (userError) {
+    return (
+      <ErrorState message="Couldn't load your profile." onRetry={refetchUser} />
+    );
+  }
+  if (userLoading || !user) {
+    return <PersonalInfoFormSkeleton />;
   }
 
   return (

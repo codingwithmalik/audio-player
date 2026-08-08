@@ -42,7 +42,11 @@ export default function SongMoreOptions({
 }) {
   const { data: session } = useSession();
   const userId = session?.user.id;
-  useGetPlaylistsQuery();
+  const {
+    isLoading: playlistsLoading,
+    isError: playlistsError,
+    refetch: refetchPlaylists,
+  } = useGetPlaylistsQuery();
   useGetLikedQuery();
   //new playlist api mutations
   const [addSongMutation] = useAddSongToPlaylistMutation();
@@ -97,6 +101,10 @@ export default function SongMoreOptions({
       icon: ListMusic,
       submenuPlaceholder: "Find a playlist",
       submenuPosition: "left",
+      submenuLoading: playlistsLoading,
+      submenuError: playlistsError,
+      onSubmenuRetry: refetchPlaylists,
+
       submenu: [
         { id: "search", searchable: true },
         {

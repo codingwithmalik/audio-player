@@ -61,11 +61,19 @@ export default function PlaylistMoreOptions({
   const [addSongsMutation] = useAddSongToPlaylistMutation();
   const [createPlaylistMutation] = useCreatePlaylistMutation();
   const [createFolder] = useCreateFolderMutation();
-  useGetPlaylistsQuery();
+  const {
+    isLoading: playlistsLoading,
+    isError: playlistsError,
+    refetch: refetchPlaylists,
+  } = useGetPlaylistsQuery();
+  const {
+    isLoading: foldersLoading,
+    isError: foldersError,
+    refetch: refetchFolders,
+  } = useGetFoldersQuery();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const playlists = useAppSelector(selectPlaylists);
-  useGetFoldersQuery();
   const folders = useAppSelector(selectFolders);
   const songsById = useAppSelector((state: RootState) => state.songs.entities);
 
@@ -168,6 +176,9 @@ export default function PlaylistMoreOptions({
       icon: FolderClosed,
       submenuPlaceholder: "Find a folder",
       submenuPosition: "right",
+      submenuLoading: foldersLoading,
+      submenuError: foldersError,
+      onSubmenuRetry: refetchFolders,
       submenu: [
         { id: "search", searchable: true },
         {
@@ -204,6 +215,9 @@ export default function PlaylistMoreOptions({
       icon: ListMusic,
       submenuPlaceholder: "Find a playlist",
       submenuPosition: "right",
+      submenuLoading: playlistsLoading,
+      submenuError: playlistsError,
+      onSubmenuRetry: refetchPlaylists,
       submenu: [
         { id: "search", searchable: true },
         {

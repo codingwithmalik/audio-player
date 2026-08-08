@@ -46,7 +46,8 @@ export default function PlaylistView({
   isCurrentPlaylist,
   onPlaySong,
 }: PlaylistViewProps) {
-  const [updatePlaylist] = useUpdatePlaylistMutation();
+  const [updatePlaylist, { isLoading: isSavingDetails }] =
+    useUpdatePlaylistMutation();
   const viewMode = useAppSelector(selectViewMode);
   const containerRef = useRef<HTMLDivElement>(null);
   const coverFileInputRef = useRef<HTMLInputElement>(null);
@@ -58,6 +59,7 @@ export default function PlaylistView({
   const accentColor = "#1a0a2e";
 
   // ── Local UI state ──────────────────────────────────────────────────────────
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useGSAP(
@@ -117,17 +119,19 @@ export default function PlaylistView({
     [playlist, updatePlaylist],
   );
 
-
   const handleCoverFile = useCallback(
     async (file: File) => {
+      setIsUploadingCover(true);
       try {
-        const { url } = await uploadCover(file,"covers");
+        const { url } = await uploadCover(file, "covers");
         await updatePlaylist({
           id: playlist.id,
           data: { coverImage: url },
         }).unwrap();
       } catch {
         toast.error("Failed to update cover");
+      } finally {
+        setIsUploadingCover(false);
       }
     },
     [playlist.id, updatePlaylist],
@@ -218,6 +222,8 @@ export default function PlaylistView({
           onClose={handleCloseEditModal}
           onSave={handleSaveDetails}
           onEditCover={handleEditCover}
+          isSaving={isSavingDetails}
+          isUploadingCover={isUploadingCover}
         />
       )}
       <input

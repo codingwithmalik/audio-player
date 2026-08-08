@@ -8,7 +8,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { Playlist } from "@/types/playlist";
 import PlaylistMosaicCover from "./playlistMosaicCover";
 import { createPortal } from "react-dom";
@@ -20,6 +20,8 @@ interface PlaylistEditModalProps {
   onClose: () => void;
   onSave: (data: { title: string; description: string }) => void;
   onEditCover: () => void;
+  isSaving?: boolean;
+  isUploadingCover?: boolean;
 }
 
 export default function PlaylistEditModal({
@@ -29,6 +31,8 @@ export default function PlaylistEditModal({
   onClose,
   onSave,
   onEditCover,
+  isSaving,
+  isUploadingCover,
 }: PlaylistEditModalProps) {
   const [title, setTitle] = useState(playlist.title);
   const [description, setDescription] = useState(playlist.description ?? "");
@@ -36,6 +40,7 @@ export default function PlaylistEditModal({
 
   // Sync when playlist changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTitle(playlist.title);
     setDescription(playlist.description ?? "");
   }, [playlist.id, playlist.title, playlist.description]);
@@ -95,6 +100,7 @@ export default function PlaylistEditModal({
           <div className="max-sm:w-full flex justify-center">
             <button
               onClick={onEditCover}
+              disabled={isUploadingCover}
               aria-label="Change playlist cover"
               className="relative rounded-lg overflow-hidden shrink-0 shadow-xl
                        w-40 h-40 sm:w-45 sm:h-45
@@ -106,26 +112,32 @@ export default function PlaylistEditModal({
                 title={playlist.title}
               />
               {/* Hover overlay */}
-              <div
-                className="absolute inset-0 flex flex-col items-center justify-center gap-2
+              {isUploadingCover ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                </div>
+              ) : (
+                <div
+                  className="absolute inset-0 flex flex-col items-center justify-center gap-2
                          bg-black/60 opacity-0 group-hover:opacity-100
                          transition-opacity duration-200"
-              >
-                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-white"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-                  </svg>
+                >
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                  </div>
+                  <span className="text-white text-xs font-semibold">
+                    Choose photo
+                  </span>
                 </div>
-                <span className="text-white text-xs font-semibold">
-                  Choose photo
-                </span>
-              </div>
+              )}
             </button>
           </div>
 
@@ -180,12 +192,11 @@ export default function PlaylistEditModal({
           </div>
           <button
             onClick={handleSave}
-            disabled={!title.trim()}
-            className="px-8 py-2.5 rounded-full bg-white text-black text-sm font-bold
-                       hover:bg-white/90 active:scale-95 transition-all duration-150
-                       disabled:opacity-40 disabled:cursor-not-allowed"
+            disabled={!title.trim() || isSaving}
+            className="px-8 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:bg-white/90 active:scale-95 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            Save
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+            {isSaving ? "Saving..." : "Save"}
           </button>
         </div>
       </div>

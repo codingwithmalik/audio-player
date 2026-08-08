@@ -16,6 +16,6 @@ export const listSongsQuerySchema = z.object({
   language: z.string().optional(),
   genre: z.string().optional(),
   skip: z.coerce.number().int().min(0).default(0),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
+  limit: z.coerce.number().int().min(1).max(1000).default(20),
   ids: z.string().optional(),
 });

@@ -36,7 +36,11 @@ export default function FolderPlaylistMoreOptions({
   const [deletePlaylist] = useDeletePlaylistMutation();
   const [createFolder] = useCreateFolderMutation();
 
-  useGetFoldersQuery();
+  const {
+    isLoading: foldersLoading,
+    isError: foldersError,
+    refetch: refetchFolders,
+  } = useGetFoldersQuery();
   const folders = useAppSelector(selectFolders);
   const { data: session } = useSession();
   const userId = session?.user?.id;
@@ -62,7 +66,7 @@ export default function FolderPlaylistMoreOptions({
           title: "New Folder " + (folders.length + 1),
         }).unwrap();
         handleMoveToFolder(folder.id);
-      } catch  {
+      } catch {
         toast.error("Failed to create folder");
       }
     onClose();
@@ -88,6 +92,9 @@ export default function FolderPlaylistMoreOptions({
       icon: FolderClosed,
       submenuPosition: "left" as const,
       submenuPlaceholder: "Find a folder",
+      submenuLoading: foldersLoading,
+      submenuError: foldersError,
+      onSubmenuRetry: refetchFolders,
       submenu: [
         { id: "search", searchable: true },
         {

@@ -17,6 +17,8 @@ import type { ShelfItem } from "@/features/Home/ShelfRow";
 import "overlayscrollbars/overlayscrollbars.css";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useGetSongsQuery } from "@/features/Songs/songsApi";
+import GridSkeleton from "@/features/Common/Animations/GridSkeleton";
+import ErrorState from "@/features/Common/Animations/ErrorState";
 
 export default function GenreDetailContent() {
   const params = useParams<{ ID: string }>();
@@ -31,8 +33,15 @@ export default function GenreDetailContent() {
   // ? selectSongsByGenre(s, value)
   // : selectSongsByLanguage(s, value),
   // );
-  const { data: songs = [] } = useGetSongsQuery(
-    type === "genre" ? { genre: value } : { language: value },
+  const {
+    data: songs = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useGetSongsQuery(
+    type === "genre"
+      ? { genre: value, limit: 100 }
+      : { language: value, limit: 100 },
   );
 
   const handleSongClick = (allIds: string[], clickedId: string) => {
@@ -68,12 +77,19 @@ export default function GenreDetailContent() {
       }}
       className="h-full w-full glass rounded-md"
     >
-      <div className="px-6 py-4">
+      <div className="px-6 py-4 @container">
         <h1 className="text-2xl font-bold text-white mb-6">{display}</h1>
-        {items.length === 0 ? (
+        {isError ? (
+          <ErrorState
+            message={`Couldn't load ${display} songs.`}
+            onRetry={refetch}
+          />
+        ) : isLoading ? (
+          <GridSkeleton />
+        ) : items.length === 0 ? (
           <p className="text-zinc-400 text-sm">No songs found.</p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 @sm:grid-cols-3 @md:grid-cols-4 @lg:grid-cols-5 gap-4">
             {items.map((item) => (
               <ShelfTile key={item.id} item={item} />
             ))}

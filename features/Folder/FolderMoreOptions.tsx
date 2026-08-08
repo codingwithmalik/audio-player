@@ -36,7 +36,11 @@ export default function FolderMoreOptions({
 }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  useGetPlaylistsQuery();
+  const {
+    isLoading: playlistsLoading,
+    isError: playlistsError,
+    refetch: refetchPlaylists,
+  } = useGetPlaylistsQuery();
   const playlists = useAppSelector(selectPlaylists);
   const songsById = useAppSelector((state: RootState) => state.songs.entities);
   const { data: session } = useSession();
@@ -81,6 +85,9 @@ export default function FolderMoreOptions({
       icon: ListMusic,
       submenuPlaceholder: "Find a playlist",
       submenuPosition: "right",
+      submenuLoading: playlistsLoading,
+      submenuError: playlistsError,
+      onSubmenuRetry: refetchPlaylists,
       submenu: [
         { id: "search", searchable: true },
         {

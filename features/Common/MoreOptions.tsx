@@ -27,6 +27,9 @@ export type MoreOption = {
   submenu?: SubOption[];
   submenuPosition?: "right" | "left";
   submenuPlaceholder?: string;
+  submenuLoading?: boolean;
+  submenuError?: boolean;
+  onSubmenuRetry?: () => void;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -243,6 +246,9 @@ export default function MoreOptions({
                     searchPlaceholder={option.submenuPlaceholder ?? "Search..."}
                     position={option.submenuPosition ?? "right"}
                     maxHeight={220}
+                    loading={option.submenuLoading}
+                    error={option.submenuError}
+                    onRetry={option.onSubmenuRetry}
                   />
                 </div>
               )}
@@ -267,6 +273,9 @@ export default function MoreOptions({
             searchPlaceholder={activeOption.submenuPlaceholder ?? "Search..."}
             position={activeOption.submenuPosition ?? "right"}
             maxHeight="100%"
+            loading={activeOption.submenuLoading}
+            error={activeOption.submenuError}
+            onRetry={activeOption.onSubmenuRetry}
           />
         </>
       )}

@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { LucideIcon } from "lucide-react";
 import PlaylistMosaicCover from "@/features/Playlist/playlistMosaicCover";
-
+import SubmenuRowSkeleton from "@/features/Common/Animations/SubmenuRowSkeleton";
+import ErrorState from "@/features/Common/Animations/ErrorState";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type SubOption = {
@@ -29,12 +30,18 @@ export default function Submenu({
   inline = false,
   maxHeight = 220,
   position = "right",
+  loading = false,
+  error = false,
+  onRetry,
 }: {
   options: SubOption[];
   searchPlaceholder: string;
   inline?: boolean;
   maxHeight?: number | string;
   position?: "right" | "left";
+  loading?: boolean;
+  error?: boolean;
+  onRetry?: () => void;
 }) {
   const [query, setQuery] = useState("");
 
@@ -58,7 +65,7 @@ export default function Submenu({
       }
     >
       {/* Search input — hidden on mobile since sheet handles it inline */}
-      {searchable && (
+      {searchable && !loading && !error && (
         <div className="px-3 pb-2 max-md:hidden">
           <input
             type="text"
@@ -69,48 +76,57 @@ export default function Submenu({
           />
         </div>
       )}
-
-      <OverlayScrollbarsComponent
-        options={{ scrollbars: { autoHide: "scroll" } }}
-        style={{ maxHeight }}
-      >
-        {items.map((sub) => {
-          const SubIcon = sub.icon;
-          return (
-            <React.Fragment key={sub.id}>
-              <button
-                onClick={sub.action}
-                className="group/sub w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-white/10 transition-colors min-w-0"
-              >
-                {sub.cover ? (
-                  <div className="relative w-8 h-8 shrink-0">
-                    <PlaylistMosaicCover
-                      coverImage={sub.cover.coverImage}
-                      songCovers={sub.cover.songCovers ?? []}
-                      title={sub.label ?? ""}
-                      isLikedPlaylist={sub.cover.isLikedPlaylist}
-                    />
-                  </div>
-                ) : (
-                  SubIcon && (
-                    <SubIcon className="w-4 h-4 shrink-0 text-white/60 group-hover/sub:text-purple-600 transition-colors" />
-                  )
+      {error ? (
+        <ErrorState
+          message="Couldn't load options."
+          onRetry={onRetry}
+          compact
+        />
+      ) : loading ? (
+        <SubmenuRowSkeleton />
+      ) : (
+        <OverlayScrollbarsComponent
+          options={{ scrollbars: { autoHide: "scroll" } }}
+          style={{ maxHeight }}
+        >
+          {items.map((sub) => {
+            const SubIcon = sub.icon;
+            return (
+              <React.Fragment key={sub.id}>
+                <button
+                  onClick={sub.action}
+                  className="group/sub w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-white/10 transition-colors min-w-0"
+                >
+                  {sub.cover ? (
+                    <div className="relative w-8 h-8 shrink-0">
+                      <PlaylistMosaicCover
+                        coverImage={sub.cover.coverImage}
+                        songCovers={sub.cover.songCovers ?? []}
+                        title={sub.label ?? ""}
+                        isLikedPlaylist={sub.cover.isLikedPlaylist}
+                      />
+                    </div>
+                  ) : (
+                    SubIcon && (
+                      <SubIcon className="w-4 h-4 shrink-0 text-white/60 group-hover/sub:text-purple-600 transition-colors" />
+                    )
+                  )}
+                  <span className="text-white group-hover/sub:text-purple-600 transition-colors truncate">
+                    {sub.label}
+                  </span>
+                </button>
+                {sub.separatorAbove && (
+                  <div className="border-t border-white/10" />
                 )}
-                <span className="text-white group-hover/sub:text-purple-600 transition-colors truncate">
-                  {sub.label}
-                </span>
-              </button>
-              {sub.separatorAbove && (
-                <div className="border-t border-white/10" />
-              )}
-            </React.Fragment>
-          );
-        })}
+              </React.Fragment>
+            );
+          })}
 
-        {items.length === 0 && (
-          <p className="px-4 py-3 text-xs text-white/30">No results</p>
-        )}
-      </OverlayScrollbarsComponent>
+          {items.length === 0 && (
+            <p className="px-4 py-3 text-xs text-white/30">No results</p>
+          )}
+        </OverlayScrollbarsComponent>
+      )}
     </div>
   );
 }

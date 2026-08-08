@@ -2,6 +2,12 @@ import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "@/store/store";
 import type { HomeSection } from "./homeTypes";
 
+// Shelf sizes for the home tab only. Full-view pagination for song sections
+// (jump-back-in, new-releases, made-for-you) is handled directly in
+// HomeSections via dedicated paginated queries — it doesn't go through this
+// selector at all. Playlist sections (your-playlists, recents) are
+// deliberately uncapped everywhere: they're bounded by what the user
+// actually owns, not by the catalog size.
 export const SHELF_LIMITS: Record<string, number> = {
   "your-playlists": 8,
   "jump-back-in": 8,
@@ -9,10 +15,6 @@ export const SHELF_LIMITS: Record<string, number> = {
   "made-for-you": 10,
   "new-releases": 10,
 };
-
-const FULL_LIMITS: Record<string, number> = Object.fromEntries(
-  Object.entries(SHELF_LIMITS).map(([id, limit]) => [id, limit * 2]),
-);
 
 export const selectHomeSections = createSelector(
   [
@@ -25,57 +27,38 @@ export const selectHomeSections = createSelector(
       (p) => !p.deletedAt,
     );
 
-    // ── Your playlists: all owned, accessedAt (fallback createdAt) desc ──
-    const yourPlaylists = [...ownedPlaylists]
-      .sort((a, b) => {
-        const aTime = new Date(a.accessedAt ?? a.createdAt).getTime();
-        const bTime = new Date(b.accessedAt ?? b.createdAt).getTime();
-        return bTime - aTime;
-      })
-      .slice(0, FULL_LIMITS["your-playlists"]);
+    // ── Your playlists: all owned, accessedAt (fallback createdAt) desc.
+    // Uncapped — full view should show literally everything the user owns. ──
+    const yourPlaylists = [...ownedPlaylists].sort((a, b) => {
+      const aTime = new Date(a.accessedAt ?? a.createdAt).getTime();
+      const bTime = new Date(b.accessedAt ?? b.createdAt).getTime();
+      return bTime - aTime;
+    });
 
-    // ── Jump back in: recently played songs, already most-recent-first ──
-    const jumpBackInIds = recentSongIds.slice(0, FULL_LIMITS["jump-back-in"]);
+    // ── Jump back in: full history, most-recent-first. The shelf slices what
+    // it needs (see SHELF_LIMITS); full view paginates separately in the
+    // component using this same underlying list, no extra fetch needed since
+    // history is already fully loaded client-side. ──
+    const jumpBackInIds = recentSongIds;
 
-    // ── Recents: only playlists actually played, accessedAt desc ──
+    // ── Recents: only playlists actually played, accessedAt desc. Uncapped,
+    // same reasoning as Your Playlists. ──
     const recentPlaylists = ownedPlaylists
       .filter((p) => !!p.accessedAt)
       .sort(
         (a, b) =>
           new Date(b.accessedAt!).getTime() - new Date(a.accessedAt!).getTime(),
-      )
-      .slice(0, FULL_LIMITS["recents"]);
+      );
 
-    // ── Made for you: genre-based recommendation, falls back to popular ──
-    // const historyEntries = recentSongIds.map((songId) => ({ songId }));
-    // const topGenres = getTopGenresFromHistory(
-    //   historyEntries,
-    //   songsById,
-    //   TOP_GENRES_LIMIT,
-    // );
-    // const excludeIds = new Set(recentSongIds);
-
-    // let madeForYouSongs = getRecommendedSongs(
-    //   songsById,
-    //   topGenres,
-    //   excludeIds,
-    //   FULL_LIMITS["made-for-you"],
-    // );
-    // if (madeForYouSongs.length === 0) {
-    //   madeForYouSongs = getPopularSongs(
-    //     songsById,
-    //     excludeIds,
-    //     FULL_LIMITS["made-for-you"],
-    //   );
-    // }
-
-    // ── New releases: all songs, createdAt desc ──
-    const newReleases = Object.values(songsById)
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )
-      .slice(0, FULL_LIMITS["new-releases"]);
+    // ── New releases: whatever's currently in the songs cache, sorted
+    // newest-first. This is only correct because every fetch that populates
+    // this cache uses skip:0 with a growing limit — never skip>0 — which
+    // guarantees it's always a real, gap-free prefix of the true sort order,
+    // regardless of which component's fetch actually put a given song here. ──
+    const newReleases = Object.values(songsById).sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 
     return [
       {
@@ -104,7 +87,7 @@ export const selectHomeSections = createSelector(
         title: "Made For You",
         source: "madeForYou",
         itemType: "song",
-        itemIds: [], // filled in by recommendations API
+        itemIds: [], // filled directly from the recommendations query in HomeSections
       },
       {
         id: "new-releases",

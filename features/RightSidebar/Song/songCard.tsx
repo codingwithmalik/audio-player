@@ -31,6 +31,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useOverlayScrollbars } from "overlayscrollbars-react";
 import PlayerControls from "@/features/Player/playerControls";
+import { useGetSongsByIdsQuery } from "@/features/Songs/songsApi";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -58,6 +59,9 @@ export default function SongCard({
   const sourceId = useAppSelector(selectQueueSourceId);
 
   const nextSongId = queueIds[currentIndex + 1] ?? null;
+  useGetSongsByIdsQuery(nextSongId ? [nextSongId] : [], {
+    skip: !nextSongId,
+  });
   const nextSong = useAppSelector((state: RootState) =>
     nextSongId ? selectSongById(state, nextSongId) : null,
   );

@@ -6,12 +6,56 @@ import { selectSongById } from "@/features/Songs/songsSlice";
 import { setSong } from "@/slices/playerSlice";
 import type { RootState } from "@/store/store";
 import SongCover from "@/features/Common/SongCover";
-import { useClearHistoryRemoteMutation, useGetHistoryQuery } from "@/features/History/historyApi";
+import RecentlyPlayedRowSkeleton from "./Animations/RecentlyPlayedRowSkeleton";
+import ErrorState from "@/features/Common/Animations/ErrorState";
+import {
+  useClearHistoryRemoteMutation,
+  useGetHistoryQuery,
+} from "@/features/History/historyApi";
+import { useGetSongsByIdsQuery } from "@/features/Songs/songsApi";
 
 export default function RecentlyPlayed() {
-  useGetHistoryQuery();
+  const {
+    isLoading: historyLoading,
+    isError: historyError,
+    refetch: refetchHistory,
+  } = useGetHistoryQuery();
   const recentSongIds = useAppSelector(selectRecentSongIds);
   const [clearHistoryRemote] = useClearHistoryRemoteMutation();
+
+  // Same fix as Home's Jump Back In — history returns ids only, this was
+  // the missing piece that actually fetches the song objects behind them.
+  const {
+    isLoading: songsLoading,
+    isError: songsError,
+    refetch: refetchSongs,
+  } = useGetSongsByIdsQuery(recentSongIds, {
+    skip: recentSongIds.length === 0,
+  });
+
+  if (historyError || songsError) {
+    return (
+      <div className="px-4 py-4">
+        <ErrorState
+          message="Couldn't load recently played songs."
+          onRetry={() => {
+            refetchHistory();
+            refetchSongs();
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (historyLoading || (recentSongIds.length > 0 && songsLoading)) {
+    return (
+      <div className="px-4 py-4 flex flex-col gap-1">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <RecentlyPlayedRowSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
 
   if (recentSongIds.length === 0) {
     return (

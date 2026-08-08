@@ -1,4 +1,4 @@
-import RecentlyPlayed from "@/features/RightSidebar/Queue/recentlyPlayed";
+import RecentlyPlayed from "@/features/History/recentlyPlayed";
 import React from "react";
 
 const page = () => {

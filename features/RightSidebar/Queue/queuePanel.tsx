@@ -19,7 +19,7 @@ import { selectPlaylistById } from "@/features/Playlist/playlistSlice";
 import { setSong } from "@/slices/playerSlice";
 import { closeRightSidebarPanel } from "@/slices/rightSidebarSlice";
 import type { RootState } from "@/store/store";
-import RecentlyPlayed from "@/features/RightSidebar/Queue/recentlyPlayed";
+import RecentlyPlayed from "@/features/History/recentlyPlayed";
 import SongCover from "@/features/Common/SongCover";
 import { selectCurrentSong } from "@/slices/playerSlice";
 import {
@@ -36,6 +36,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useGetSongsByIdsQuery } from "@/features/Songs/songsApi";
 
 export default function QueuePanel() {
   const dispatch = useAppDispatch();
@@ -98,6 +99,7 @@ export default function QueuePanel() {
   // context upcoming. Row ids are position-based (songId::index), since the
   // same song can legitimately appear more than once in the queue.
   const combinedIds = [...manualQueueIds, ...contextUpcomingIds];
+  useGetSongsByIdsQuery(combinedIds, { skip: combinedIds.length === 0 });
   const rowIds = combinedIds.map((id, i) => `${id}::${i}`);
 
   const sensors = useSensors(

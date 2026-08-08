@@ -32,11 +32,17 @@ import { toast } from "sonner";
 import { useGetFolderQuery } from "@/features/Folder/foldersApi";
 import PlaylistMosaicCover from "@/features/Playlist/playlistMosaicCover";
 import { useGetSongsByIdsQuery } from "@/features/Songs/songsApi";
+import AddToFolderRowSkeleton from "./Animations/AddToFolderRowSkeleton";
+import ErrorState from "@/features/Common/Animations/ErrorState";
 
 type TabType = "playlists" | "otherFolders";
 
 export default function AddToFolderPanel({ folderId }: { folderId: string }) {
-  useGetPlaylistsQuery();
+  const {
+    isLoading: playlistsLoading,
+    isError: playlistsError,
+    refetch: refetchPlaylists,
+  } = useGetPlaylistsQuery();
   const [movePlaylist] = useMovePlaylistMutation();
   const [createPlaylistMutation] = useCreatePlaylistMutation();
   const dispatch = useAppDispatch();
@@ -95,7 +101,7 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
   const togglePlaylist = (playlist: Playlist) => {
     if (playlist.folderId === folderId) {
       dispatch(setPlaylistFolder({ playlistId: playlist.id, folderId: null }));
-      movePlaylist({ id: playlist.id, folderId :null});
+      movePlaylist({ id: playlist.id, folderId: null });
     } else {
       dispatch(setPlaylistFolder({ playlistId: playlist.id, folderId }));
       movePlaylist({ id: playlist.id, folderId });
@@ -241,19 +247,30 @@ export default function AddToFolderPanel({ folderId }: { folderId: string }) {
         data-overlayscrollbars-initialize
       >
         <div className="flex flex-col gap-1 pb-6">
-          {displayedPlaylists.length === 0 && (
+          {playlistsError ? (
+            <ErrorState
+              message="Couldn't load your playlists."
+              onRetry={refetchPlaylists}
+              compact
+            />
+          ) : playlistsLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <AddToFolderRowSkeleton key={i} />
+            ))
+          ) : displayedPlaylists.length === 0 ? (
             <div className="mt-10 text-center text-sm text-white/40">
               No playlists found.
             </div>
+          ) : (
+            displayedPlaylists.map((playlist) => (
+              <PlaylistRow
+                key={playlist.id}
+                playlist={playlist}
+                isAdded={playlist.folderId === folderId}
+                onToggle={() => togglePlaylist(playlist)}
+              />
+            ))
           )}
-          {displayedPlaylists.map((playlist) => (
-            <PlaylistRow
-              key={playlist.id}
-              playlist={playlist}
-              isAdded={playlist.folderId === folderId}
-              onToggle={() => togglePlaylist(playlist)}
-            />
-          ))}
         </div>
       </div>
     </div>
@@ -294,10 +311,7 @@ function PlaylistRow({
 }) {
   const songIds = playlist.songs.map((s) => s.songId).slice(0, 4);
   useGetSongsByIdsQuery(songIds, { skip: songIds.length === 0 });
-  if (playlist.folderId) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useGetFolderQuery(playlist.folderId);
-  }
+  useGetFolderQuery(playlist.folderId ?? "", { skip: !playlist.folderId });
   const songCovers = useAppSelector((state: RootState) =>
     selectPlaylistSongCovers(state, playlist),
   );

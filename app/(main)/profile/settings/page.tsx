@@ -18,6 +18,8 @@ import StorageSection from "@/features/Profile/Settings/StorageSection";
 import PrivacySection from "@/features/Profile/Settings/PrivacySection";
 import AboutSection from "@/features/Profile/Settings/AboutSection";
 import { useGetSettingsQuery } from "@/features/Profile/settingsApi";
+import SettingsSectionSkeleton from "@/features/Profile/Settings/Animations/SettingsSectionSkeleton";
+import ErrorState from "@/features/Common/Animations/ErrorState";
 
 const SECTIONS = [
   {
@@ -53,7 +55,7 @@ const SECTIONS = [
 ] as const;
 
 export default function SettingsPage() {
-  useGetSettingsQuery(); // Fetch settings on page load
+  const { isLoading, isError, refetch } = useGetSettingsQuery(); // Fetch settings on page load
   return (
     <OverlayScrollbarsComponent
       options={{ scrollbars: { autoHide: "scroll" } }}
@@ -63,15 +65,22 @@ export default function SettingsPage() {
       <div className="p-6 max-w-2xl flex flex-col gap-10">
         <h1 className="text-3xl font-extrabold">Settings</h1>
 
-        {SECTIONS.map(({ label, icon: Icon, component: Section }) => (
-          <section key={label}>
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-3">
-              <Icon className="w-5 h-5 text-white/70" />
-              {label}
-            </h2>
-            <Section />
-          </section>
-        ))}
+        {isError ? (
+          <ErrorState
+            message="Couldn't load your settings."
+            onRetry={refetch}
+          />
+        ) : (
+          SECTIONS.map(({ label, icon: Icon, component: Section }) => (
+            <section key={label}>
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-3">
+                <Icon className="w-5 h-5 text-white/70" />
+                {label}
+              </h2>
+              {isLoading ? <SettingsSectionSkeleton /> : <Section />}
+            </section>
+          ))
+        )}
       </div>
     </OverlayScrollbarsComponent>
   );

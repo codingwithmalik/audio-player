@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { FolderOpen, FileAudio, ArrowLeft } from "lucide-react";
+import { FolderOpen, FileAudio, ArrowLeft, Loader2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/globalHooks";
 import { upsertSongs } from "@/features/Songs/songsSlice"; // adjust action name if different
 import {
@@ -110,7 +110,12 @@ export default function LocalFilesSection({ onBack }: { onBack?: () => void }) {
           onChange={(e) => handleFilesPicked(e.target.files)}
         />
 
-        {isParsing && <p className="text-xs text-white/50">Reading files…</p>}
+        {isParsing && (
+          <p className="flex items-center gap-2 text-xs text-white/50">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            Reading files…
+          </p>
+        )}
 
         {songs.length === 0 && !isParsing && (
           <p className="text-sm text-white/50">

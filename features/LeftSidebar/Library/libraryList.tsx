@@ -29,14 +29,24 @@ import {
   useMovePlaylistMutation,
 } from "@/features/Playlist/playlistsApi";
 import { useGetFoldersQuery } from "@/features/Folder/foldersApi";
+import LibraryListSkeleton from "./Animations/LibraryListSkeleton";
+import ErrorState from "@/features/Common/Animations/ErrorState";
 
 export default function LibraryList({
   ShowLocalFiles,
 }: {
   ShowLocalFiles: () => void;
 }) {
-  useGetPlaylistsQuery();
-  useGetFoldersQuery();
+  const {
+    isLoading: playlistsLoading,
+    isError: playlistsError,
+    refetch: refetchPlaylists,
+  } = useGetPlaylistsQuery();
+  const {
+    isLoading: foldersLoading,
+    isError: foldersError,
+    refetch: refetchFolders,
+  } = useGetFoldersQuery();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const items = useAppSelector(selectFilteredItems);
@@ -109,6 +119,25 @@ export default function LibraryList({
   const handleshowFiles = () => {
     router.push("/Storage");
   };
+
+  if (playlistsError || foldersError) {
+    return (
+      <div className="mt-5">
+        <ErrorState
+          message="Couldn't load your library."
+          onRetry={() => {
+            refetchPlaylists();
+            refetchFolders();
+          }}
+          compact
+        />
+      </div>
+    );
+  }
+
+  if (playlistsLoading || foldersLoading) {
+    return <LibraryListSkeleton />;
+  }
 
   return (
     <DndContext
